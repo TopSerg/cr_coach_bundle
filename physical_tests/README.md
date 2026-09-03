@@ -1,8 +1,8 @@
 # Physical adapter tests
 
-Это отдельные **ручные integration tests** нашего `ReplayEvent -> CrBotEngineAdapter -> upstream/cr-bot` пути.
+Это отдельные **ручные integration tests** нашего `ReplayEvent -> CrBotEngineAdapter -> cr-bot` пути.
 
-Они запускают настоящий pinned `upstream/cr-bot`, а не fake backend из unit tests.
+Они запускают настоящий pinned `cr-bot` simulator, а не fake backend из unit tests.
 
 ## Быстрый запуск на Windows
 
@@ -13,12 +13,35 @@ git pull
 powershell -ExecutionPolicy Bypass -File physical_tests/run_all.ps1
 ```
 
-`run_all.ps1` сам инициализирует `upstream/cr-bot`, если submodule ещё не загружен.
+`run_all.ps1` при первом запуске автоматически создаёт lightweight checkout в:
 
-Либо вручную:
+```text
+.physical_deps/cr-bot
+```
+
+При этом материализуется только `simulator/` на зафиксированном commit:
+
+```text
+40ca2b16bc276fc982a3aa80c7415b24439cbd3c
+```
+
+Полный upstream `Keschler/cr-bot` весит несколько гигабайт, поэтому для этих тестов **не нужно** делать обычный `git submodule update --init upstream/cr-bot`.
+
+Если submodule у вас уже полностью инициализирован, тесты умеют использовать и его.
+
+### Ручная подготовка dependency
+
+Windows:
 
 ```powershell
-git submodule update --init upstream/cr-bot
+powershell -ExecutionPolicy Bypass -File physical_tests/setup_crbot.ps1
+python physical_tests/run_all.py
+```
+
+Linux/macOS/Git Bash:
+
+```bash
+bash physical_tests/setup_crbot.sh
 python physical_tests/run_all.py
 ```
 
