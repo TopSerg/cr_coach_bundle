@@ -1,6 +1,6 @@
-# Physical adapter tests
+# Physical adapter and mechanics tests
 
-Это отдельные **ручные integration tests** нашего `ReplayEvent -> CrBotEngineAdapter -> cr-bot` пути.
+Это отдельные **ручные integration tests** нашего `ReplayEvent -> CrBotEngineAdapter -> cr-bot` пути и первых игровых механик.
 
 Они запускают настоящий pinned `cr-bot` simulator, а не fake backend из unit tests.
 
@@ -13,121 +13,102 @@ git pull
 powershell -ExecutionPolicy Bypass -File physical_tests/run_all.ps1
 ```
 
-`run_all.ps1` при первом запуске автоматически создаёт lightweight checkout в:
-
-```text
-.physical_deps/cr-bot
-```
-
-При этом материализуется только `simulator/` на зафиксированном commit:
-
-```text
-40ca2b16bc276fc982a3aa80c7415b24439cbd3c
-```
-
-Полный upstream `Keschler/cr-bot` весит несколько гигабайт, поэтому для этих тестов **не нужно** делать обычный `git submodule update --init upstream/cr-bot`.
-
-Если submodule у вас уже полностью инициализирован, тесты умеют использовать и его.
-
-### Ручная подготовка dependency
-
-Windows:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File physical_tests/setup_crbot.ps1
-python physical_tests/run_all.py
-```
-
-Linux/macOS/Git Bash:
-
-```bash
-bash physical_tests/setup_crbot.sh
-python physical_tests/run_all.py
-```
+`run_all.ps1` при первом запуске автоматически создаёт lightweight checkout в `.physical_deps/cr-bot`. Материализуется только `simulator/` на зафиксированном commit `40ca2b16bc276fc982a3aa80c7415b24439cbd3c`.
 
 Никакие CV-модели, PyTorch или видео для этих тестов не нужны.
 
 ## Что проверяется
 
 ### 01 — `test_01_single_hog.py`
-
-Проверяет полный положительный путь:
-
-```text
-ReplayEvent(Hog, tick=0, x=3500, y=20500)
-    -> ReplayGridAdapter -> cell (3, 20)
-    -> CrBotEngineAdapter
-    -> PlayCardAction
-    -> BattleEngine.step()
-    -> authoritative BattleState
-```
-
-PASS означает:
-
-- действие реально прошло через `cr-bot`;
-- simulator продвинулся с tick 0 до tick 1;
-- появился `hog-rider` владельца 0;
-- Hog заспавнился в `(3500, 20500)`;
-- карта ушла из текущей руки.
+Проверяет сам путь `ReplayEvent -> adapter -> BattleEngine.step -> BattleState`.
 
 ### 02 — `test_02_same_tick_dual_hog.py`
-
-Оба игрока ставят Hog на **одном и том же replay tick 0**.
-
-PASS означает, что адаптер не сделал два последовательных physics ticks, а правильно собрал оба действия и передал их вместе в один `BattleEngine.step()`.
-
-Проверяется:
-
-- два Hog в state;
-- owners `[0, 1]`;
-- у обоих `spawn_tick == 0`;
-- final simulator tick всё ещё `1`.
-
-Это важная проверка синхронизации реального replay event stream.
+Проверяет, что два действия на одном replay tick попадают в один physics tick.
 
 ### 03 — `test_03_hand_mismatch_stops.py`
+Проверяет fail-closed поведение на невозможной карте в руке.
 
-Намеренно пытается сыграть `fireball` на tick 0, хотя deterministic Hog 2.6 opening hand содержит:
+### 04 — `test_04_hog_vs_tower.py`
 
-```text
-hog-rider
-cannon
-musketeer
-skeletons
-```
+Это первый полноценный mechanics test. Hog ставится в canonical physical-lab cell `(3,20)`, после чего противник ничего не делает.
 
-Правильный результат — **ошибка** `card_not_in_hand`.
+Проверяем, что Hog:
 
-Тест считается PASS, если реконструкция остановилась на tick 0. Это доказывает, что мы не продолжаем replay после уже обнаруженного расхождения.
+- проходит deployment;
+- реально движется по арене;
+- приобретает enemy tower как target;
+- доходит до атаки;
+- уменьшает HP башни.
 
-## Ожидаемый итог
-
-В конце должно быть:
+Тест записывает каждые 250 ms:
 
 ```text
-ALL PASS (3/3)
+tick / time
+hog x/y
+hog HP
+deploy timer
+target UID
+attack count
+enemy tower HP
 ```
 
-Если какой-то тест падает, запускайте его отдельно:
+Плюс отдельно пишет target changes и момент первого урона башне.
+
+Результат:
+
+```text
+outputs/physical_tests/hog_vs_tower.json
+```
+
+### 05 — `test_05_hog_vs_cannon.py`
+
+Повторяет canonical `hog_cannon_probe` из upstream `cr-bot` physical lab:
+
+```text
+A: Hog @ cell (3,20), t=0
+B: Cannon @ cell (8,13), когда Hog пересекает y=17000 mtile
+```
+
+Проверяем, что:
+
+- Cannon реально появляется;
+- Hog меняет target на Cannon;
+- Hog отклоняется по X к центральной Cannon;
+- Cannon получает урон от Hog.
+
+Сохраняются trajectory/HP/targets обоих объектов каждые 250 ms и ключевые события взаимодействия.
+
+Результат:
+
+```text
+outputs/physical_tests/hog_vs_cannon.json
+```
+
+## Запуск только mechanics tests
 
 ```powershell
-python physical_tests/test_01_single_hog.py
-python physical_tests/test_02_same_tick_dual_hog.py
-python physical_tests/test_03_hand_mismatch_stops.py
+python physical_tests/test_04_hog_vs_tower.py
+python physical_tests/test_05_hog_vs_cannon.py
 ```
 
-Каждый положительный тест печатает часть настоящего authoritative simulator state, поэтому можно глазами проверить hand, elixir, координаты и сущности.
+В консоли будет короткое резюме, а подробный trace окажется в `outputs/physical_tests/`.
 
-## Что эти тесты пока НЕ доказывают
+## Запуск всего набора
 
-Они доказывают корректность нашего glue-layer, но **не доказывают соответствие симулятора настоящему Clash Royale**.
+```powershell
+powershell -ExecutionPolicy Bypass -File physical_tests/run_all.ps1
+```
 
-Следующий физический уровень проверки — controlled real-game experiment:
+Ожидаемый итог:
 
 ```text
-реальный Hog placement + screen recording
-                vs
-тот же placement через этот adapter в cr-bot
+ALL PASS (5/5)
 ```
 
-и сравнение trajectory / target / hit timing / tower HP.
+## Что это доказывает
+
+Тесты 01–03 доказывают корректность нашего glue-layer.
+
+Тесты 04–05 уже проверяют внутреннее поведение самого simulator: deployment, movement, targeting, tower damage и building pull.
+
+Они всё ещё **не доказывают соответствие настоящему Clash Royale**. Следующий уровень — запустить ровно те же сценарии в реальном Friendly Battle, записать видео и сравнить полученные `hog_vs_*.json` с наблюдениями из видео.
