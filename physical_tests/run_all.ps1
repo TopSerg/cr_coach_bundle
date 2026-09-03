@@ -3,9 +3,8 @@ $ErrorActionPreference = "Stop"
 $RepoRoot = Resolve-Path (Join-Path $PSScriptRoot "..")
 Set-Location $RepoRoot
 
-if (-not (Test-Path "upstream/cr-bot/simulator")) {
-    Write-Host "Initializing upstream/cr-bot submodule..."
-    git submodule update --init upstream/cr-bot
+if (-not (Test-Path ".physical_deps/cr-bot/simulator") -and -not (Test-Path "upstream/cr-bot/simulator")) {
+    & "$PSScriptRoot/setup_crbot.ps1"
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 
