@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Run the first real glue smoke test against upstream/Keschler cr-bot.
+"""Run the first real glue smoke test against Keschler/cr-bot.
 
-Usage from repository root:
+Recommended lightweight setup from repository root:
 
-    git submodule update --init upstream/cr-bot
+    powershell -ExecutionPolicy Bypass -File physical_tests/setup_crbot.ps1
     python scripts/smoke_crbot_adapter.py
 
 The script intentionally tests only our boundary: one known Hog placement at
@@ -14,30 +14,42 @@ CrBotEngineAdapter -> BattleEngine.step without an action rejection.
 from __future__ import annotations
 
 import json
+import os
 from pathlib import Path
 import sys
 
 
 ROOT = Path(__file__).resolve().parents[1]
 STARTER = ROOT / "starter"
-CRBOT = ROOT / "upstream" / "cr-bot"
+
+explicit = os.environ.get("CRBOT_PATH")
+candidates = [
+    Path(explicit) if explicit else None,
+    ROOT / ".physical_deps" / "cr-bot",
+    ROOT / "upstream" / "cr-bot",
+]
+CRBOT = next(
+    (candidate for candidate in candidates if candidate is not None and (candidate / "simulator").exists()),
+    ROOT / ".physical_deps" / "cr-bot",
+)
+
 for path in (STARTER, CRBOT):
     value = str(path)
     if value not in sys.path:
         sys.path.insert(0, value)
 
-from cr_coach.engine.crbot import CrBotEngineAdapter
-from cr_coach.replay.executor import execute_replay
-from cr_coach.replay.schema import ReplayBattle, ReplayEvent
-from simulator.engine import BASE_HOG_CYCLE_DECK, BattleEngine
-
 
 def main() -> int:
-    if not CRBOT.exists():
+    if not (CRBOT / "simulator").exists():
         raise SystemExit(
-            "upstream/cr-bot is missing; run: "
-            "git submodule update --init upstream/cr-bot"
+            "cr-bot simulator checkout is missing; run physical_tests/setup_crbot.ps1 "
+            "or physical_tests/setup_crbot.sh"
         )
+
+    from cr_coach.engine.crbot import CrBotEngineAdapter
+    from cr_coach.replay.executor import execute_replay
+    from cr_coach.replay.schema import ReplayBattle, ReplayEvent
+    from simulator.engine import BASE_HOG_CYCLE_DECK, BattleEngine
 
     deck = tuple(BASE_HOG_CYCLE_DECK)
     battle = ReplayBattle(
@@ -73,6 +85,7 @@ def main() -> int:
     ]
     summary = {
         "battle_id": battle.battle_id,
+        "crbot_path": str(CRBOT),
         "final_tick": adapter.tick,
         "team_hand": final["players"][0]["hand"],
         "team_elixir_milli": final["players"][0]["elixir_milli"],
