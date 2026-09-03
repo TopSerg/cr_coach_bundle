@@ -1,0 +1,55 @@
+{
+  "name": "hog_solo_tower",
+  "source": "fixtures/video/hog_solo_tower.mp4",
+  "video_resolution": [
+    720,
+    1600
+  ],
+  "observed": {
+    "target_tower": "p2_princess_left",
+    "tower_hp_start": 3052,
+    "tower_hp_after_hits": [
+      2735,
+      2418,
+      2101,
+      1784,
+      1467,
+      1150,
+      833
+    ],
+    "damage_per_hit": 317,
+    "hit_count": 7,
+    "hit_times_clip_s": [
+      8.06,
+      9.6,
+      11.2,
+      12.78,
+      14.46,
+      16.02,
+      17.62
+    ],
+    "hit_intervals_s": [
+      1.54,
+      1.6,
+      1.58,
+      1.68,
+      1.56,
+      1.6
+    ],
+    "mean_hit_interval_s": 1.593,
+    "hog_play_clip_s_estimate": 0.8,
+    "first_hit_after_play_s_estimate": 7.26
+  },
+  "tolerances": {
+    "damage_per_hit": 0,
+    "hit_count": 0,
+    "mean_hit_interval_s": 0.1,
+    "individual_hit_interval_s": 0.15,
+    "first_hit_after_play_s": 0.3
+  },
+  "notes": [
+    "HP transition timestamps were taken from the visible Princess Tower HP changes.",
+    "The exact deployment coordinate is estimated from video and is intentionally tunable/grid-searchable.",
+    "The strongest metrics are damage, hit interval and HP sequence; absolute first-hit time depends on coordinate recovery."
+  ]
+}

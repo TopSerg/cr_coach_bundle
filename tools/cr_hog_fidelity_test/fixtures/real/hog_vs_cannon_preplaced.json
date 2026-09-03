@@ -1,0 +1,31 @@
+{
+  "name": "hog_vs_cannon_preplaced",
+  "source": "fixtures/video/hog_vs_cannon_preplaced.mp4",
+  "video_resolution": [
+    720,
+    1600
+  ],
+  "observed": {
+    "protected_tower": "p2_princess_left",
+    "tower_hp_start": 3052,
+    "tower_hp_end": 3052,
+    "tower_damage": 0,
+    "cannon_play_clip_s_estimate": 0.6,
+    "hog_play_clip_s_estimate": 2.5,
+    "play_gap_s_estimate": 1.9,
+    "cannon_dies_before_hog": true,
+    "cannon_death_clip_s_estimate": 9.1,
+    "hog_death_clip_s_estimate": 9.25,
+    "death_gap_s_estimate": 0.15
+  },
+  "tolerances": {
+    "tower_damage": 0,
+    "play_gap_s": 0.2,
+    "death_gap_s": 0.15
+  },
+  "notes": [
+    "Cannon is already present before Hog selects a target, so this checks initial building pull/pathing, not dynamic retarget.",
+    "The Princess Tower remains at 3052 HP for the interaction.",
+    "Death times are visual estimates and are intentionally softer metrics than tower damage."
+  ]
+}

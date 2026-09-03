@@ -1,0 +1,16 @@
+{
+  "created_from_user_demos": [
+    "hog_solo_tower.mp4",
+    "hog_vs_cannon_preplaced.mp4"
+  ],
+  "simulator_target": "nguiaSoren/clash-royale-suite / cr-rudy-sim",
+  "rudy_api_assumptions": [
+    "20 ticks/s",
+    "initial hand is first four deck cards",
+    "play_card(player, hand_index, x, y)",
+    "step() advances one tick",
+    "p1_tower_hp()/p2_tower_hp() return [king,left,right]",
+    "get_entities() exposes card_key,x,y,hp,max_hp,damage,alive"
+  ],
+  "important": "No cr-rudy-sim result is fabricated in this package. Only the comparator self-test uses a synthetic trace."
+}

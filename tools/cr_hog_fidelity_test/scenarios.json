@@ -1,0 +1,88 @@
+{
+  "rudy": {
+    "ticks_per_second": 20,
+    "tile_internal_units": 600,
+    "repo_expected_path": "cr-rudy-sim/simulator",
+    "build_command": "cd engine && maturin develop --release"
+  },
+  "scenarios": {
+    "hog_solo": {
+      "match_idle_ticks_before_action": 200,
+      "p1_deck": [
+        "hog-rider",
+        "knight",
+        "archers",
+        "fireball",
+        "giant",
+        "valkyrie",
+        "musketeer",
+        "zap"
+      ],
+      "p2_deck": [
+        "knight",
+        "archers",
+        "fireball",
+        "giant",
+        "valkyrie",
+        "musketeer",
+        "skeleton-army",
+        "zap"
+      ],
+      "hog_position_estimate": [
+        -3300,
+        -7200
+      ],
+      "hog_position_grid": {
+        "x_values": [
+          -4500,
+          -3900,
+          -3300,
+          -2700
+        ],
+        "y_values": [
+          -8400,
+          -7800,
+          -7200,
+          -6600,
+          -6000
+        ]
+      },
+      "max_ticks_after_hog": 420,
+      "compare_to": "fixtures/real/hog_solo.json"
+    },
+    "hog_vs_cannon_preplaced": {
+      "match_idle_ticks_before_cannon": 1520,
+      "p1_deck": [
+        "hog-rider",
+        "knight",
+        "archers",
+        "fireball",
+        "giant",
+        "valkyrie",
+        "musketeer",
+        "zap"
+      ],
+      "p2_deck": [
+        "cannon",
+        "knight",
+        "archers",
+        "fireball",
+        "giant",
+        "valkyrie",
+        "musketeer",
+        "zap"
+      ],
+      "cannon_position_estimate": [
+        1200,
+        6000
+      ],
+      "hog_position_estimate": [
+        -5100,
+        -1200
+      ],
+      "hog_delay_ticks_after_cannon": 38,
+      "max_ticks_after_hog": 260,
+      "compare_to": "fixtures/real/hog_vs_cannon_preplaced.json"
+    }
+  }
+}
