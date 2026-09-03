@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from pathlib import Path
 import sys
 from typing import Any
@@ -7,7 +8,23 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 STARTER = ROOT / "starter"
-CRBOT = ROOT / "upstream" / "cr-bot"
+CRBOT_PIN = "40ca2b16bc276fc982a3aa80c7415b24439cbd3c"
+
+
+def _crbot_path() -> Path:
+    explicit = os.environ.get("CRBOT_PATH")
+    candidates = [
+        Path(explicit) if explicit else None,
+        ROOT / ".physical_deps" / "cr-bot",
+        ROOT / "upstream" / "cr-bot",
+    ]
+    for candidate in candidates:
+        if candidate is not None and (candidate / "simulator").exists():
+            return candidate
+    return ROOT / ".physical_deps" / "cr-bot"
+
+
+CRBOT = _crbot_path()
 
 for path in (STARTER, CRBOT):
     value = str(path)
@@ -16,10 +33,12 @@ for path in (STARTER, CRBOT):
 
 
 def require_crbot() -> None:
-    if not CRBOT.exists() or not (CRBOT / "simulator").exists():
+    if not (CRBOT / "simulator").exists():
         raise SystemExit(
-            "upstream/cr-bot is not initialized. From repository root run:\n"
-            "  git submodule update --init upstream/cr-bot"
+            "cr-bot simulator checkout is missing. From repository root run:\n"
+            "  powershell -ExecutionPolicy Bypass -File physical_tests/setup_crbot.ps1\n"
+            "or on bash:\n"
+            "  bash physical_tests/setup_crbot.sh"
         )
 
 
