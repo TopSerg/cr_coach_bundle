@@ -1,0 +1,1456 @@
+Да. После разбора исходников я бы **немного поменял архитектурное решение относительно прошлого сообщения**: не начинать с Rudy как основного репозитория. Самый короткий путь теперь выглядит так:
+
+> **`Keschler/cr-bot` = наш reference simulator + video/fidelity lab**
+> **`cochon123/clash-royale-ai` = replay ingestion + card/t/x/y + hand reconstruction + первые policy/value baseline**
+> **`cr-rudy-sim` = будущий быстрый backend для тысяч counterfactual rollouts**
+> **CRForge = справочник/вторая реализация механики, когда наш движок расходится с реальной игрой**
+> **KataCR = CV-движок для проверки реального видео.**
+
+И самое приятное: `cr-bot` уже строится вокруг ровно нашей философии — реальный Clash Royale рассматривается как black-box reference, запускается тот же сценарий в симуляторе, затем ищется **first divergence**. То есть половину методологии автор уже написал за нас. fileciteturn25file0
+
+---
+
+# 1. Что именно мы забираем
+
+## A. Базой проекта делаем `Keschler/cr-bot`
+
+Не Rudy.
+
+Почему я поменял мнение:
+
+**Во-первых**, его action space уже соответствует настоящей арене:
+
+```text id="cb5ybl"
+18 columns × 32 rows
+```
+
+с мостами, river rows, footprints башен и legal placement masks. fileciteturn26file0
+
+Это прекрасно совпадает с replay pipeline Cochon, где координаты нормализуются относительно:
+
+```python id="dztol3"
+x / 18000
+y / 32000
+```
+
+то есть исходные replay coordinates фактически представляют milli-tile coordinate space 18×32. fileciteturn16file0
+
+А у Rudy свой внутренний мир:
+
+```text id="812vwj"
+x: -8400 .. 8400
+y: -15400 .. 15400
+
+TILE_SIZE = 600
+```
+
+fileciteturn13file0
+
+Это не катастрофа, но появляется ненужная трансформация координат.
+
+---
+
+### Из `cr-bot` нам нужны
+
+```text id="8gw8wk"
+simulator/
+    engine/
+    rulesets/
+    scenario.py
+    runner.py
+    fidelity.py
+    validation.py
+    physical_lab/
+
+src/cr_bot/
+    vision/
+    trackers/
+    replay/cache.py
+    features/action_space.py
+```
+
+Там уже есть:
+
+- deterministic headless simulator;
+- hands/cycle;
+- elixir;
+- 18×32 arena;
+- placement legality;
+- targeting;
+- pathfinding;
+- collision;
+- mass;
+- knockback;
+- projectiles;
+- splash;
+- statuses;
+- death effects;
+- spawning;
+- buildings;
+- tiebreak;
+- replay hashes;
+- public observation format;
+- first-divergence reports;
+- video extractor;
+- KataCR detector;
+- OCR;
+- unit tracking;
+- tower HP;
+- физическая validation infrastructure.
+
+Их V1 уже содержит 124 definitions и полный для их ruleset набор из 109 opponent cards. При этом автор правильно пишет, что simulator пока `training_ready: false`: наличие механики в коде ещё не доказывает соответствие настоящему CR. fileciteturn24file0
+
+Это ровно правильное отношение и для нас.
+
+---
+
+## B. Из `cochon123/clash-royale-ai` берём ingestion
+
+Это второй главный компонент.
+
+Конкретно:
+
+```text id="w2krfb"
+parser.py
+cleaner.py
+models.py
+metadata.py
+hand_tracker.py
+```
+
+Parser уже вытаскивает из RoyaleAPI replay:
+
+```text id="fledh3"
+ticks
+side
+card
+x
+y
+
+ability_activation
+```
+
+и сохраняет оригинальные ticks. Причём:
+
+```text id="rd7f1a"
+seconds = ticks / 20
+```
+
+fileciteturn14file0
+
+Наш canonical event почти готов:
+
+```json id="njm3qo"
+{
+  "tick": 1372,
+  "side": "team",
+  "card": "hog-rider",
+  "x": 3500,
+  "y": 21500
+}
+```
+
+---
+
+### Особенно ценен `hand_tracker.py`
+
+Я недооценил его раньше.
+
+Он решает проблему неизвестной стартовой руки **точно**, перебирая все:
+
+```text id="ekvs4x"
+8! = 40320
+```
+
+возможных initial deck queues.
+
+Для каждого наблюдаемого play он отбрасывает те starting orders, при которых эта карта не могла находиться в руке.
+
+В результате можем получить:
+
+```text id="juc1x9"
+P(card_i in hand | all observed plays)
+```
+
+и количество возможных стартовых порядков. fileciteturn10file0
+
+То есть проблема:
+
+> «Но replay не сообщает initial hand»
+
+уже фактически решена.
+
+Для физического воспроизведения нам достаточно выбрать **любой initial order, совместимый со всей последовательностью ходов**.
+
+Для будущей Policy-модели можно хранить распределение по возможным рукам.
+
+---
+
+# C. Из `cr-bot` + KataCR берём video validator
+
+Вот здесь тоже нашлась почти готовая система.
+
+`cr-bot` умеет:
+
+```text id="7c22pw"
+video
+ ↓
+KataCR dual YOLO
+ ↓
+unit tracking
+ ↓
+HUD OCR
+ ↓
+hand / next card
+ ↓
+timer
+ ↓
+elixir
+ ↓
+tower HP
+ ↓
+public state
+```
+
+И даже поставляется как готовый Linux executable со всеми assets. Можно взять `.mp4` и получить JSONL с распознанными состояниями. fileciteturn23file0
+
+Сам KataCR умеет object detection большого числа игровых сущностей, OCR, card classification и имеет готовые веса для YOLO; проект изначально делался как CR-agent, воспринимающий игру исключительно с экрана. ([github.com](https://github.com/wty-yy/katacr?utm_source=chatgpt.com))
+
+То есть **свой CV для первого теста мы вообще не пишем**.
+
+---
+
+# D. `Clash-Royale-Pod` пока отодвигаем
+
+Он очень хорошо подходит концептуально:
+
+```text id="52c1e6"
+MP4
+↓
+YOLO
+↓
+ByteTrack
+↓
+OCR
+↓
+placements / interactions / tower HP
+```
+
+и CLI уже поддерживает:
+
+```text id="3ttjov"
+analyze-video my-match.mp4
+```
+
+([github.com](https://github.com/max-miller1204/Clash-Royale-Pod?utm_source=chatgpt.com))
+
+Но есть практическая проблема: repo ожидает локальный:
+
+```text id="p3p55w"
+output/models/crpod_v1_best.pt
+```
+
+а README прямо говорит, что обученные YOLO weights нужны отдельно. В исходниках ссылки на этот artifact есть повсюду, но это не выглядит как полностью self-contained checkout. fileciteturn22file0
+
+Поэтому:
+
+**CR-Pod = дополнительный cross-check**, а не основной validator.
+
+---
+
+# E. Rudy оставляем, но на следующий этап
+
+Rudy всё равно очень ценный.
+
+Это:
+
+```text id="2zikv7"
+Rust
+20 TPS
+integer-only
+PyO3
+100+ card mechanics
+1900+ assertions
+```
+
+([github.com](https://github.com/nguiaSoren/clash-royale-suite/blob/main/cr-rudy-sim/simulator/README.md?utm_source=chatgpt.com))
+
+И главное — его `GameState` уже имеет:
+
+```rust id="qh1mpx"
+#[derive(Debug, Clone)]
+pub struct GameState
+```
+
+fileciteturn29file0
+
+То есть сделать:
+
+```python id="5gbq0x"
+state2 = state.clone()
+```
+
+для counterfactual rollout технически почти бесплатно — надо просто expose clone через PyO3.
+
+Вот когда мы захотим:
+
+```text id="2jkwkv"
+один state
+× 30 actions
+× 50 rollouts
+× 1000 матчей
+```
+
+Rust станет очень привлекательным.
+
+Но **сначала нам нужна fidelity, а не скорость**.
+
+---
+
+# F. CRForge не интегрируем — используем как документацию
+
+CRForge я бы держал открытым рядом с IDE.
+
+Он отлично документирует:
+
+```text id="39t6kz"
+target locking
+range
+collision radius
+pathfinding
+bridge behavior
+status effects
+deployment
+first-hit timing
+```
+
+Например targeting там построен через edge-to-edge distance и sticky target locking. ([github.com](https://github.com/voonhous/crforge/blob/main/docs/combat.md?utm_source=chatgpt.com))
+
+Arena описана именно как:
+
+```text id="yar51j"
+18 × 32
+river rows 15/16
+bridges around x=2..4 and x=13..15
+```
+
+([github.com](https://github.com/voonhous/crforge/blob/main/docs/arena-and-match.md?utm_source=chatgpt.com))
+
+Если реальная игра говорит одно, `cr-bot` другое, Rudy третье — CRForge становится третьей независимой реализацией для поиска причины.
+
+---
+
+# 2. Что мы получаем практически БЕЗ написания своего кода
+
+Если просто собрать существующие части, у нас уже есть четыре почти независимых системы:
+
+```text id="3rki8o"
+             REAL REPLAY DATA
+                   │
+                   ▼
+          Cochon replay parser
+                   │
+          card / t / x / y
+                   │
+                   ▼
+             [пока разрыв]
+                   │
+                   ▼
+             cr-bot engine
+                   │
+                   ▼
+             simulated state
+
+
+REAL VIDEO
+    │
+    ▼
+cr-bot / KataCR
+    │
+    ▼
+observed real state
+
+
+Cochon dataset
+    │
+    ├──── existing BC policy
+    │
+    └──── winner predictor
+```
+
+То есть **вся сложная инфраструктура уже существует**.
+
+Чего нет — буквально центрального переходника:
+
+```text id="275zmk"
+Cochon ReplayEvent
+        ↓
+ReplayExecutor
+        ↓
+cr-bot BattleEngine
+```
+
+И системы, которая говорит:
+
+```text id="pvpz9m"
+real observation
+vs
+simulated observation
+→ first divergence
+```
+
+Но в `cr-bot` даже второй кусок уже почти есть.
+
+---
+
+# 3. Наш собственный репозиторий я бы строил так
+
+```text id="0jg9js"
+cr-coach/
+│
+├── engine/
+│   ├── reference/
+│   │   └── crbot/          # Python reference simulator
+│   │
+│   └── fast/
+│       └── rudy/           # добавим позже
+│
+├── replay/
+│   ├── schema.py
+│   ├── cochon_import.py
+│   ├── hand_reconstruction.py
+│   └── executor.py
+│
+├── adapters/
+│   ├── coordinates.py
+│   ├── cards.py
+│   └── timebase.py
+│
+├── observations/
+│   ├── schema.py
+│   ├── video_crbot.py
+│   └── video_katacr.py
+│
+├── validation/
+│   ├── compare.py
+│   ├── first_divergence.py
+│   ├── metrics.py
+│   └── reports.py
+│
+├── data/
+│   ├── replays/
+│   ├── videos/
+│   ├── rulesets/
+│   └── experiments/
+│
+└── models/
+    ├── policy/
+    └── value/
+```
+
+---
+
+# 4. Что нужно написать ДО первого реального теста
+
+Я бы пока вообще **не трогал Policy и Value**.
+
+Сначала надо доказать:
+
+> `(card,t,x,y) + engine → достаточно близкий к реальности матч`.
+
+Для этого нужны примерно пять вещей.
+
+---
+
+## Шаг 1. Canonical Replay format
+
+Не привязываемся напрямую к Cochon:
+
+```python id="30m42c"
+ReplayEvent(
+    tick=...,
+    side=...,
+    type="card_play",
+    card="hog-rider",
+    x_mtile=...,
+    y_mtile=...
+)
+```
+
+Матч:
+
+```python id="m1vtfl"
+ReplayBattle(
+    patch=...,
+    deck1=[...],
+    deck2=[...],
+    initial_order1=...,
+    initial_order2=...,
+    events=[...]
+)
+```
+
+`mtile` удобно считать:
+
+```text id="5y1lnr"
+1 tile = 1000 mtile
+```
+
+Тогда arena:
+
+```text id="31juf2"
+x = 0 ... 18000
+y = 0 ... 32000
+```
+
+---
+
+# Шаг 2. Coordinate Adapter
+
+Это надо проверить экспериментально один раз.
+
+У Cochon:
+
+```text id="u5heou"
+18k × 32k
+```
+
+У cr-bot:
+
+```text id="lm06d1"
+18 × 32
+```
+
+Значит первичная гипотеза совершенно простая:
+
+```python id="yzjgyp"
+col = floor(x / 1000)
+row = floor(y / 1000)
+```
+
+плюс, вероятно, vertical flip в зависимости от orientation:
+
+```python id="sszvrs"
+row = 31 - row
+```
+
+Это мы проверяем шестью placements:
+
+```text id="ul1dwe"
+left bridge
+right bridge
+
+bottom-left
+bottom-right
+
+top-left
+top-right
+```
+
+Не надо никакой нейронки.
+
+---
+
+# Шаг 3. Starting-cycle adapter
+
+Для controlled test вообще всё просто.
+
+В `cr-bot` physical lab автор уже использует fixed deck order:
+
+```text id="w4l3tl"
+0 Hog
+1 Cannon
+2 Musketeer
+3 Skeletons
+
+4 Ice Golem
+5 Ice Spirit
+6 Fireball
+7 Log
+```
+
+и первые четыре карты — opening hand. fileciteturn25file0
+
+Поэтому наш **первый тест должен проходить именно в Friendly Battle с фиксированным deck order**.
+
+Никакой неопределённости.
+
+Для обычных replay после этого используем Cochon `hand_tracker`.
+
+---
+
+# Шаг 4. ReplayExecutor
+
+Вот это главная наша небольшая программа.
+
+Приблизительно:
+
+```python id="k8066d"
+for event in replay.events:
+
+    engine.advance_to(event.time)
+
+    if event.type == "card_play":
+        engine.play(
+            side=event.side,
+            card=event.card,
+            cell=coord_adapter(event.x, event.y),
+        )
+
+    elif event.type == "ability":
+        engine.activate_ability(...)
+```
+
+Но здесь нужно важное правило.
+
+Если engine говорит:
+
+```text id="phc9gj"
+card not in hand
+not enough elixir
+illegal placement
+```
+
+мы **не продолжаем молча**.
+
+Записываем:
+
+```text id="lu2go4"
+REPLAY DIVERGENCE:
+tick 1428
+reason: expected card not in hand
+```
+
+Потому что это уже сигнал:
+
+> наша reconstruction неправильна раньше этого момента.
+
+---
+
+# Шаг 5. State trace
+
+Каждые условные 50 ms сохраняем:
+
+```json id="c2c4cz"
+{
+  "t": 47.25,
+
+  "towers": {...},
+
+  "entities": [
+    {
+      "id": 31,
+      "card": "hog-rider",
+      "side": 0,
+      "x": 3.42,
+      "y": 17.82,
+      "hp": 912,
+      "target": 18
+    }
+  ]
+}
+```
+
+Это и станет будущим обучающим `S_t`.
+
+---
+
+# 5. Первый настоящий тест НЕ должен быть полноценным матчем
+
+Это я считаю очень важным.
+
+Если сразу взять трёхминутный матч:
+
+```text id="u2fry1"
+ошибка скорости Hog на 0.05 tile/s
+        ↓
+через 10 секунд другой target
+        ↓
+другой hit
+        ↓
+другая смерть
+        ↓
+через минуту уже абсолютно другой battlefield
+```
+
+и мы ничего не поймём.
+
+Поэтому сначала делаем **differential micro-tests**.
+
+`cr-bot` physical lab уже предлагает практически такую же методику. fileciteturn25file0
+
+---
+
+# Тест 1A — Hog без противника
+
+Friendly battle.
+
+Пользователь A:
+
+```text id="g1l7ik"
+Hog @ known cell
+```
+
+B ничего не делает.
+
+Из видео измеряем:
+
+```text id="bvlo60"
+spawn time
+deploy duration
+trajectory
+bridge crossing
+target acquisition
+first tower hit
+hit intervals
+number of hits
+tower HP
+```
+
+Симулятор получает тот же action.
+
+Сравниваем.
+
+---
+
+# Тест 1B — Cannon lifetime
+
+```text id="5zbq9c"
+Cannon @ known cell
+```
+
+Никто не атакует.
+
+Проверяем:
+
+```text id="8xwqnh"
+spawn delay
+initial HP
+lifetime
+HP decay
+death time
+```
+
+---
+
+# Тест 1C — Hog vs Cannon
+
+Вот это уже главный первый interaction.
+
+```text id="yivfh9"
+A:
+Hog @ (x1,y1)
+
+B:
+Cannon @ (x2,y2)
+```
+
+Проверяем:
+
+```text id="5dv7fe"
+когда Hog заметил Cannon
+сменил ли target
+траекторию pull
+первый hit Cannon
+tower shots
+Cannon death
+Hog retarget
+остаточный Hog HP
+```
+
+Именно такой Hog/Cannon probe прямо заложен в physical-lab `cr-bot`. fileciteturn25file0
+
+---
+
+# Тест 1D — ranged interaction
+
+Например:
+
+```text id="rqpnu2"
+Musketeer vs Ice Golem
+```
+
+Нас интересуют:
+
+```text id="wf3zc5"
+sight
+stop position
+first hit
+windup
+projectile flight
+damage timestamp
+hit interval
+```
+
+---
+
+# 6. Как мы получим ground truth из видео
+
+Тут у нас уже есть инструмент.
+
+## Первый выбор — `cr-bot`
+
+Можно прямо подать:
+
+```text id="3h8aj4"
+my-game.mp4
+```
+
+и получить JSONL.
+
+Готовый runtime умеет работать с recorded video, а не только live phone. fileciteturn23file0
+
+Он уже видит:
+
+```text id="5he0ia"
+units
+teams
+positions
+timer
+elixir
+hand
+tower HP
+```
+
+---
+
+## Дополнительно — KataCR
+
+У KataCR готов detector на ~150 классов объектов и tracking pipeline. ([github.com](https://github.com/wty-yy/Clash-Royale-Detection-Dataset?utm_source=chatgpt.com))
+
+Для наших microtests всё становится вообще легко.
+
+Если мы заранее знаем:
+
+```text id="cmdyw1"
+в видео должен быть только:
+Hog
+Cannon
+6 towers
+```
+
+CV-задача гораздо проще, чем полноценный матч.
+
+---
+
+# А для Tower HP я бы ещё украл подход Cochon
+
+У него `phone-lab` уже делает friend battles и сохраняет:
+
+```text id="g9vzsi"
+battle.json
+tower_hp.jsonl
+tower_hp_relabelled.jsonl
+full-frame WEBP
+```
+
+причём отдельно учитывает OCR confidence и не принимает сомнительный HP как ground truth. ([github.com](https://github.com/cochon123/clash-royale-ai?utm_source=chatgpt.com))
+
+То есть готовая логика есть даже для этого.
+
+---
+
+# 7. Что именно сравниваем
+
+Не надо сравнивать «похож ли матч визуально».
+
+Делаем численные метрики.
+
+### Movement
+
+```text id="e9xqlw"
+position MAE
+position p95
+velocity error
+path-length error
+bridge selected
+```
+
+Например:
+
+```text id="0b9owy"
+Hog position p95 < 0.25 tile
+```
+
+для начала будет очень хорошим результатом.
+
+---
+
+### Timing
+
+```text id="8shgdk"
+spawn timing
+target-acquire timing
+first-hit timing
+subsequent-hit timing
+death timing
+```
+
+Для первой версии разумная цель:
+
+```text id="61ypi1"
+±1 simulator tick
+```
+
+То есть если tick = 50 ms:
+
+```text id="5y9qim"
+±50 ms
+```
+
+---
+
+### Combat
+
+```text id="gcrj5v"
+target match
+damage match
+hit count
+victim set
+HP after interaction
+```
+
+---
+
+### Towers
+
+Это вообще наш самый надёжный observable:
+
+```text id="5qrib8"
+real tower HP(t)
+sim tower HP(t)
+```
+
+Можно строить график:
+
+```text id="5feu0j"
+HP
+│
+│ real ─────────┐
+│               └─────┐
+│                     └─────
+│ sim  ─────────┐
+│               └─────┐
+│                     └─────
+└────────────────────────── time
+```
+
+Если ступеньки совпали — очень хороший знак.
+
+---
+
+# 8. Главный output — FIRST DIVERGENCE
+
+Не:
+
+```text id="5sw6k6"
+final tower difference = 713 HP
+```
+
+Это почти бесполезно.
+
+А:
+
+```text id="g93swu"
+FIRST DIVERGENCE
+
+t = 12.350 s
+
+Real:
+Hog changes target:
+Princess Tower → Cannon
+
+Simulator:
+Hog remains targeted on Princess Tower
+
+Subsystem:
+TARGETING / BUILDING PULL
+
+Previous agreement:
+12.30 s
+```
+
+Вот это идеально.
+
+Именно такой формат предлагается в `cr-bot` physical differential-testing lab. fileciteturn25file0
+
+---
+
+# 9. После microtests запускаем первый полный матч
+
+И здесь я бы сделал максимально скучный матч:
+
+## Hog 2.6 vs Hog 2.6
+
+Без:
+
+```text id="fnb5l4"
+Evolution
+Champion
+Hero
+Mirror
+Tornado
+complex spawns
+```
+
+Причина простая: это не проверка количества поддерживаемых карт.
+
+Это проверка:
+
+> может ли наша базовая физика сохранять синхронизацию?
+
+---
+
+### Настройки
+
+```text id="2s5d70"
+Friendly Battle
+Level 11
+fixed deck order
+
+Hog
+Cannon
+Musketeer
+Skeletons
+Ice Golem
+Ice Spirit
+Fireball
+Log
+```
+
+Лучше два устройства/аккаунта.
+
+И одновременно:
+
+```text id="fpj9fk"
+1. screen recording;
+2. action timestamps;
+3. exact placement cells;
+4. deck order.
+```
+
+Если используем автоматические taps, action log становится абсолютно точным.
+
+---
+
+# 10. Очень важно: для первого теста НЕ извлекаем actions из видео
+
+Иначе мы смешиваем две ошибки.
+
+Если получим divergence, непонятно:
+
+```text id="r9rndr"
+CV неправильно увидел placement?
+```
+
+или:
+
+```text id="917u7j"
+simulator неправильно работает?
+```
+
+Поэтому:
+
+### Test A
+
+```text id="2oscgm"
+KNOWN actions
++
+REAL video observations
++
+SIMULATOR
+```
+
+Проверяет **только simulator**.
+
+И только когда это работает:
+
+### Test B
+
+```text id="49jh0l"
+VIDEO
+ ↓
+action detector
+ ↓
+ReplayEvent
+ ↓
+simulator
+```
+
+Это уже end-to-end test.
+
+---
+
+# 11. Как трактовать первый divergence
+
+Вот тут получается очень удобное дерево диагностики.
+
+| Где расходится | Что почти наверняка проверяем |
+|---|---|
+| Карта сразу появляется не там | coordinate transform / placement snapping |
+| Появляется позже | deploy delay |
+| Сначала совпадает, потом убегает | movement speed |
+| Идёт через другой мост | pathfinding |
+| Сталкивается иначе | collision radius / mass |
+| Выбирает другого противника | targeting / sight |
+| Target правильный, но останавливается не там | attack range / hitbox |
+| Стоит правильно, но стреляет раньше | load time / first hit |
+| Выстрел совпал, damage позже | projectile speed |
+| Timing совпал, HP нет | damage / level scaling |
+| Только при толпе | collision ordering / simultaneous actions |
+| Только при spell | radius / victim set / timing / pushback |
+| Сначала всё хорошо, потом невозможно сыграть карту | hand cycle |
+| Elixir расходится | regen rate / phase timing |
+| Video и simulator разошлись, а ручной просмотр говорит simulator прав | CV bug |
+
+---
+
+# 12. Как исправляем simulator после теста
+
+Очень важное правило:
+
+## Никогда не подгоняем по final result.
+
+Например нельзя увидеть:
+
+```text id="5j4bvq"
+tower HP real = 1200
+tower HP sim = 1300
+```
+
+и увеличить Hog damage.
+
+Это может случайно компенсировать совершенно другую ошибку.
+
+Мы исправляем **только first divergence**.
+
+Например:
+
+```text id="py849u"
+t=12.350
+Hog должен был aggro Cannon
+```
+
+Тогда исследуем:
+
+```text id="s36zct"
+sight range?
+building pull radius?
+collision radius?
+center/edge distance?
+target-lock semantics?
+```
+
+Смотрим:
+
+```text id="4i8ti9"
+cr-bot
+vs
+CRForge
+vs
+Rudy
+vs
+реальное видео
+```
+
+CRForge, например, использует sticky target locking и edge-to-edge range с collision radii. ([github.com](https://github.com/voonhous/crforge/blob/main/docs/combat.md?utm_source=chatgpt.com))
+
+После исправления создаём regression:
+
+```text id="rfoc36"
+test_hog_cannon_pull_001
+```
+
+И теперь эта ошибка уже никогда не должна вернуться.
+
+---
+
+# 13. Получится очень хороший цикл разработки
+
+```text id="p149d3"
+REAL
+ │
+ ▼
+first divergence
+ │
+ ▼
+minimize scenario
+ │
+ ▼
+identify subsystem
+ │
+ ▼
+compare implementations
+ │
+ ▼
+fix rule / constant
+ │
+ ▼
+add regression test
+ │
+ ▼
+rerun
+ │
+ ▼
+next divergence
+```
+
+Это практически fuzzing настоящим Clash Royale.
+
+---
+
+# 14. Когда первый полный матч можно считать успешным
+
+Я бы не требовал бит-в-бит сразу.
+
+Первая цель:
+
+### Level 1
+
+```text id="ecdfkv"
+✓ все recorded actions legal
+✓ winner совпадает
+✓ crowns совпадают
+✓ первый decision-relevant divergence > 60 sec
+```
+
+### Level 2
+
+```text id="qbboq6"
+✓ target agreement > 95%
+✓ tower hit sequence > 95%
+✓ tower HP error < ~2%
+✓ position p95 < 0.25–0.5 tile
+```
+
+### Level 3
+
+```text id="x22nsj"
+✓ весь матч без decision-relevant divergence
+✓ timing differences ≲ one tick
+✓ HP transitions совпадают
+```
+
+После Level 2 уже можно начинать экспериментировать с Policy/Value.
+
+---
+
+# 15. А потом возвращаемся к нашей AI-части
+
+И здесь существующий код опять сильно помогает.
+
+## Policy v0
+
+Для начала вообще берем существующую Cochon BC policy.
+
+Она умеет учить:
+
+```text id="cib90d"
+history
+→ next card
+→ placement
+→ timing
+```
+
+Но сейчас она не знает полного battlefield state.
+
+Наша модификация:
+
+```text id="q0quc6"
+ReplayEvent stream
+       ↓
+simulator
+       ↓
+S_t
+       +
+actual action A_t
+       ↓
+Policy training pair
+```
+
+Получаем:
+
+```text id="z1v1yt"
+(S_t, A_t)
+```
+
+---
+
+# 16. Но Policy должна видеть НЕ весь истинный state
+
+Это важный архитектурный момент.
+
+Например simulator знает:
+
+```text id="6xmean"
+точный enemy elixir = 4.237
+enemy hidden hand
+exact attack cooldowns
+```
+
+Игрок этого не знает.
+
+Если Policy это дать, наш coach начнёт говорить:
+
+> «Надо было Hog right»
+
+потому что модель «знает», что у противника Cannon не в руке.
+
+Хотя игрок этого знать не мог.
+
+Поэтому нужны два State:
+
+```text id="qvn5k5"
+SimulatorState
+= вся истина
+
+Public/BeliefState
+= то, что мог знать игрок
+```
+
+И `cr-bot` уже построен именно так: actor получает public observation, а privileged simulator state допускается только для training critic. fileciteturn24file0
+
+Это я бы перенял один в один.
+
+---
+
+# 17. Value
+
+Первый Value вообще очень простой:
+
+```text id="jirsg5"
+V(public_state) → probability of win
+```
+
+Берём каждый реальный матч:
+
+```text id="62qqim"
+S_1 → WIN
+S_2 → WIN
+S_3 → WIN
+...
+```
+
+И проигравшую сторону:
+
+```text id="8ui767"
+S_1 → LOSS
+S_2 → LOSS
+...
+```
+
+Так из 100 000 матчей получаются миллионы state labels.
+
+---
+
+# 18. После этого появляется настоящий Stockfish-режим
+
+В момент реального хода:
+
+```text id="lfatv5"
+S_t
+```
+
+Policy предлагает:
+
+```text id="j6993n"
+top 20 actions
+```
+
+Например:
+
+```text id="qen6v4"
+Hog (3,17)
+Hog (4,17)
+
+Cannon (8,20)
+Cannon (9,20)
+
+Skeletons (6,21)
+
+Wait 250 ms
+Wait 500 ms
+...
+```
+
+Дальше:
+
+```text id="c7cwlb"
+for action in candidates:
+
+    S2 = clone(S)
+
+    apply(action)
+
+    rollout()
+
+    score = V(S2)
+```
+
+---
+
+# И именно здесь пригодится Rudy
+
+Когда reference Python engine уже проверен относительно реальной игры, нам понадобится скорость.
+
+У Rudy `GameState` уже `Clone`, Rust и рассчитан на огромный parallel simulation load. fileciteturn29file0 ([github.com](https://github.com/nguiaSoren/clash-royale-suite/blob/main/cr-rudy-sim/simulator/README.md?utm_source=chatgpt.com))
+
+Тогда задача будет:
+
+```text id="0k3d9v"
+cr-bot reference engine
+        │
+        │ behavioral parity
+        ▼
+Rudy fast backend
+```
+
+И мы прогоняем одинаковый scenario suite через оба движка.
+
+Если их state hashes/results совпадают — rollout отправляем в Rust.
+
+---
+
+# Полный roadmap в итоге
+
+| Этап | Что делаем | Что получаем |
+|---|---|---|
+| **0. Assemble** | cr-bot + Cochon | simulator, video CV, replay parser |
+| **1. Replay adapter** | `card/t/x/y → engine action` | воспроизведение внешних событий |
+| **2. Micro fidelity** | Hog, Cannon, Musketeer tests | основные physics calibrated |
+| **3. Full replay** | Hog 2.6 mirror | первый настоящий reconstructed match |
+| **4. Divergence loop** | fix → regression → rerun | постепенно точный engine |
+| **5. Corpus replay** | прогнать сотни Cochon matches | `S_t,A_t,result` dataset |
+| **6. Policy** | BC на reconstructed public states | `π(a|s)` |
+| **7. Value** | winner supervision | `V(s)` |
+| **8. Counterfactual** | clone + top-k rollouts | `Q(s,a)` / regret |
+| **9. Fast backend** | port/parity с Rudy | массовые rollouts |
+| **10. Coach** | video/replay → errors | конечный продукт |
+
+---
+
+## Я бы сейчас поставил первый технический milestone вот так
+
+**Не «сделать Clash Royale simulator».**
+
+А:
+
+> **Собрать `cr-bot` + Cochon parser и запустить один контролируемый Hog-vs-Cannon эксперимент одновременно в настоящем Clash Royale и simulator. Получить `divergence.json` с первым моментом расхождения.**
+
+После этого мы будем знать гораздо больше, чем после недель чтения исходников.
+
+Если окажется:
+
+```text id="e2twqu"
+Hog/Cannon:
+trajectory ✔
+target ✔
+hits ✔
+tower HP ✔
+```
+
+— мы сразу переходим к Hog 2.6 mirror.
+
+Если же divergence возникает на первой секунде — значит прежде чем думать про Policy/Value, мы спокойно доводим базовую геометрию и timing.
+
+И ещё одна приятная вещь: найденный `cr-bot` уже содержит именно концепцию **physical differential-testing lab → first divergence → targeted next experiment**. Так что фактически наш ближайший этап — это не научное исследование с нуля, а **соединение двух уже существующих проектов и проверка, насколько хорошо их предположения совпадают с текущим Clash Royale**. fileciteturn25file0

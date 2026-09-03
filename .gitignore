@@ -1,0 +1,59 @@
+# Python bytecode and test/tool caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Virtual environments and local Python configuration
+.venv/
+venv/
+env/
+.python-version
+
+# Build and packaging output
+build/
+dist/
+*.egg-info/
+
+# IDE and operating-system files
+.idea/
+.vscode/
+*.code-workspace
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Local secrets and environment overrides
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Downloaded models, datasets, binaries, logs, and run artifacts
+/models/
+/data/
+/bin/
+/logs/
+/runs/
+/outputs/
+*.log
+
+# Common large ML artifacts
+*.ckpt
+*.onnx
+*.pt
+*.pth
+*.safetensors
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+~$*

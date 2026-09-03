@@ -1,0 +1,39 @@
+[submodule "upstream/cr-bot"]
+	path = upstream/cr-bot
+	url = https://github.com/Keschler/cr-bot.git
+[submodule "upstream/clash-royale-ai"]
+	path = upstream/clash-royale-ai
+	url = https://github.com/cochon123/clash-royale-ai.git
+[submodule "upstream/KataCR"]
+	path = upstream/KataCR
+	url = https://github.com/wty-yy/KataCR.git
+[submodule "upstream/cr-api-data"]
+	path = upstream/cr-api-data
+	url = https://github.com/RoyaleAPI/cr-api-data.git
+[submodule "upstream/clash-royale-suite"]
+	path = upstream/clash-royale-suite
+	url = https://github.com/nguiaSoren/clash-royale-suite.git
+[submodule "upstream/crforge"]
+	path = upstream/crforge
+	url = https://github.com/voonhous/crforge.git
+[submodule "upstream/Clash-Royale-Pod"]
+	path = upstream/Clash-Royale-Pod
+	url = https://github.com/max-miller1204/Clash-Royale-Pod.git
+[submodule "upstream/cr-csv"]
+	path = upstream/cr-csv
+	url = https://github.com/smlbiobot/cr-csv.git
+[submodule "upstream/AstralRoyaleLegacy"]
+	path = upstream/AstralRoyaleLegacy
+	url = https://github.com/Greedycell/AstralRoyaleLegacy.git
+[submodule "upstream/RetroRoyale"]
+	path = upstream/RetroRoyale
+	url = https://github.com/retroroyale/ClashRoyale.git
+[submodule "upstream/clash-royale-simulator"]
+	path = upstream/clash-royale-simulator
+	url = https://github.com/Jason-XII/clash-royale-simulator.git
+[submodule "upstream/clash-simulator"]
+	path = upstream/clash-simulator
+	url = https://github.com/samdickson22/clash-simulator.git
+[submodule "upstream/CRBot-public"]
+	path = upstream/CRBot-public
+	url = https://github.com/krazyness/CRBot-public.git

@@ -1,0 +1,18 @@
+{
+  "generated_at": "2026-09-03",
+  "repos": [
+    {"name":"cr-bot","url":"https://github.com/Keschler/cr-bot","role":"reference simulator + vision + fidelity lab","priority":0},
+    {"name":"clash-royale-ai","url":"https://github.com/cochon123/clash-royale-ai","role":"replay ingestion + hand reconstruction + baseline models","priority":0},
+    {"name":"KataCR","url":"https://github.com/wty-yy/KataCR","role":"battlefield CV","priority":0},
+    {"name":"cr-api-data","url":"https://github.com/RoyaleAPI/cr-api-data","role":"static game data","priority":0},
+    {"name":"clash-royale-suite","url":"https://github.com/nguiaSoren/clash-royale-suite","role":"Rudy fast deterministic simulator","priority":1},
+    {"name":"crforge","url":"https://github.com/voonhous/crforge","role":"independent mechanics reference","priority":1},
+    {"name":"Clash-Royale-Pod","url":"https://github.com/max-miller1204/Clash-Royale-Pod","role":"independent video analyzer","priority":1},
+    {"name":"cr-csv","url":"https://github.com/smlbiobot/cr-csv","role":"historic raw/internal CSV","priority":1},
+    {"name":"AstralRoyaleLegacy","url":"https://github.com/Greedycell/AstralRoyaleLegacy","role":"private-server archaeology","priority":2},
+    {"name":"RetroRoyale","url":"https://github.com/retroroyale/ClashRoyale","role":"private-server archaeology","priority":2},
+    {"name":"clash-royale-simulator","url":"https://github.com/Jason-XII/clash-royale-simulator","role":"alternative simulator","priority":2},
+    {"name":"clash-simulator","url":"https://github.com/samdickson22/clash-simulator","role":"alternative Gym simulator","priority":2},
+    {"name":"CRBot-public","url":"https://github.com/krazyness/CRBot-public","role":"alternative RL/bot reference","priority":2}
+  ]
+}
