@@ -10,12 +10,14 @@ TESTS = [
     HERE / "test_01_single_hog.py",
     HERE / "test_02_same_tick_dual_hog.py",
     HERE / "test_03_hand_mismatch_stops.py",
+    HERE / "test_04_hog_vs_tower.py",
+    HERE / "test_05_hog_vs_cannon.py",
 ]
 
 
 def main() -> int:
-    print("CR Coach physical adapter tests")
-    print("================================")
+    print("CR Coach physical adapter/mechanics tests")
+    print("========================================")
     failures: list[str] = []
 
     for path in TESTS:
@@ -24,7 +26,7 @@ def main() -> int:
         if result.returncode != 0:
             failures.append(path.name)
 
-    print("\n================================")
+    print("\n========================================")
     if failures:
         print("FAILED:")
         for name in failures:
@@ -32,6 +34,7 @@ def main() -> int:
         return 1
 
     print(f"ALL PASS ({len(TESTS)}/{len(TESTS)})")
+    print("Mechanics traces (tests 04/05): outputs/physical_tests/*.json")
     return 0
 
 
