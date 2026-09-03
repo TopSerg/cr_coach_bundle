@@ -42,6 +42,7 @@ Desktop.ini
 /logs/
 /runs/
 /outputs/
+.physical_deps/
 *.log
 
 # Common large ML artifacts
