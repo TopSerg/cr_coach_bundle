@@ -28,18 +28,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Keschler/cr-bot
+          ref: 40ca2b16bc276fc982a3aa80c7415b24439cbd3c
+          path: .physical_deps/cr-bot
+          sparse-checkout: |
+            simulator
+          sparse-checkout-cone-mode: true
+          fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: git submodule update --init --depth 1 upstream/cr-bot
       - run: python scripts/smoke_crbot_adapter.py
 
   physical-adapter-tests:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Keschler/cr-bot
+          ref: 40ca2b16bc276fc982a3aa80c7415b24439cbd3c
+          path: .physical_deps/cr-bot
+          sparse-checkout: |
+            simulator
+          sparse-checkout-cone-mode: true
+          fetch-depth: 1
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: git submodule update --init --depth 1 upstream/cr-bot
       - run: python physical_tests/run_all.py
