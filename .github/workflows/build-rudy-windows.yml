@@ -44,12 +44,12 @@ jobs:
 
       - name: Show built wheels
         shell: pwsh
-        run: Get-ChildItem -Recurse third_party/clash-royale-suite/cr-rudy-sim/simulator/target/wheels/*.whl
+        run: Get-ChildItem third_party/clash-royale-suite/cr-rudy-sim/simulator/engine/target/wheels/*.whl
 
       - name: Upload wheel artifact
         uses: actions/upload-artifact@v4
         with:
           name: cr-engine-win64-py${{ matrix.python-version }}
-          path: third_party/clash-royale-suite/cr-rudy-sim/simulator/target/wheels/*.whl
+          path: third_party/clash-royale-suite/cr-rudy-sim/simulator/engine/target/wheels/*.whl
           if-no-files-found: error
           retention-days: 14
