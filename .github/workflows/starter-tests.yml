@@ -31,7 +31,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: git submodule update --init upstream/cr-bot
+      - run: git submodule update --init --depth 1 upstream/cr-bot
       - run: python scripts/smoke_crbot_adapter.py
 
   physical-adapter-tests:
@@ -41,5 +41,5 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: git submodule update --init upstream/cr-bot
+      - run: git submodule update --init --depth 1 upstream/cr-bot
       - run: python physical_tests/run_all.py
