@@ -9,6 +9,7 @@
   "hog-rider": {
     "file": "royaleapi/cards_stats_characters.json",
     "key": "hog-rider",
+    "raw_match": {"field": "name", "value": "HogRider"},
     "fields": {
       "hitpoints_per_level[10]": 1697,
       "damage_per_level[10]": 317,
@@ -39,6 +40,7 @@
   "cannon": {
     "file": "royaleapi/cards_stats_building.json",
     "key": "cannon",
+    "raw_match": {"field": "name", "value": "Cannon"},
     "fields": {
       "hitpoints_per_level[10]": 824,
       "damage": 202,
