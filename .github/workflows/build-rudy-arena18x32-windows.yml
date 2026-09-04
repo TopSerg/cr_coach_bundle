@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/build-rudy-arena18x32-windows.yml"
       - "tools/rudy_windows/patch_rudy_arena_18x32.py"
+      - "tools/rudy_windows/patch_rudy_attack_timing.py"
 
 permissions:
   contents: read
@@ -32,8 +33,11 @@ jobs:
           python-version: "3.12"
           architecture: x64
 
-      - name: Patch arena geometry to 18x32
+      - name: Patch arena geometry and edge-to-edge combat
         run: python tools/rudy_windows/patch_rudy_arena_18x32.py
+
+      - name: Patch first-hit timing semantics
+        run: python tools/rudy_windows/patch_rudy_attack_timing.py
 
       - name: Install maturin
         run: python -m pip install --upgrade pip maturin
