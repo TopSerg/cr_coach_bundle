@@ -1,7 +1,7 @@
 {
   "rudy": {
     "ticks_per_second": 20,
-    "tile_internal_units": 600,
+    "tile_internal_units": 1000,
     "repo_expected_path": "cr-rudy-sim/simulator",
     "build_command": "cd engine && maturin develop --release"
   },
@@ -29,20 +29,23 @@
         "zap"
       ],
       "hog_position_estimate": [
-        5100,
-        -1200
+        5500,
+        -1000
       ],
       "hog_position_grid": {
         "x_values": [
           4500,
-          5100,
-          5700
+          5000,
+          5500,
+          6000,
+          6500
         ],
         "y_values": [
-          -2400,
-          -1800,
-          -1200,
-          -600
+          -3000,
+          -2500,
+          -2000,
+          -1500,
+          -1000
         ]
       },
       "max_ticks_after_hog": 420,
@@ -75,8 +78,8 @@
         6000
       ],
       "hog_position_estimate": [
-        -5100,
-        -1200
+        -5500,
+        -1000
       ],
       "hog_delay_ticks_after_cannon": 38,
       "max_ticks_after_hog": 260,
