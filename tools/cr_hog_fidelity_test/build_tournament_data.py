@@ -36,14 +36,31 @@ def record_ids(record: dict) -> set[str]:
     return set(values)
 
 
-def find_records(records: list[dict], selector: str):
+def find_records(records: list[dict], selector: str, raw_match: dict | None = None):
     """
-    Match by normalized key/name/sc_key, not only raw `key`.
+    Find the raw stats record(s) to patch.
 
-    This matters for Rudy's source data: e.g. the playable card key is
-    `hog-rider`, while the raw character stats entry is named `HogRider` and
-    Rudy derives/aliases the playable key during GameData::load().
+    For the microtests we prefer an explicit raw field match, e.g.
+    name=HogRider or name=Cannon. This avoids display-name collisions in the
+    RoyaleAPI dump (for example a DarkElixir_Bottle record whose name_en is
+    also "Cannon"). If no raw_match is supplied, fall back to normalized
+    key/name/name_en/sc_key matching.
     """
+    if raw_match:
+        field = raw_match["field"]
+        wanted = normalize(raw_match["value"])
+        matches = [
+            (idx, rec)
+            for idx, rec in enumerate(records)
+            if normalize(rec.get(field)) == wanted
+        ]
+        if not matches:
+            raise KeyError(
+                f"Exact raw match not found for {selector!r}: "
+                f"{field}={raw_match['value']!r}"
+            )
+        return matches
+
     target = normalize(selector)
     matches = []
     for idx, rec in enumerate(records):
@@ -72,7 +89,7 @@ def apply_field(record: dict, field: str, value):
         if not isinstance(arr, list):
             raise TypeError(
                 f"{base} is not an array on {record.get('name') or record.get('key')}. "
-                f"Use the base field (for example 'damage') when Rudy's raw record has no per-level array."
+                f"Use the base field when Rudy's raw record has no per-level array."
             )
         if idx >= len(arr):
             arr.extend([None] * (idx + 1 - len(arr)))
@@ -94,7 +111,7 @@ def patch_one(out_data: Path, spec: dict):
     rel = Path(spec["file"])
     path = out_data / rel
     records = load_json(path)
-    matches = find_records(records, spec["key"])
+    matches = find_records(records, spec["key"], spec.get("raw_match"))
 
     patched = []
     for idx, rec in matches:
@@ -116,6 +133,7 @@ def patch_one(out_data: Path, spec: dict):
     save_json(path, records)
     return {
         "selector": spec["key"],
+        "raw_match": spec.get("raw_match"),
         "file": str(rel),
         "match_count": len(patched),
         "records": patched,
@@ -123,14 +141,7 @@ def patch_one(out_data: Path, spec: dict):
 
 
 def expected_level11(spec: dict):
-    """
-    Expected runtime values for a level-11 probe.
-
-    Some Rudy raw records (notably Cannon damage) have no per-level array.
-    CharacterStats::damage_at_level()/hp_at_level() fall back to the base stat
-    when the array is empty, so an override may intentionally use `damage` or
-    `hitpoints` instead of `*_per_level[10]`.
-    """
+    """Expected runtime HP/damage for a level-11 probe."""
     fields = spec["fields"]
     hp = fields.get("hitpoints_per_level[10]")
     if hp is None:
@@ -172,12 +183,12 @@ def spawn_probe(data, card_key: str, x: int, y: int):
 
 
 def verify_runtime(out_data: Path, profile: dict):
-    """Fail before the fidelity test if the generated JSON is not what Rudy actually uses."""
+    """Fail before fidelity if generated JSON is not what Rudy actually uses."""
     try:
         import cr_engine
     except ImportError as exc:
         raise RuntimeError(
-            "cr_engine is required for runtime verification. Run this script with .venv-rudy Python."
+            "cr_engine is required for runtime verification. Run with .venv-rudy Python."
         ) from exc
 
     data = cr_engine.load_data(str(out_data))
@@ -256,7 +267,10 @@ def main():
     print(f"  {out}")
     print("Applied overrides:")
     for ch in changes:
-        print(f"  {ch['selector']}: matched {ch['match_count']} raw stats record(s)")
+        print(
+            f"  {ch['selector']}: matched {ch['match_count']} raw stats record(s); "
+            f"raw_match={ch['raw_match']}"
+        )
         for rec in ch["records"]:
             ids = rec["identifiers"]
             print(f"    record #{rec['index']}: {ids}")
