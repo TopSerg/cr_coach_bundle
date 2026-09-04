@@ -1,0 +1,31 @@
+{
+  "id": "d03_hog_cannon_02_PRIMARY",
+  "source_video": "XRecorder_20260903_03(1).mp4",
+  "source_window_s": [89.5, 103.0],
+  "clip_name": "d03_hog_cannon_02_PRIMARY_0089.5-0103.0.mp4",
+  "ticks_per_second": 20,
+  "annotation": {
+    "method": "manual frame-by-frame review of the PRIMARY clip",
+    "timestamp_resolution_s": 0.05,
+    "notes": "Hog play is aligned to the first visible deployment marker. Hog melee hits are marked by the discrete Cannon HP-bar drops / hit animation. The third Hog hit coincides with Cannon death. Hog death is the first frame where the Hog entity disappears into its death effect."
+  },
+  "events_source_time_s": {
+    "hog_play": 91.50,
+    "cannon_play": 93.95,
+    "hog_hits_cannon": [95.80, 97.40, 99.00],
+    "cannon_death": 99.00,
+    "hog_death": 100.20
+  },
+  "events_relative_to_hog_play_s": {
+    "cannon_play": 2.45,
+    "hog_hits_cannon": [4.30, 5.90, 7.50],
+    "cannon_death": 7.50,
+    "hog_death": 8.70
+  },
+  "manually_mapped_cells": {
+    "hog": [9, 18],
+    "cannon": [9, 10],
+    "confidence": "initial mapping from the visible 18x32 arena grid; keep geometry explicit in the test so it can be corrected independently of timing"
+  },
+  "comparison_tolerance_s": 0.10
+}
