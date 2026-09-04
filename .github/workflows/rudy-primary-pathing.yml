@@ -6,7 +6,7 @@ on:
       - ".github/workflows/rudy-primary-pathing.yml"
       - "tools/rudy_windows/**"
       - "tools/cr_hog_fidelity_test/**"
-      - "physical_tests/references/d03_hog_cannon_02_primary.json"
+      - "physical_tests/references/**"
   workflow_dispatch:
 
 permissions:
@@ -80,6 +80,15 @@ jobs:
             --reference physical_tests/references/d03_hog_cannon_02_primary.json \
             --out-dir outputs/rudy_primary
 
+      - name: Run secondary and cross-demo video regressions
+        run: |
+          python tools/cr_hog_fidelity_test/run_remaining_regressions.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --references \
+              physical_tests/references/d03_hog_cannon_01_secondary.json \
+              physical_tests/references/d02_hog_cannon_01_crossdemo.json \
+            --out-dir outputs/rudy_remaining
+
       - name: Upload Rudy fidelity diagnostics
         if: always()
         uses: actions/upload-artifact@v4
@@ -88,6 +97,7 @@ jobs:
           path: |
             outputs/rudy_existing
             outputs/rudy_primary
+            outputs/rudy_remaining
             outputs/rudy_tournament11_data/_tournament11_manifest.json
           if-no-files-found: warn
           retention-days: 14
