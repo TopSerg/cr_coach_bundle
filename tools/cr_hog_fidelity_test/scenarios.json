@@ -30,7 +30,7 @@
       ],
       "hog_position_estimate": [
         5500,
-        -1000
+        -1500
       ],
       "hog_position_grid": {
         "x_values": [
@@ -79,7 +79,7 @@
       ],
       "hog_position_estimate": [
         -5500,
-        -1000
+        -1500
       ],
       "hog_delay_ticks_after_cannon": 38,
       "max_ticks_after_hog": 260,
