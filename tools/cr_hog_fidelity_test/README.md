@@ -14,17 +14,25 @@ The CR Coach Rudy build is intentionally not stock upstream Rudy. The current bu
    - Princess Tower centres at X = ±5500, Y = ±9500;
    - edge-to-edge attack/stop range using collision radii;
    - one-tick attack-cycle correction so source Hit Speed is preserved.
-2. `tools/rudy_windows/patch_rudy_troop_speed.py`
+2. `tools/rudy_windows/patch_rudy_building_grid.py`
+   - fixes building snapping for an even-width, centre-origin 18×32 arena;
+   - legal tile centres are half-tile coordinates (`..., -1500, -500, 500, 1500, ...`);
+   - prevents a requested Cannon `(500,5500)` from being silently moved to `(1000,6000)`.
+3. `tools/rudy_windows/patch_rudy_building_deploy_targeting.py`
+   - an under-deployment building can already be selected as a target/pull source;
+   - its own movement/attack update is still blocked until `deploy_timer == 0`;
+   - this matches the PRIMARY video, where Hog starts curving toward Cannon while the deployment clock is still visible.
+4. `tools/rudy_windows/patch_rudy_troop_speed.py`
    - CR raw troop speed 45/60/90/120 becomes 0.9/1.2/1.8/2.4 tiles/s;
    - at 20 TPS and 1000 units/tile this is 45/60/90/120 internal units per tick.
-3. `tools/rudy_windows/patch_rudy_attack_timing.py`
+5. `tools/rudy_windows/patch_rudy_attack_timing.py`
    - First Hit Speed is modeled separately from regular Load Time;
    - for Hog Rider: 1600 ms Hit Speed - 1000 ms Load Time = 600 ms first windup;
    - `load_first_hit` is not added as a second pre-hit cooldown.
 
 Tournament-level card data is generated separately from `tournament11_profile.json` with `build_tournament_data.py`.
 
-Do not compare a new fidelity result against old stock-Rudy coordinates/speeds before confirming these patches and the Tournament-11 overlay were applied.
+Do not compare a new fidelity result against old stock-Rudy coordinates/speeds before confirming all patches and the Tournament-11 overlay were applied.
 
 ## Coordinate systems
 
@@ -49,7 +57,7 @@ Hog    cell (9,18) -> Rudy ( 500,-2500)
 Cannon cell (9,10) -> Rudy ( 500, 5500)
 ```
 
-The older scenarios in `scenarios.json` are separate historical probes and their placement coordinates remain estimates.
+The older scenarios in `scenarios.json` are separate historical probes and their placement coordinates remain estimates. In particular, do not use their old bridge-centred Hog coordinates as PRIMARY truth.
 
 ## Probe A — Hog solo → Princess Tower
 
@@ -62,21 +70,23 @@ Observed:
 - hit times in the trimmed video: `8.06, 9.60, 11.20, 12.78, 14.46, 16.02, 17.62 s`;
 - mean inter-hit interval ≈ `1.593 s`.
 
-The exact placement is still an estimate and may be grid-searched without changing engine mechanics.
+With the current patched Rudy + Tournament-11 data, this probe passes:
 
-## Probe B — Hog vs preplaced Cannon
+```text
+hit count             7 == 7
+damage                 317 == 317
+mean hit interval      1.600 s vs 1.593 s
+first hit after play   5.15 s vs 5.12 s
+tower HP sequence      exact
+```
+
+This is the guard against re-breaking arena scale, troop speed, attack cadence, range and First Hit Speed while working on Cannon/pathing.
+
+## Probe B — historical preplaced Cannon
 
 Real fixture: `fixtures/real/hog_vs_cannon_preplaced.json`.
 
-Observed:
-
-- Cannon exists before Hog chooses its first target;
-- Hog is pulled to Cannon;
-- protected Princess Tower remains `3052 -> 3052`;
-- Cannon disappears before Hog;
-- visual death-time gap ≈ `0.15 s`.
-
-This is an initial building-pull/pathing probe.
+Its old simulator placement coordinates were estimated before the final 18×32/1000-unit geometry was established. Keep this probe as historical evidence, but remap its positions from video before using it as a hard current-engine pass/fail test.
 
 ## Probe C — PRIMARY dynamic Cannon
 
@@ -93,7 +103,18 @@ Cannon death:      7.50 s
 Hog death:         8.70 s
 ```
 
-`run_primary_pathing.py` replays those action timings on patched Rudy and records:
+The progression of the PRIMARY diagnosis was:
+
+```text
+cr-bot baseline first hit:                   5.70 s  (+1.40)
+patched Rudy before grid/deploy-target fix:  4.70 s  (+0.40)
++ half-tile building grid:                   4.65 s  (+0.35)
++ building targetable during deployment:     4.30 s  (+0.00)
+```
+
+With all current patches, Rudy releases Hog attacks at 4.30 / 5.90 / 7.50 s. The third attack is lethal, so Cannon is removed on the same tick rather than producing another non-lethal HP-delta snapshot. Cannon death is 7.50 s and Hog death is 8.70 s, matching the video reference.
+
+`run_primary_pathing.py` records:
 
 - Hog/Cannon hit and death timestamps;
 - Hog movement start;
@@ -101,31 +122,43 @@ Hog death:         8.70 s
 - full Hog x/y path;
 - turn angles near the river.
 
-This probe is specifically intended to distinguish combat timing from geometry/pathing errors.
-
 ## River jump and bridge-corner probes
 
-Hog Rider has `jump_enabled=true` in the Tournament-11 profile. Upstream Rudy exposes this as `can_jump_river`, so jump-capable troops skip normal bridge routing. The PRIMARY trace therefore records whether Hog traverses the river at the expected x/y and timing rather than silently assuming bridge pathing.
+Hog Rider has `jump_enabled=true` in the Tournament-11 profile. Rudy exposes this as `can_jump_river`, so jump-capable troops bypass normal bridge routing.
 
-A separate non-jumper invariant probe places a Knight off-axis from a Cannon and checks that it:
+In the PRIMARY trace Hog crosses open river rather than being forced onto a bridge:
 
-- reaches a bridge before entering the river;
-- never occupies open-water coordinates inside the river;
-- does not bounce back to its own bank;
-- exits onto the enemy side;
-- records its heading change around the bridge entry/exit.
+```text
+river enter   1.65 s  (x=1144, y=-960)
+river centre  2.10 s  (x=1558, y=30)
+river exit    2.55 s  (x=1814, y=1030)
+crossing      0.90 s
+```
 
-This catches regressions in waypoint routing and the bridge lateral clamp independently of Hog's jump ability.
+The video shows the same qualitative behavior: Hog jumps across open water, not over the bridge deck. Rudy currently models this as x/y traversal with `z=0`; it does not yet model the visible airborne arc. That is acceptable for the current headless path/timing test, but must be revisited if airborne state changes targeting/collision semantics.
+
+A separate non-jumper invariant probe places a Knight off-axis from a Cannon and checks bridge routing. Current result:
+
+```text
+entered river on bridge          PASS
+never occupied open-water river  PASS
+no river-edge bounce             PASS
+crossed to enemy side            PASS
+near-bank route turn             ~56°
+far-bank route turn              ~53°
+```
+
+This confirms the waypoint topology and bridge lateral clamp are working. The exact corner curvature/turn angle is not yet calibrated against a real-video non-jumper reference.
 
 ## Running
 
-The most reproducible path is GitHub Actions:
+The reproducible CI path is:
 
 ```text
 .github/workflows/rudy-primary-pathing.yml
 ```
 
-It checks out the pinned Rudy source, applies all engine patches, builds and installs the wheel, creates the Tournament-11 data overlay, runs the older fidelity probes, then runs PRIMARY + river/bridge diagnostics.
+It checks out pinned Rudy, applies all engine patches, builds and installs it, creates the Tournament-11 data overlay, runs the historical probes, then runs PRIMARY + river/bridge diagnostics.
 
 Local legacy runner:
 
@@ -134,24 +167,6 @@ Local legacy runner:
 ```
 
 A non-zero comparator result means **fidelity divergence**, not necessarily a harness failure.
-
-## Pass criteria for the older probes
-
-Hog solo:
-
-- damage per hit: exact;
-- hit count: exact;
-- complete tower HP sequence: exact;
-- mean hit interval: ±0.10 s;
-- first hit after deployment estimate: ±0.30 s.
-
-Cannon:
-
-- protected tower damage: exactly zero;
-- Cannon dies before Hog;
-- death-time gap: ±0.15 s.
-
-The PRIMARY probe reports raw event deltas so we can fix the **first divergence** instead of tuning to the final result.
 
 ## Harness self-test
 
