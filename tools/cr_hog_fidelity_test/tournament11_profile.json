@@ -41,7 +41,7 @@
     "key": "cannon",
     "fields": {
       "hitpoints_per_level[10]": 824,
-      "damage_per_level[10]": 202,
+      "damage": 202,
       "hit_speed": 1000,
       "load_time": 1000,
       "load_first_hit": 0,
