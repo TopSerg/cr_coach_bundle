@@ -1,0 +1,91 @@
+name: Rudy PRIMARY fidelity and pathing
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/rudy-primary-pathing.yml"
+      - "tools/rudy_windows/**"
+      - "tools/cr_hog_fidelity_test/**"
+      - "physical_tests/references/d03_hog_cannon_02_primary.json"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  rudy-primary-pathing:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout CR Coach
+        uses: actions/checkout@v4
+
+      - name: Checkout pinned Rudy source
+        uses: actions/checkout@v4
+        with:
+          repository: nguiaSoren/clash-royale-suite
+          ref: 050275d70b84614953877e8075dc4b8ba907c67f
+          path: third_party/clash-royale-suite
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Patch Rudy arena, range, cadence, movement speed and first-hit timing
+        run: |
+          python tools/rudy_windows/patch_rudy_arena_18x32.py
+          python tools/rudy_windows/patch_rudy_troop_speed.py
+          python tools/rudy_windows/patch_rudy_attack_timing.py
+
+      - name: Build and install patched Rudy
+        working-directory: third_party/clash-royale-suite/cr-rudy-sim/simulator/engine
+        run: |
+          python -m pip install --upgrade pip maturin
+          python -m maturin build --release --interpreter python
+          python -m pip install target/wheels/*.whl
+
+      - name: Build Tournament-11 data overlay
+        run: |
+          python tools/cr_hog_fidelity_test/build_tournament_data.py \
+            --source-data-dir third_party/clash-royale-suite/cr-rudy-sim/simulator/data \
+            --profile tools/cr_hog_fidelity_test/tournament11_profile.json \
+            --out-dir outputs/rudy_tournament11_data
+
+      - name: Run existing solo and preplaced-Cannon probes
+        run: |
+          python tools/cr_hog_fidelity_test/run_rudy.py \
+            --scenario all \
+            --config tools/cr_hog_fidelity_test/scenarios.json \
+            --data-dir outputs/rudy_tournament11_data \
+            --out-dir outputs/rudy_existing
+
+      - name: Compare existing probes to real demos
+        continue-on-error: true
+        run: |
+          python tools/cr_hog_fidelity_test/compare.py \
+            tools/cr_hog_fidelity_test/fixtures/real/hog_solo.json \
+            outputs/rudy_existing/hog_solo_trace.json \
+            --out outputs/rudy_existing/hog_solo_report.json
+          python tools/cr_hog_fidelity_test/compare.py \
+            tools/cr_hog_fidelity_test/fixtures/real/hog_vs_cannon_preplaced.json \
+            outputs/rudy_existing/hog_cannon_trace.json \
+            --out outputs/rudy_existing/hog_cannon_report.json
+
+      - name: Run PRIMARY dynamic-Cannon, river-jump and bridge-corner probes
+        run: |
+          python tools/cr_hog_fidelity_test/run_primary_pathing.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --reference physical_tests/references/d03_hog_cannon_02_primary.json \
+            --out-dir outputs/rudy_primary
+
+      - name: Upload Rudy fidelity diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: rudy-primary-pathing-diagnostics
+          path: |
+            outputs/rudy_existing
+            outputs/rudy_primary
+            outputs/rudy_tournament11_data/_tournament11_manifest.json
+          if-no-files-found: warn
+          retention-days: 14
