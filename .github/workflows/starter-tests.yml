@@ -59,3 +59,30 @@ jobs:
         with:
           python-version: "3.12"
       - run: python physical_tests/run_all.py
+
+  demo-fidelity-probe:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: Keschler/cr-bot
+          ref: 40ca2b16bc276fc982a3aa80c7415b24439cbd3c
+          path: .physical_deps/cr-bot
+          sparse-checkout: |
+            simulator
+          sparse-checkout-cone-mode: true
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run PRIMARY Hog-Cannon fidelity probe
+        run: python physical_tests/test_06_hog_vs_cannon_demo_primary.py
+      - name: Upload fidelity trace
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: hog-cannon-demo-primary-trace
+          path: outputs/physical_tests/hog_vs_cannon_demo_primary.json
+          if-no-files-found: warn
