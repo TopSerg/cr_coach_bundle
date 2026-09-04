@@ -31,12 +31,16 @@ $real = Join-Path $HarnessDir "fixtures\real\hog_solo.json"
 
 Write-Host ""
 Write-Host "========================================="
-Write-Host "BUILD TOURNAMENT-11 DATA OVERLAY"
+Write-Host "BUILD + VERIFY TOURNAMENT-11 DATA OVERLAY"
 Write-Host "========================================="
 & $python (Join-Path $HarnessDir "build_tournament_data.py") `
     --source-data-dir $sourceData `
     --profile $profile `
-    --out-dir $generatedData
+    --out-dir $generatedData `
+    --verify-runtime
+if ($LASTEXITCODE -ne 0) {
+    throw "Tournament-11 overlay build/runtime verification failed. Fidelity simulation was NOT run."
+}
 
 Write-Host ""
 Write-Host "========================================="
@@ -47,6 +51,9 @@ Write-Host "========================================="
     --config $config `
     --data-dir $generatedData `
     --out-dir $outDir
+if ($LASTEXITCODE -ne 0) {
+    throw "Rudy scenario runner failed."
+}
 
 Write-Host ""
 Write-Host "========================================="
@@ -67,9 +74,8 @@ Write-Host "Generated data: $generatedData"
 Write-Host "Trace:          $(Join-Path $outDir 'hog_solo_trace.json')"
 Write-Host "Report:         $report"
 Write-Host ""
-Write-Host "NOTE: this run overrides card DATA only."
-Write-Host "Tower mechanics/pathfinding/projectile timing remain stock Rudy so any remaining"
-Write-Host "difference is exactly what we want to investigate next."
+Write-Host "The overlay was runtime-verified before this simulation."
+Write-Host "Any remaining difference is no longer caused by the old Rudy level-11 Hog stats."
 
 if ($compareExit -ne 0) {
     Write-Host ""
