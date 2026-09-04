@@ -6,7 +6,7 @@
     1600
   ],
   "observed": {
-    "target_tower": "p2_princess_left",
+    "target_tower": "p2_princess_right",
     "tower_hp_start": 3052,
     "tower_hp_after_hits": [
       2735,
@@ -37,8 +37,8 @@
       1.6
     ],
     "mean_hit_interval_s": 1.593,
-    "hog_play_clip_s_estimate": 0.8,
-    "first_hit_after_play_s_estimate": 7.26
+    "hog_play_clip_s_estimate": 2.94,
+    "first_hit_after_play_s_estimate": 5.12
   },
   "tolerances": {
     "damage_per_hit": 0,
@@ -48,8 +48,10 @@
     "first_hit_after_play_s": 0.3
   },
   "notes": [
-    "HP transition timestamps were taken from the visible Princess Tower HP changes.",
-    "The exact deployment coordinate is estimated from video and is intentionally tunable/grid-searchable.",
-    "The strongest metrics are damage, hit interval and HP sequence; absolute first-hit time depends on coordinate recovery."
+    "HP transition timestamps were taken from the visible RIGHT Princess Tower HP changes.",
+    "Frame-by-frame review places the Hog play between about 2.925 s and 2.944 s in the clip; 2.94 s is used as the action timestamp estimate.",
+    "The Hog is deployed on the right lane immediately next to the river/bridge, not deep on the friendly side.",
+    "The exact deployment coordinate remains approximate and should be refined by a small grid around the right bridge.",
+    "The strongest metrics are damage, hit interval and HP sequence; absolute first-hit time also depends on coordinate recovery."
   ]
 }
