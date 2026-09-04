@@ -1,0 +1,30 @@
+{
+  "id": "d02_hog_cannon_01_CROSSDEMO",
+  "source_video": "XRecorder_20260903_02(1).mp4",
+  "source_window_s": [79.0, 91.5],
+  "ticks_per_second": 20,
+  "annotation": {
+    "method": "manual 20 fps frame-by-frame review from hog_cannon_debug_pack",
+    "timestamp_resolution_s": 0.05,
+    "notes": "Cannon is preplaced before Hog. Cannon deployment marker first visible at about 81.15 s; Hog deployment marker at about 82.80 s. Cannon HP drops on Hog impacts at about 87.05 and 88.65 s. Cannon disappears at about 89.05 s before a third Hog swing, consistent with building lifetime decay plus two Hog hits. Hog disappears at about 89.95 s after retargeting."
+  },
+  "events_source_time_s": {
+    "cannon_play": 81.15,
+    "hog_play": 82.80,
+    "hog_hits_cannon": [87.05, 88.65],
+    "cannon_death": 89.05,
+    "hog_death": 89.95
+  },
+  "events_relative_to_hog_play_s": {
+    "cannon_play": -1.65,
+    "hog_hits_cannon": [4.25, 5.85],
+    "cannon_death": 6.25,
+    "hog_death": 7.15
+  },
+  "manually_mapped_cells": {
+    "hog": [3, 18],
+    "cannon": [8, 10],
+    "confidence": "high: Hog marker is on the left bridge lane; Cannon marker is centered on the visible tile grid"
+  },
+  "comparison_tolerance_s": 0.10
+}
