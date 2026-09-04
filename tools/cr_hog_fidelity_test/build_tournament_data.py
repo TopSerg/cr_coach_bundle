@@ -70,7 +70,10 @@ def apply_field(record: dict, field: str, value):
         idx = int(idx_text)
         arr = record.get(base)
         if not isinstance(arr, list):
-            raise TypeError(f"{base} is not an array on {record.get('name') or record.get('key')}")
+            raise TypeError(
+                f"{base} is not an array on {record.get('name') or record.get('key')}. "
+                f"Use the base field (for example 'damage') when Rudy's raw record has no per-level array."
+            )
         if idx >= len(arr):
             arr.extend([None] * (idx + 1 - len(arr)))
         arr[idx] = value
@@ -120,11 +123,22 @@ def patch_one(out_data: Path, spec: dict):
 
 
 def expected_level11(spec: dict):
+    """
+    Expected runtime values for a level-11 probe.
+
+    Some Rudy raw records (notably Cannon damage) have no per-level array.
+    CharacterStats::damage_at_level()/hp_at_level() fall back to the base stat
+    when the array is empty, so an override may intentionally use `damage` or
+    `hitpoints` instead of `*_per_level[10]`.
+    """
     fields = spec["fields"]
-    return {
-        "hp": fields.get("hitpoints_per_level[10]"),
-        "damage": fields.get("damage_per_level[10]"),
-    }
+    hp = fields.get("hitpoints_per_level[10]")
+    if hp is None:
+        hp = fields.get("hitpoints")
+    damage = fields.get("damage_per_level[10]")
+    if damage is None:
+        damage = fields.get("damage")
+    return {"hp": hp, "damage": damage}
 
 
 def spawn_probe(data, card_key: str, x: int, y: int):
@@ -175,11 +189,11 @@ def verify_runtime(out_data: Path, profile: dict):
     failures = []
     for key, probe in probes.items():
         expected = expected_level11(profile[key])
-        if probe["max_hp"] != expected["hp"]:
+        if expected["hp"] is not None and probe["max_hp"] != expected["hp"]:
             failures.append(
                 f"{key}: runtime HP {probe['max_hp']} != expected {expected['hp']}"
             )
-        if probe["damage"] != expected["damage"]:
+        if expected["damage"] is not None and probe["damage"] != expected["damage"]:
             failures.append(
                 f"{key}: runtime damage {probe['damage']} != expected {expected['damage']}"
             )
