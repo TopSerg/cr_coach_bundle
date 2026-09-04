@@ -7,6 +7,7 @@ on:
       - ".github/workflows/build-rudy-arena18x32-windows.yml"
       - "tools/rudy_windows/patch_rudy_arena_18x32.py"
       - "tools/rudy_windows/patch_rudy_building_grid.py"
+      - "tools/rudy_windows/patch_rudy_building_deploy_targeting.py"
       - "tools/rudy_windows/patch_rudy_attack_timing.py"
       - "tools/rudy_windows/patch_rudy_troop_speed.py"
 
@@ -40,6 +41,9 @@ jobs:
 
       - name: Patch half-tile building grid centres
         run: python tools/rudy_windows/patch_rudy_building_grid.py
+
+      - name: Patch building pull during deployment
+        run: python tools/rudy_windows/patch_rudy_building_deploy_targeting.py
 
       - name: Patch Clash Royale troop movement speeds
         run: python tools/rudy_windows/patch_rudy_troop_speed.py
