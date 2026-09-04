@@ -31,10 +31,11 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Patch Rudy geometry, grid, range, cadence, speed and first-hit timing
+      - name: Patch Rudy geometry, grid, targeting, range, cadence, speed and first-hit timing
         run: |
           python tools/rudy_windows/patch_rudy_arena_18x32.py
           python tools/rudy_windows/patch_rudy_building_grid.py
+          python tools/rudy_windows/patch_rudy_building_deploy_targeting.py
           python tools/rudy_windows/patch_rudy_troop_speed.py
           python tools/rudy_windows/patch_rudy_attack_timing.py
 
