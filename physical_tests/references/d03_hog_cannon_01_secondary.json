@@ -1,0 +1,30 @@
+{
+  "id": "d03_hog_cannon_01_SECONDARY",
+  "source_video": "XRecorder_20260903_03(1).mp4",
+  "source_window_s": [54.0, 67.0],
+  "ticks_per_second": 20,
+  "annotation": {
+    "method": "manual 20 fps frame-by-frame review from hog_cannon_debug_pack",
+    "timestamp_resolution_s": 0.05,
+    "notes": "Independent geometry from PRIMARY. Hog deploy marker first visible at about 55.25 s. Cannon deploy marker first visible at about 58.15 s. Cannon HP drops/impact frames occur at about 59.95, 61.55 and the lethal third hit at 63.15 s. Hog disappears at about 64.50 s."
+  },
+  "events_source_time_s": {
+    "hog_play": 55.25,
+    "cannon_play": 58.15,
+    "hog_hits_cannon": [59.95, 61.55, 63.15],
+    "cannon_death": 63.15,
+    "hog_death": 64.50
+  },
+  "events_relative_to_hog_play_s": {
+    "cannon_play": 2.90,
+    "hog_hits_cannon": [4.70, 6.30, 7.90],
+    "cannon_death": 7.90,
+    "hog_death": 9.25
+  },
+  "manually_mapped_cells": {
+    "hog": [14, 17],
+    "cannon": [10, 11],
+    "confidence": "high: placement markers align with visible 18x32 tile centers; right-bridge Hog and center-right Cannon"
+  },
+  "comparison_tolerance_s": 0.10
+}
