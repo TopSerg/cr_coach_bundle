@@ -88,6 +88,15 @@ jobs:
               physical_tests/references/d02_hog_cannon_01_crossdemo.json \
             --out-dir outputs/rudy_postfix
 
+      - name: Diagnose neighboring placement cells
+        run: |
+          python tools/cr_hog_fidelity_test/grid_search_remaining.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --references \
+              physical_tests/references/d03_hog_cannon_01_secondary.json \
+              physical_tests/references/d02_hog_cannon_01_crossdemo.json \
+            --out outputs/rudy_postfix/neighbor_grid_search.json
+
       - name: Publish readable regression summary
         if: always()
         run: |
