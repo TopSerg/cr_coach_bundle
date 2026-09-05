@@ -31,11 +31,13 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Patch Rudy geometry, grid, targeting, range, cadence, speed and first-hit timing
+      - name: Patch Rudy geometry, normal-card semantics, decay and timing
         run: |
           python tools/rudy_windows/patch_rudy_arena_18x32.py
           python tools/rudy_windows/patch_rudy_building_grid.py
           python tools/rudy_windows/patch_rudy_building_deploy_targeting.py
+          python tools/rudy_windows/patch_rudy_normal_evolution_semantics.py
+          python tools/rudy_windows/patch_rudy_building_hp_decay.py
           python tools/rudy_windows/patch_rudy_troop_speed.py
           python tools/rudy_windows/patch_rudy_attack_timing.py
 
@@ -61,43 +63,40 @@ jobs:
             --data-dir outputs/rudy_tournament11_data \
             --out-dir outputs/rudy_existing
 
-      - name: Compare existing probes to real demos
+      - name: Compare solo probe to real demo
         continue-on-error: true
         run: |
           python tools/cr_hog_fidelity_test/compare.py \
             tools/cr_hog_fidelity_test/fixtures/real/hog_solo.json \
             outputs/rudy_existing/hog_solo_trace.json \
             --out outputs/rudy_existing/hog_solo_report.json
-          python tools/cr_hog_fidelity_test/compare.py \
-            tools/cr_hog_fidelity_test/fixtures/real/hog_vs_cannon_preplaced.json \
-            outputs/rudy_existing/hog_cannon_trace.json \
-            --out outputs/rudy_existing/hog_cannon_report.json
 
-      - name: Run PRIMARY dynamic-Cannon, river-jump and bridge-corner probes
+      - name: Run bridge pathing diagnostic
         run: |
           python tools/cr_hog_fidelity_test/run_primary_pathing.py \
             --data-dir outputs/rudy_tournament11_data \
             --reference physical_tests/references/d03_hog_cannon_02_primary.json \
-            --out-dir outputs/rudy_primary
+            --out-dir outputs/rudy_pathing_legacy
 
-      - name: Run secondary and cross-demo video regressions
+      - name: Run decay-aware post-fix video regressions
         run: |
-          python tools/cr_hog_fidelity_test/run_remaining_regressions.py \
+          python tools/cr_hog_fidelity_test/run_postfix_regressions.py \
             --data-dir outputs/rudy_tournament11_data \
             --references \
+              physical_tests/references/d03_hog_cannon_02_primary.json \
               physical_tests/references/d03_hog_cannon_01_secondary.json \
               physical_tests/references/d02_hog_cannon_01_crossdemo.json \
-            --out-dir outputs/rudy_remaining
+            --out-dir outputs/rudy_postfix
 
       - name: Upload Rudy fidelity diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: rudy-primary-pathing-diagnostics
+          name: rudy-postfix-regressions
           path: |
             outputs/rudy_existing
-            outputs/rudy_primary
-            outputs/rudy_remaining
+            outputs/rudy_pathing_legacy
+            outputs/rudy_postfix
             outputs/rudy_tournament11_data/_tournament11_manifest.json
           if-no-files-found: warn
           retention-days: 14
