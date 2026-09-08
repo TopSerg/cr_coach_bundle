@@ -97,6 +97,14 @@ jobs:
               physical_tests/references/d02_hog_cannon_01_crossdemo.json \
             --out outputs/rudy_postfix/neighbor_grid_search.json
 
+      - name: Diagnose card placement lattice
+        run: |
+          python tools/cr_hog_fidelity_test/run_placement_diagnostic.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --out outputs/rudy_postfix/placement_diagnostic.json \
+            --markdown-out outputs/rudy_postfix/placement_diagnostic.md \
+            --github-step-summary
+
       - name: Publish readable regression summary
         if: always()
         run: |
