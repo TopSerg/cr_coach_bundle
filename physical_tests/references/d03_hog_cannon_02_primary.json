@@ -22,10 +22,29 @@
     "cannon_death": 7.50,
     "hog_death": 8.70
   },
+  "placements": {
+    "coordinate_model": "grid2_half_tile_from_top_left_boundary",
+    "hog": {
+      "card": "hog-rider",
+      "kind": "troop",
+      "anchor_cell": [9, 18],
+      "center_grid2": [19, 37],
+      "footprint_tiles": [1, 1],
+      "center_phase": "tile_center"
+    },
+    "cannon": {
+      "card": "cannon",
+      "kind": "building",
+      "anchor_cell": [9, 10],
+      "center_grid2": [19, 21],
+      "footprint_tiles": [3, 3],
+      "center_phase": "tile_center"
+    }
+  },
   "manually_mapped_cells": {
     "hog": [9, 18],
     "cannon": [9, 10],
-    "confidence": "initial mapping from the visible 18x32 arena grid; keep geometry explicit in the test so it can be corrected independently of timing"
+    "confidence": "PRIMARY mapping retained; explicit grid2 centers added so tile-center versus half-tile placement is no longer ambiguous"
   },
   "comparison_tolerance_s": 0.10
 }
