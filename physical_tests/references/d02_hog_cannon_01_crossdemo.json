@@ -4,27 +4,50 @@
   "source_window_s": [79.0, 91.5],
   "ticks_per_second": 20,
   "annotation": {
-    "method": "manual 20 fps frame-by-frame review from hog_cannon_debug_pack",
+    "method": "manual 20 fps frame-by-frame review from hog_cannon_debug_pack, rechecked against the visible arena tile grid",
     "timestamp_resolution_s": 0.05,
-    "notes": "Cannon is preplaced before Hog. Cannon deployment marker first visible at about 81.15 s; Hog deployment marker at about 82.80 s. Cannon HP drops on Hog impacts at about 87.05 and 88.65 s. Cannon disappears at about 89.05 s before a third Hog swing, consistent with building lifetime decay plus two Hog hits. Hog disappears at about 89.95 s after retargeting."
+    "notes": "Cannon is preplaced before Hog. Cannon deployment marker first visible at about 81.15 s; Hog deployment marker at about 82.80 s. Recounting the left-bridge tile rows places Hog on [3,17], one tile closer to the river than the earlier [3,18] annotation. Cannon HP drops on Hog impacts at about 87.05 and 88.65 s. The second Hog hit is the semantic lethal event; the Cannon visual disappears at about 89.05 s. Hog disappears at about 89.95 s after retargeting."
   },
   "events_source_time_s": {
     "cannon_play": 81.15,
     "hog_play": 82.80,
     "hog_hits_cannon": [87.05, 88.65],
+    "cannon_lethal_hit": 88.65,
+    "cannon_visual_disappear": 89.05,
     "cannon_death": 89.05,
     "hog_death": 89.95
   },
   "events_relative_to_hog_play_s": {
     "cannon_play": -1.65,
     "hog_hits_cannon": [4.25, 5.85],
+    "cannon_lethal_hit": 5.85,
+    "cannon_visual_disappear": 6.25,
     "cannon_death": 6.25,
     "hog_death": 7.15
   },
+  "placements": {
+    "coordinate_model": "grid2_half_tile_from_top_left_boundary",
+    "hog": {
+      "card": "hog-rider",
+      "kind": "troop",
+      "anchor_cell": [3, 17],
+      "center_grid2": [7, 35],
+      "footprint_tiles": [1, 1],
+      "center_phase": "tile_center"
+    },
+    "cannon": {
+      "card": "cannon",
+      "kind": "building",
+      "anchor_cell": [8, 10],
+      "center_grid2": [17, 21],
+      "footprint_tiles": [3, 3],
+      "center_phase": "tile_center"
+    }
+  },
   "manually_mapped_cells": {
-    "hog": [3, 18],
+    "hog": [3, 17],
     "cannon": [8, 10],
-    "confidence": "high: Hog marker is on the left bridge lane; Cannon marker is centered on the visible tile grid"
+    "confidence": "high for lane/column and medium-high for row after direct frame recount; [3,17] is also consistent with the observed time-to-river, while [3,18] adds an impossible extra tile of travel"
   },
   "comparison_tolerance_s": 0.10
 }
