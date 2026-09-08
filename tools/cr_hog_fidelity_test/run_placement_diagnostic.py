@@ -12,8 +12,10 @@ import run_primary_pathing as common
 
 
 def deck_with(card: str) -> list[str]:
-    filler = ["knight", "archers", "fireball", "giant", "valkyrie", "musketeer", "zap"]
-    return [card] + [x for x in filler if x != card][:7]
+    # common.P1_DECK already contains eight known-good cards.  Replacing/prepending
+    # one card must still leave an 8-card deck even when `card` is itself in the base.
+    filler = [x for x in common.P1_DECK if x != card]
+    return [card] + filler[:7]
 
 
 def one_probe(data: Any, card: str, kind: str, selected_cell: list[int]) -> dict[str, Any]:
