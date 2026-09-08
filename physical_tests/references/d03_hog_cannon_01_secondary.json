@@ -4,9 +4,9 @@
   "source_window_s": [54.0, 67.0],
   "ticks_per_second": 20,
   "annotation": {
-    "method": "manual 20 fps frame-by-frame review from hog_cannon_debug_pack",
+    "method": "manual 20 fps frame-by-frame review from hog_cannon_debug_pack, rechecked against the visible arena tile grid",
     "timestamp_resolution_s": 0.05,
-    "notes": "Independent geometry from PRIMARY. Hog deploy marker first visible at about 55.25 s. Cannon deploy marker first visible at about 58.15 s. Cannon HP drops/impact frames occur at about 59.95, 61.55 and the lethal third hit at 63.15 s. Hog disappears at about 64.50 s."
+    "notes": "Independent geometry from PRIMARY. Hog deploy marker first visible at about 55.25 s. Cannon deploy marker first visible at about 58.15 s. Recounting visible tile rows from the river puts the 3x3 Cannon center on cell [10,10], not [10,11]. Cannon HP drops/impact frames occur at about 59.95, 61.55 and the lethal third hit at 63.15 s. Hog disappears at about 64.50 s."
   },
   "events_source_time_s": {
     "hog_play": 55.25,
@@ -21,10 +21,29 @@
     "cannon_death": 7.90,
     "hog_death": 9.25
   },
+  "placements": {
+    "coordinate_model": "grid2_half_tile_from_top_left_boundary",
+    "hog": {
+      "card": "hog-rider",
+      "kind": "troop",
+      "anchor_cell": [14, 17],
+      "center_grid2": [29, 35],
+      "footprint_tiles": [1, 1],
+      "center_phase": "tile_center"
+    },
+    "cannon": {
+      "card": "cannon",
+      "kind": "building",
+      "anchor_cell": [10, 10],
+      "center_grid2": [21, 21],
+      "footprint_tiles": [3, 3],
+      "center_phase": "tile_center"
+    }
+  },
   "manually_mapped_cells": {
     "hog": [14, 17],
-    "cannon": [10, 11],
-    "confidence": "high: placement markers align with visible 18x32 tile centers; right-bridge Hog and center-right Cannon"
+    "cannon": [10, 10],
+    "confidence": "high after tile-grid recount: Hog is a right-bridge tile-center drop; Cannon is 3x3 so its geometric center is the selected center tile"
   },
   "comparison_tolerance_s": 0.10
 }
