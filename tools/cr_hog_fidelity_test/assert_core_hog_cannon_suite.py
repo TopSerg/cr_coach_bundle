@@ -19,7 +19,7 @@ def load(path: str) -> dict[str, Any]:
 
 def fmt(v: Any) -> str:
     if v is None:
-        return "—"
+        return "-"
     if isinstance(v, float):
         return f"{v:.2f}"
     return str(v)
@@ -40,7 +40,7 @@ def main() -> int:
     missing = sorted(PURE_VIDEO_SCENARIOS - set(cases))
     rows: list[tuple[str, bool, str]] = []
 
-    rows.append(("Solo Hog → Princess Tower", bool(solo.get("pass")), "all solo metrics"))
+    rows.append(("Solo Hog -> Princess Tower", bool(solo.get("pass")), "all solo metrics"))
 
     for scenario in sorted(PURE_VIDEO_SCENARIOS):
         c = cases.get(scenario)
@@ -49,7 +49,7 @@ def main() -> int:
             continue
         div = c.get("first_divergence")
         detail = "all video events within tolerance" if c.get("pass") else (
-            f"first divergence: {div.get('event')} Δ={fmt(div.get('delta_s'))} s" if div else "fidelity mismatch"
+            f"first divergence: {div.get('event')} delta={fmt(div.get('delta_s'))} s" if div else "fidelity mismatch"
         )
         rows.append((scenario, bool(c.get("pass")), detail))
 
@@ -69,7 +69,11 @@ def main() -> int:
         md.append(f"| {name} | {'✅ PASS' if ok else '❌ FAIL'} | {detail} |")
     md.append("")
     text = "\n".join(md)
-    print(text)
+
+    # Windows Actions consoles may still use cp1252. Keep console output ASCII,
+    # while preserving richer UTF-8 Markdown in artifacts and Step Summary.
+    console_text = text.replace("✅", "PASS").replace("❌", "FAIL")
+    print(console_text)
 
     if args.out:
         p = Path(args.out)
