@@ -36,6 +36,7 @@ jobs:
           python tools/rudy_windows/patch_rudy_arena_18x32.py
           python tools/rudy_windows/patch_rudy_unified_combat_geometry.py
           python tools/rudy_windows/patch_rudy_tower_projectiles.py
+          python tools/rudy_windows/patch_rudy_tower_geometry_cadence.py
           python tools/rudy_windows/patch_rudy_debug_combat_snapshots.py
           python tools/rudy_windows/patch_rudy_building_grid.py
           python tools/rudy_windows/patch_rudy_building_deploy_targeting.py
