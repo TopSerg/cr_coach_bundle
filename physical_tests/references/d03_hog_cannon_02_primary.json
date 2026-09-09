@@ -7,7 +7,7 @@
   "annotation": {
     "method": "manual frame-by-frame review of the PRIMARY clip",
     "timestamp_resolution_s": 0.05,
-    "notes": "Hog play is aligned to the first visible deployment marker. Hog melee hits are marked by the discrete Cannon HP-bar drops / hit animation. The third Hog hit coincides with Cannon death. Hog death is the first frame where the Hog entity disappears into its death effect."
+    "notes": "Hog play is aligned to the first visible deployment marker. Hog melee hits are marked by the discrete Cannon HP-bar drops / hit animation. The third Hog hit coincides with Cannon death. Hog death is the first frame where the Hog entity disappears into its death effect. PRIMARY is not an isolated Hog+Cannon scene: at Hog play an allied Ice Golem and Hunter are already pushing the left enemy Princess Tower and must be present for correct tower target selection."
   },
   "events_source_time_s": {
     "hog_play": 91.50,
@@ -41,10 +41,30 @@
       "center_phase": "tile_center"
     }
   },
+  "context_entities": [
+    {
+      "card": "ice-golem",
+      "team": 1,
+      "level": 11,
+      "position_rudy": [-5500, 7600],
+      "hp_percent": 50,
+      "state": "already_deployed",
+      "observation": "At source t=91.50 the Ice Golem is directly below the left enemy Princess Tower; its visible blue HP bar is approximately half full."
+    },
+    {
+      "card": "hunter",
+      "team": 1,
+      "level": 11,
+      "position_rudy": [-5500, 5600],
+      "hp_percent": 100,
+      "state": "already_deployed",
+      "observation": "At source t=91.50 the Hunter is behind the Ice Golem in the same left lane; no reduced HP bar is visible."
+    }
+  ],
   "manually_mapped_cells": {
     "hog": [9, 18],
     "cannon": [9, 10],
-    "confidence": "PRIMARY mapping retained; explicit grid2 centers added so tile-center versus half-tile placement is no longer ambiguous"
+    "confidence": "PRIMARY Hog/Cannon mapping retained. Context troop positions are world-coordinate estimates from the exact Hog-play frame and are deliberately stored separately from card placement cells because these units were already moving."
   },
   "comparison_tolerance_s": 0.10
 }
