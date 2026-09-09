@@ -7,7 +7,7 @@
   "annotation": {
     "method": "manual frame-by-frame review of the PRIMARY clip",
     "timestamp_resolution_s": 0.05,
-    "notes": "Hog play is aligned to the first visible deployment marker. Hog melee hits are marked by the discrete Cannon HP-bar drops / hit animation. The third Hog hit coincides with Cannon death. Hog death is the first frame where the Hog entity disappears into its death effect. PRIMARY is not an isolated Hog+Cannon scene: at Hog play an allied Ice Golem and Hunter are already pushing the left enemy Princess Tower and must be present for correct tower target selection."
+    "notes": "Hog play is aligned to the first visible deployment marker. Hog melee hits are marked by the discrete Cannon HP-bar drops / hit animation. The third Hog hit coincides with Cannon death. Hog death is the first frame where the Hog entity disappears into its death effect. PRIMARY is not an isolated Hog+Cannon scene: at Hog play an allied Ice Golem and Hunter are already pushing the left enemy Princess Tower and must be present for correct tower target selection. Their outgoing damage is disabled in this regression so unvalidated Hunter scatter physics cannot destroy the tower and contaminate the Hog/Cannon test; only their observed body/HP/target occupancy is used."
   },
   "events_source_time_s": {
     "hog_play": 91.50,
@@ -47,18 +47,22 @@
       "team": 1,
       "level": 11,
       "position_rudy": [-5500, 7600],
-      "hp_percent": 50,
+      "hp_percent": 40,
+      "passive": true,
       "state": "already_deployed",
-      "observation": "At source t=91.50 the Ice Golem is directly below the left enemy Princess Tower; its visible blue HP bar is approximately half full."
+      "observed_death_s": 5.30,
+      "observation": "At source t=91.50 the Ice Golem is directly below the left enemy Princess Tower; its visible blue HP bar is roughly half full. Its death burst begins around source 96.8 s (~+5.3 s)."
     },
     {
       "card": "hunter",
       "team": 1,
       "level": 11,
       "position_rudy": [-5500, 5600],
-      "hp_percent": 100,
+      "hp_percent": 25,
+      "passive": true,
       "state": "already_deployed",
-      "observation": "At source t=91.50 the Hunter is behind the Ice Golem in the same left lane; no reduced HP bar is visible."
+      "observed_death_window_s": [7.10, 7.50],
+      "observation": "At source t=91.50 the Hunter is behind the Ice Golem in the same left lane. He is last clearly present around source 98.6 s and absent by about 99.0 s; overlap makes his exact HP bar unreliable, so lifetime is constrained by the visible death/disappearance window rather than guessed from Hog death."
     }
   ],
   "manually_mapped_cells": {
