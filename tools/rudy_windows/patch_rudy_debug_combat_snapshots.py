@@ -56,9 +56,12 @@ text = text.replace(old, new, 1)
 marker = '''    /// Spawn a troop for a player at (x, y). Player: 1 or 2.
 '''
 seed_method = '''    /// Seed an already-deployed NORMAL troop at an observed world position.
-    /// Diagnostic/snapshot helper for video regressions: no elixir, no card cycle,
-    /// no deploy animation, no automatic hero/evolution semantics.
-    #[pyo3(signature = (player, card_key, x, y, level=11, hp_percent=100))]
+    /// Diagnostic/snapshot helper for clipped video regressions: no elixir, no card
+    /// cycle, no deploy animation, no automatic hero/evolution semantics.
+    /// `passive=true` preserves body/HP/targetability/movement but zeroes outgoing
+    /// direct attack damage so an uncalibrated context card cannot become a hidden
+    /// fidelity dependency of the scenario under test.
+    #[pyo3(signature = (player, card_key, x, y, level=11, hp_percent=100, passive=false))]
     fn seed_troop_state(
         &mut self,
         player: i32,
@@ -67,6 +70,7 @@ seed_method = '''    /// Seed an already-deployed NORMAL troop at an observed wo
         y: i32,
         level: usize,
         hp_percent: i32,
+        passive: bool,
     ) -> PyResult<u32> {
         let team = match player {
             1 => Team::Player1,
@@ -84,6 +88,9 @@ seed_method = '''    /// Seed an already-deployed NORMAL troop at an observed wo
         entity.deploy_timer = 0;
         let pct = hp_percent.clamp(1, 100) as i64;
         entity.hp = ((entity.max_hp as i64 * pct + 99) / 100) as i32;
+        if passive {
+            entity.damage = 0;
+        }
         self.state.entities.push(entity);
         Ok(id.0)
     }
@@ -95,4 +102,4 @@ if count != 1:
 text = text.replace(marker, seed_method + marker, 1)
 
 lib.write_text(text, encoding="utf-8")
-print("Rudy patched: expose combat snapshots + seed_troop_state() for observed video context.")
+print("Rudy patched: expose combat snapshots + passive-capable seed_troop_state() for observed video context.")
