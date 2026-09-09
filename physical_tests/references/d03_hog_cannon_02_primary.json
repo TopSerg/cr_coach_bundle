@@ -58,11 +58,11 @@
       "team": 1,
       "level": 11,
       "position_rudy": [-5500, 5600],
-      "hp_percent": 25,
+      "hp_percent": 15,
       "passive": true,
       "state": "already_deployed",
       "observed_death_window_s": [7.10, 7.50],
-      "observation": "At source t=91.50 the Hunter is behind the Ice Golem in the same left lane. He is last clearly present around source 98.6 s and absent by about 99.0 s; overlap makes his exact HP bar unreliable, so lifetime is constrained by the visible death/disappearance window rather than guessed from Hog death."
+      "observation": "At source t=91.50 the Hunter is behind the Ice Golem in the same left lane. He is last clearly present around source 98.6 s and absent by about 99.0 s. In the previous diagnostic, tower impacts on this seeded Hunter occurred at 6.65 and 7.45 s after the Ice Golem tank died; 15% seeded HP makes the second observed tower impact lethal, matching the independently annotated disappearance window."
     }
   ],
   "manually_mapped_cells": {
