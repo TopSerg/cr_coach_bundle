@@ -17,15 +17,7 @@ def attack_release_hits(
     target_card: str,
     target_team: int,
 ) -> list[dict[str, Any]]:
-    """Detect actual attack releases without confusing passive building HP decay for hits.
-
-    Rudy exposes attack_phase but not target ID. For these isolated Hog/Cannon probes,
-    a Hog hit is a Windup -> Backswing transition on a tick where the Cannon either:
-      * loses a large damage step (>= 50% of Hog's listed damage), or
-      * disappears on that release tick (lethal hit).
-
-    Small per-tick Cannon HP drops are therefore classified as lifetime decay, not hits.
-    """
+    """Detect actual attack releases without confusing passive building HP decay for hits."""
     events: list[dict[str, Any]] = []
     for prev_fr, cur_fr in zip(frames, frames[1:]):
         a0 = common.find_card(prev_fr, attacker_card, attacker_team)
@@ -79,11 +71,33 @@ def passive_decay_events(
         t = float(fr["t_rel_s"])
         if prev_hp is not None and hp < prev_hp and round(t, 3) not in hit_ticks:
             drop = prev_hp - hp
-            # Passive lifetime decay is tiny compared with Hog's 317 damage.
             if drop < 100:
                 out.append({"t": t, "before": prev_hp, "after": hp, "loss": drop})
         prev_hp = hp
     return out
+
+
+def seed_context(match: Any, ref: dict[str, Any]) -> list[dict[str, Any]]:
+    """Seed already-existing units observed at the scenario's t=0 snapshot.
+
+    These are not card plays. They are scene context that entered the arena before
+    the clipped regression window, so replaying their original deploy sequence would
+    require reconstructing unrelated earlier combat. The debug seed API creates a
+    normal, already-deployed troop at the observed world position and HP fraction.
+    """
+    seeded: list[dict[str, Any]] = []
+    for spec in ref.get("context_entities", []):
+        x, y = [int(v) for v in spec["position_rudy"]]
+        entity_id = match.seed_troop_state(
+            int(spec.get("team", 1)),
+            str(spec["card"]),
+            x,
+            y,
+            int(spec.get("level", 11)),
+            int(spec.get("hp_percent", 100)),
+        )
+        seeded.append({**spec, "entity_id": int(entity_id)})
+    return seeded
 
 
 def replay_case(data: Any, ref: dict[str, Any]) -> dict[str, Any]:
@@ -96,14 +110,16 @@ def replay_case(data: Any, ref: dict[str, Any]) -> dict[str, Any]:
     match = cr_engine.new_match(data, common.P1_DECK, common.P2_DECK)
     common.idle(match, 220)
 
+    # Reproduce events that happened before Hog play first, then seed the exact
+    # observed t=0 context immediately before the Hog action.
     if cannon_rel < 0:
         common.play(match, 2, "cannon", cannon_pos)
         common.idle(match, int(round(-cannon_rel * common.TPS)))
-        t0 = int(match.tick)
-        common.play(match, 1, "hog-rider", hog_pos)
-    else:
-        t0 = int(match.tick)
-        common.play(match, 1, "hog-rider", hog_pos)
+
+    seeded_context = seed_context(match, ref)
+
+    t0 = int(match.tick)
+    common.play(match, 1, "hog-rider", hog_pos)
 
     frames: list[dict[str, Any]] = [common.frame(match, t0)]
     cannon_played = cannon_rel < 0
@@ -122,6 +138,18 @@ def replay_case(data: Any, ref: dict[str, Any]) -> dict[str, Any]:
     passive = passive_decay_events(frames, "cannon", 2, sim_hits)
     cannon_death = common.first_absence_after_seen(frames, "cannon", 2)
     hog_death = common.first_absence_after_seen(frames, "hog-rider", 1)
+
+    context_outcomes: list[dict[str, Any]] = []
+    for spec in seeded_context:
+        context_outcomes.append({
+            "card": spec["card"],
+            "entity_id": spec["entity_id"],
+            "seed_position_rudy": spec["position_rudy"],
+            "seed_hp_percent": spec.get("hp_percent", 100),
+            "death_s": common.first_absence_after_seen(
+                frames, str(spec["card"]), int(spec.get("team", 1))
+            ),
+        })
 
     expected_hits = [float(x) for x in real["hog_hits_cannon"]]
     tol = float(ref.get("comparison_tolerance_s", 0.10))
@@ -166,6 +194,8 @@ def replay_case(data: Any, ref: dict[str, Any]) -> dict[str, Any]:
             "hog_rudy": list(hog_pos),
             "cannon_rudy": list(cannon_pos),
         },
+        "seeded_context": seeded_context,
+        "context_outcomes": context_outcomes,
         "real_events": real,
         "sim_events": {
             "hog_first_movement_s": common.first_movement_time(frames, "hog-rider", 1),
@@ -206,6 +236,7 @@ def main() -> int:
             "first_divergence": result["first_divergence"],
             "real_events": result["real_events"],
             "sim_events": result["sim_events"],
+            "context_outcomes": result["context_outcomes"],
         })
 
         print(f"\n=== {result['scenario']} ===")
@@ -214,6 +245,8 @@ def main() -> int:
                 f"{row['event']:20s} real={row['real_s']} sim={row['sim_s']} "
                 f"delta={row['delta_s']} pass={row['pass']}"
             )
+        if result["context_outcomes"]:
+            print(f"context: {result['context_outcomes']}")
         print(f"FIRST DIVERGENCE: {result['first_divergence']}")
         passive = result["sim_events"]["cannon_passive_decay_events"]
         print(f"passive Cannon decay samples: {len(passive)}")
