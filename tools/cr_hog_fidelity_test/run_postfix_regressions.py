@@ -78,13 +78,7 @@ def passive_decay_events(
 
 
 def seed_context(match: Any, ref: dict[str, Any]) -> list[dict[str, Any]]:
-    """Seed already-existing units observed at the scenario's t=0 snapshot.
-
-    These are not card plays. They are scene context that entered the arena before
-    the clipped regression window, so replaying their original deploy sequence would
-    require reconstructing unrelated earlier combat. The debug seed API creates a
-    normal, already-deployed troop at the observed world position and HP fraction.
-    """
+    """Seed already-existing units observed at the scenario's t=0 snapshot."""
     seeded: list[dict[str, Any]] = []
     for spec in ref.get("context_entities", []):
         x, y = [int(v) for v in spec["position_rudy"]]
@@ -95,6 +89,7 @@ def seed_context(match: Any, ref: dict[str, Any]) -> list[dict[str, Any]]:
             y,
             int(spec.get("level", 11)),
             int(spec.get("hp_percent", 100)),
+            bool(spec.get("passive", False)),
         )
         seeded.append({**spec, "entity_id": int(entity_id)})
     return seeded
@@ -110,8 +105,6 @@ def replay_case(data: Any, ref: dict[str, Any]) -> dict[str, Any]:
     match = cr_engine.new_match(data, common.P1_DECK, common.P2_DECK)
     common.idle(match, 220)
 
-    # Reproduce events that happened before Hog play first, then seed the exact
-    # observed t=0 context immediately before the Hog action.
     if cannon_rel < 0:
         common.play(match, 2, "cannon", cannon_pos)
         common.idle(match, int(round(-cannon_rel * common.TPS)))
@@ -146,6 +139,9 @@ def replay_case(data: Any, ref: dict[str, Any]) -> dict[str, Any]:
             "entity_id": spec["entity_id"],
             "seed_position_rudy": spec["position_rudy"],
             "seed_hp_percent": spec.get("hp_percent", 100),
+            "passive": spec.get("passive", False),
+            "observed_death_s": spec.get("observed_death_s"),
+            "observed_death_window_s": spec.get("observed_death_window_s"),
             "death_s": common.first_absence_after_seen(
                 frames, str(spec["card"]), int(spec.get("team", 1))
             ),
