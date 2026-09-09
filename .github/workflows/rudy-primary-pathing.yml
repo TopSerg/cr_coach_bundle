@@ -56,6 +56,12 @@ jobs:
             --source-data-dir third_party/clash-royale-suite/cr-rudy-sim/simulator/data \
             --profile tools/cr_hog_fidelity_test/tournament11_profile.json \
             --out-dir outputs/rudy_tournament11_data
+          python tools/cr_hog_fidelity_test/patch_tournament_ranged_projectiles.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --building-name Cannon \
+            --projectile-name TowerCannonball \
+            --level 11 \
+            --damage 202
 
       - name: Run existing solo and preplaced-Cannon probes
         run: |
