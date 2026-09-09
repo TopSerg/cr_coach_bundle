@@ -51,5 +51,48 @@ new = '''            dict.set_item(
 count = text.count(old)
 if count != 1:
     raise RuntimeError(f"debug snapshot insertion: expected 1 get_entities block, found {count}")
-lib.write_text(text.replace(old, new, 1), encoding="utf-8")
-print("Rudy patched: expose building cooldown/ranged state and projectile flight fields to Python diagnostics.")
+text = text.replace(old, new, 1)
+
+marker = '''    /// Spawn a troop for a player at (x, y). Player: 1 or 2.
+'''
+seed_method = '''    /// Seed an already-deployed NORMAL troop at an observed world position.
+    /// Diagnostic/snapshot helper for video regressions: no elixir, no card cycle,
+    /// no deploy animation, no automatic hero/evolution semantics.
+    #[pyo3(signature = (player, card_key, x, y, level=11, hp_percent=100))]
+    fn seed_troop_state(
+        &mut self,
+        player: i32,
+        card_key: &str,
+        x: i32,
+        y: i32,
+        level: usize,
+        hp_percent: i32,
+    ) -> PyResult<u32> {
+        let team = match player {
+            1 => Team::Player1,
+            2 => Team::Player2,
+            _ => return Err(pyo3::exceptions::PyValueError::new_err("player must be 1 or 2")),
+        };
+        let stats = self.data.characters.get(card_key).ok_or_else(|| {
+            pyo3::exceptions::PyKeyError::new_err(format!("Unknown character: {}", card_key))
+        })?;
+        let id = self.state.alloc_id();
+        let mut entity = Entity::new_troop(id, team, stats, x, y, level, false);
+        if entity.card_key.is_empty() {
+            entity.card_key = card_key.to_string();
+        }
+        entity.deploy_timer = 0;
+        let pct = hp_percent.clamp(1, 100) as i64;
+        entity.hp = ((entity.max_hp as i64 * pct + 99) / 100) as i32;
+        self.state.entities.push(entity);
+        Ok(id.0)
+    }
+
+'''
+count = text.count(marker)
+if count != 1:
+    raise RuntimeError(f"seed_troop_state insertion: expected 1 spawn_troop marker, found {count}")
+text = text.replace(marker, seed_method + marker, 1)
+
+lib.write_text(text, encoding="utf-8")
+print("Rudy patched: expose combat snapshots + seed_troop_state() for observed video context.")
