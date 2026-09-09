@@ -1,18 +1,14 @@
-name: Build Rudy 18x32 Windows Wheel
+name: Build Hog Cannon Core Windows Bundle
 
 on:
   workflow_dispatch:
   push:
     paths:
       - ".github/workflows/build-rudy-arena18x32-windows.yml"
-      - "tools/rudy_windows/patch_rudy_arena_18x32.py"
-      - "tools/rudy_windows/patch_rudy_unified_combat_geometry.py"
-      - "tools/rudy_windows/patch_rudy_building_grid.py"
-      - "tools/rudy_windows/patch_rudy_building_deploy_targeting.py"
-      - "tools/rudy_windows/patch_rudy_normal_evolution_semantics.py"
-      - "tools/rudy_windows/patch_rudy_building_hp_decay.py"
-      - "tools/rudy_windows/patch_rudy_attack_timing.py"
-      - "tools/rudy_windows/patch_rudy_troop_speed.py"
+      - "tools/rudy_windows/**"
+      - "tools/cr_hog_fidelity_test/**"
+      - "physical_tests/references/d03_hog_cannon_01_secondary.json"
+      - "physical_tests/references/d02_hog_cannon_01_crossdemo.json"
 
 permissions:
   contents: read
@@ -39,45 +35,84 @@ jobs:
           python-version: "3.12"
           architecture: x64
 
-      - name: Patch arena geometry and troop edge-to-edge combat
-        run: python tools/rudy_windows/patch_rudy_arena_18x32.py
-
-      - name: Unify combat range and tower attack-cycle semantics
-        run: python tools/rudy_windows/patch_rudy_unified_combat_geometry.py
-
-      - name: Patch half-tile building grid centres
-        run: python tools/rudy_windows/patch_rudy_building_grid.py
-
-      - name: Patch building pull during deployment
-        run: python tools/rudy_windows/patch_rudy_building_deploy_targeting.py
-
-      - name: Keep normal card plays non-evolved
-        run: python tools/rudy_windows/patch_rudy_normal_evolution_semantics.py
-
-      - name: Patch continuous building HP decay
-        run: python tools/rudy_windows/patch_rudy_building_hp_decay.py
-
-      - name: Patch Clash Royale troop movement speeds
-        run: python tools/rudy_windows/patch_rudy_troop_speed.py
-
-      - name: Patch first-hit timing semantics
-        run: python tools/rudy_windows/patch_rudy_attack_timing.py
+      - name: Apply Hog Cannon Princess production patches
+        shell: pwsh
+        run: |
+          python tools/rudy_windows/patch_rudy_arena_18x32.py
+          python tools/rudy_windows/patch_rudy_unified_combat_geometry.py
+          python tools/rudy_windows/patch_rudy_tower_projectiles.py
+          python tools/rudy_windows/patch_rudy_tower_geometry_cadence.py
+          python tools/rudy_windows/patch_rudy_homing_projectile_timing.py
+          python tools/rudy_windows/patch_rudy_debug_combat_snapshots.py
+          python tools/rudy_windows/patch_rudy_building_grid.py
+          python tools/rudy_windows/patch_rudy_building_deploy_targeting.py
+          python tools/rudy_windows/patch_rudy_normal_evolution_semantics.py
+          python tools/rudy_windows/patch_rudy_building_hp_decay.py
+          python tools/rudy_windows/patch_rudy_troop_speed.py
+          python tools/rudy_windows/patch_rudy_attack_timing.py
 
       - name: Install maturin
         run: python -m pip install --upgrade pip maturin
 
       - name: Build cr_engine wheel
-        working-directory: third_party/clash-royale-suite/cr-rudy-sim/simulator
+        working-directory: third_party/clash-royale-suite/cr-rudy-sim/simulator/engine
         run: python -m maturin build --release --interpreter python
+
+      - name: Install built wheel
+        shell: pwsh
+        run: |
+          $wheel = (Get-ChildItem third_party/clash-royale-suite/cr-rudy-sim/simulator/engine/target/wheels/*.whl | Select-Object -First 1).FullName
+          Write-Host "Installing $wheel"
+          python -m pip install $wheel
+
+      - name: Build Tournament-11 Hog Cannon data
+        shell: pwsh
+        run: |
+          python tools/cr_hog_fidelity_test/build_tournament_data.py --source-data-dir third_party/clash-royale-suite/cr-rudy-sim/simulator/data --profile tools/cr_hog_fidelity_test/tournament11_profile.json --out-dir outputs/rudy_tournament11_data
+          python tools/cr_hog_fidelity_test/patch_tournament_ranged_projectiles.py --data-dir outputs/rudy_tournament11_data --building-name Cannon --projectile-name TowerCannonball --level 11 --damage 202
+
+      - name: Run Solo Hog Princess guard
+        shell: pwsh
+        run: |
+          python tools/cr_hog_fidelity_test/run_rudy.py --scenario solo --config tools/cr_hog_fidelity_test/scenarios.json --data-dir outputs/rudy_tournament11_data --out-dir outputs/rudy_core_existing
+          python tools/cr_hog_fidelity_test/compare.py tools/cr_hog_fidelity_test/fixtures/real/hog_solo.json outputs/rudy_core_existing/hog_solo_trace.json --out outputs/rudy_core_existing/hog_solo_report.json
+
+      - name: Run pure Hog Cannon Princess video regressions
+        shell: pwsh
+        run: |
+          python tools/cr_hog_fidelity_test/run_postfix_regressions.py --data-dir outputs/rudy_tournament11_data --references physical_tests/references/d03_hog_cannon_01_secondary.json physical_tests/references/d02_hog_cannon_01_crossdemo.json --out-dir outputs/rudy_core_postfix
+
+      - name: Strict Hog Cannon Princess core gate
+        shell: pwsh
+        run: |
+          python tools/cr_hog_fidelity_test/assert_core_hog_cannon_suite.py --postfix-summary outputs/rudy_core_postfix/summary.json --solo-report outputs/rudy_core_existing/hog_solo_report.json --out outputs/rudy_core_postfix/core_hog_cannon_summary.md --github-step-summary
+
+      - name: Write bundle README
+        shell: pwsh
+        run: |
+          @"
+          Hog + Cannon + Princess Tower core bundle
+          =========================================
+          Python: 3.12 x64
+          Rudy upstream: nguiaSoren/clash-royale-suite@050275d70b84614953877e8075dc4b8ba907c67f
+          Engine: patched cr_engine wheel in wheel/
+          Data: Tournament-11 overlay in data/
+          Validation: Solo Hog + d03 SECONDARY + d02 CROSSDEMO strict gate passed on this same Windows build.
+          "@ | Set-Content -Encoding UTF8 outputs/HOG_CANNON_CORE_README.txt
 
       - name: Show built wheel
         shell: pwsh
         run: Get-ChildItem third_party/clash-royale-suite/cr-rudy-sim/simulator/engine/target/wheels/*.whl
 
-      - name: Upload patched wheel
+      - name: Upload ready Hog Cannon core bundle
         uses: actions/upload-artifact@v4
         with:
-          name: cr-engine-arena18x32-win64-py3.12
-          path: third_party/clash-royale-suite/cr-rudy-sim/simulator/engine/target/wheels/*.whl
+          name: hog-cannon-princess-core-win64-py3.12
+          path: |
+            third_party/clash-royale-suite/cr-rudy-sim/simulator/engine/target/wheels/*.whl
+            outputs/rudy_tournament11_data
+            outputs/rudy_core_existing
+            outputs/rudy_core_postfix
+            outputs/HOG_CANNON_CORE_README.txt
           if-no-files-found: error
           retention-days: 14
