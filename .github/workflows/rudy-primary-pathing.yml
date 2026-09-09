@@ -99,6 +99,14 @@ jobs:
               physical_tests/references/d02_hog_cannon_01_crossdemo.json \
             --out-dir outputs/rudy_postfix
 
+      - name: Strict Hog Cannon Princess core gate
+        run: |
+          python tools/cr_hog_fidelity_test/assert_core_hog_cannon_suite.py \
+            --postfix-summary outputs/rudy_postfix/summary.json \
+            --solo-report outputs/rudy_existing/hog_solo_report.json \
+            --out outputs/rudy_postfix/core_hog_cannon_summary.md \
+            --github-step-summary
+
       - name: Diagnose neighboring placement cells
         run: |
           python tools/cr_hog_fidelity_test/grid_search_remaining.py \
