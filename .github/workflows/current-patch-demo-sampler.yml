@@ -17,60 +17,39 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Resolve direct video stream through public Invidious instances
-        shell: python
+      - name: Fetch Reddit post metadata
         run: |
+          curl -fL --retry 3 -A "Mozilla/5.0 CR-Coach-Fidelity-Probe/1.0"             "https://www.reddit.com/comments/1wcndph.json?raw_json=1" -o reddit.json
+          python - <<'PY'
           import json
-          import urllib.request
-
-          video_id = "kAdFwFV0ZSM"
-          instances = [
-              "https://inv.nadeko.net",
-              "https://invidious.nerdvpn.de",
-              "https://yt.chocolatemoo53.com",
-              "https://invidious.tiekoetter.com",
-          ]
-          errors = []
-          for base in instances:
-              endpoint = f"{base}/api/v1/videos/{video_id}"
-              try:
-                  req = urllib.request.Request(endpoint, headers={"User-Agent": "Mozilla/5.0"})
-                  with urllib.request.urlopen(req, timeout=30) as resp:
-                      data = json.load(resp)
-                  streams = data.get("formatStreams") or []
-                  candidates = []
-                  for stream in streams:
-                      url = stream.get("url")
-                      label = str(stream.get("qualityLabel") or stream.get("quality") or "")
-                      if not url:
-                          continue
-                      digits = "".join(ch for ch in label if ch.isdigit())
-                      height = int(digits) if digits else 9999
-                      if height <= 480:
-                          candidates.append((height, url, label))
-                  if not candidates:
-                      raise RuntimeError(f"no <=480 muxed streams ({len(streams)} total)")
-                  candidates.sort(key=lambda x: x[0], reverse=True)
-                  chosen = candidates[0]
-                  print(f"IV_INSTANCE={base}")
-                  print(f"IV_QUALITY={chosen[2]}")
-                  with open("stream_url.txt", "w", encoding="utf-8") as fh:
-                      fh.write(chosen[1])
-                  break
-              except Exception as exc:
-                  errors.append(f"{base}: {exc}")
-          else:
-              raise SystemExit("No Invidious instance succeeded:\n" + "\n".join(errors))
-      - name: Download resolved video stream
+          data=json.load(open("reddit.json",encoding="utf-8"))
+          post=data[0]["data"]["children"][0]["data"]
+          print("TITLE=", post.get("title"))
+          print("CREATED_UTC=", post.get("created_utc"))
+          candidates=[]
+          def scan(obj):
+              if isinstance(obj, dict):
+                  rv=obj.get("reddit_video")
+                  if isinstance(rv,dict) and rv.get("fallback_url"):
+                      candidates.append(rv["fallback_url"])
+                  for v in obj.values(): scan(v)
+              elif isinstance(obj,list):
+                  for v in obj: scan(v)
+          scan(post)
+          if not candidates:
+              print(json.dumps(post.get("secure_media"),indent=2))
+              raise SystemExit("No reddit_video fallback URL found")
+          print("VIDEO_URL=", candidates[0])
+          open("stream_url.txt","w",encoding="utf-8").write(candidates[0])
+          PY
+      - name: Download Reddit match video
         run: |
-          curl -fL --retry 3 --retry-all-errors --connect-timeout 20 \
-            -o current_patch_demo.mp4 "$(cat stream_url.txt)"
+          curl -fL --retry 3 --retry-all-errors --connect-timeout 20             -A "Mozilla/5.0" -o current_patch_demo.mp4 "$(cat stream_url.txt)"
           ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 current_patch_demo.mp4
-      - name: Build 10-second contact sheets
+      - name: Build 5-second contact sheets
         run: |
           mkdir -p sheets
-          ffmpeg -hide_banner -loglevel error -i current_patch_demo.mp4 \
-            -vf "fps=1/10,scale=180:-1,tile=5x6" -q:v 5 sheets/sheet_%03d.jpg
+          ffmpeg -hide_banner -loglevel error -i current_patch_demo.mp4             -vf "fps=1/5,scale=180:-1,tile=5x6" -q:v 5 sheets/sheet_%03d.jpg
           ls -lh sheets
       - name: Emit contact sheets
         shell: python
@@ -84,8 +63,9 @@ jobs:
       - name: Upload source and sheets
         uses: actions/upload-artifact@v4
         with:
-          name: current-patch-demo-sample
+          name: current-patch-reddit-match
           path: |
             current_patch_demo.mp4
+            reddit.json
             sheets
           retention-days: 2
