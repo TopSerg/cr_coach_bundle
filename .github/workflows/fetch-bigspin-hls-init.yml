@@ -1,0 +1,46 @@
+name: Fetch BigSpin HLS init
+
+on:
+  push:
+    branches:
+      - probe/current-patch-demo
+    paths:
+      - ".github/workflows/fetch-bigspin-hls-init.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade yt-dlp
+      - name: Fetch playlist and init segment
+        shell: python
+        run: |
+          import re, subprocess, urllib.parse, urllib.request
+          from pathlib import Path
+          url=subprocess.check_output([
+              "yt-dlp","-g","-f","160p/worst",
+              "https://www.twitch.tv/videos/2869686601"
+          ],text=True).splitlines()[0].strip()
+          text=urllib.request.urlopen(urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"}),timeout=30).read().decode()
+          Path("playlist.m3u8").write_text(text,encoding="utf-8")
+          m=re.search(r'#EXT-X-MAP:URI="([^"]+)"',text)
+          if not m:
+              raise SystemExit("No EXT-X-MAP")
+          init_url=urllib.parse.urljoin(url,m.group(1))
+          data=urllib.request.urlopen(urllib.request.Request(init_url,headers={"User-Agent":"Mozilla/5.0"}),timeout=30).read()
+          Path("init.mp4").write_bytes(data)
+          print("init",len(data),init_url)
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bigspin-hls-init
+          path: |
+            init.mp4
+            playlist.m3u8
+          retention-days: 1
