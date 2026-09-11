@@ -42,19 +42,28 @@ jobs:
                   segments.append({"start":current,"end":current+dur,"duration":dur,
                                    "url":urllib.parse.urljoin(playlist_url,line)})
                   current+=dur; dur=None
+          from concurrent.futures import ThreadPoolExecutor, as_completed
           out=Path("segments"); out.mkdir()
-          chosen=[]
+          jobs=[]
           for sec in range(4680,8400,10):
               idx=next((i for i,s in enumerate(segments) if s["start"] <= sec < s["end"]),None)
               if idx is None: continue
-              s=segments[idx]
+              jobs.append((sec,idx,segments[idx]))
+          def fetch(job):
+              sec,idx,s=job
               name=f"t_{sec:05d}_seg_{idx:05d}.ts"
               rq=urllib.request.Request(s["url"],headers={"User-Agent":"Mozilla/5.0"})
               data=urllib.request.urlopen(rq,timeout=30).read()
               (out/name).write_bytes(data)
-              chosen.append({"requested_s":sec,"requested_time":f"{sec//60:02d}:{sec%60:02d}",
-                             "segment_index":idx,"segment_start":s["start"],"segment_end":s["end"],
-                             "file":name,"bytes":len(data)})
+              return {"requested_s":sec,"requested_time":f"{sec//60:02d}:{sec%60:02d}",
+                      "segment_index":idx,"segment_start":s["start"],"segment_end":s["end"],
+                      "file":name,"bytes":len(data)}
+          chosen=[]
+          with ThreadPoolExecutor(max_workers=16) as ex:
+              futures=[ex.submit(fetch,j) for j in jobs]
+              for fut in as_completed(futures):
+                  chosen.append(fut.result())
+          chosen.sort(key=lambda x:x["requested_s"])
           (out/"manifest.json").write_text(json.dumps(chosen,indent=2),encoding="utf-8")
           print("downloaded",len(chosen),"segments",sum(x["bytes"] for x in chosen),"bytes")
       - uses: actions/upload-artifact@v4
