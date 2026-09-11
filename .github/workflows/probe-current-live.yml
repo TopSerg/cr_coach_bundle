@@ -1,4 +1,4 @@
-name: Discover fresh no-special-form VOD
+name: Probe viewer-deck VOD
 
 on:
   push:
@@ -12,20 +12,31 @@ permissions:
   contents: read
 
 jobs:
-  discover:
+  probe:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install yt-dlp
-        run: python -m pip install --upgrade yt-dlp
-      - name: List recent Jynxzi Twitch archives
+      - name: Install tools
         run: |
-          yt-dlp --flat-playlist --playlist-end 12             --print "%(id)s|%(duration)s|%(title)s"             "https://www.twitch.tv/jynxzi/videos?filter=archives&sort=time"             | tee jynxzi_vods.txt
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade yt-dlp
+      - name: Print VOD metadata
+        run: |
+          yt-dlp --skip-download             --print "id=%(id)s"             --print "timestamp=%(timestamp)s"             --print "upload_date=%(upload_date)s"             --print "duration=%(duration)s"             --print "title=%(title)s"             "https://www.twitch.tv/videos/2868878839" | tee vod_meta.txt
+      - name: Download first 15 minutes at 240p
+        run: |
+          yt-dlp -f "best[height<=240]/worst" --merge-output-format mp4             --download-sections "*00:00:00-00:15:00"             -o viewer_decks_15m.mp4 "https://www.twitch.tv/videos/2868878839"
+          mkdir -p sheets
+          ffmpeg -hide_banner -loglevel error -i viewer_decks_15m.mp4             -vf "fps=1/5,scale=240:-1,tile=4x5" -q:v 4 sheets/sheet_%03d.jpg
       - uses: actions/upload-artifact@v4
         with:
-          name: jynxzi-vod-list
-          path: jynxzi_vods.txt
-          retention-days: 1
+          name: viewer-decks-first-15m
+          path: |
+            vod_meta.txt
+            viewer_decks_15m.mp4
+            sheets
+          retention-days: 2
