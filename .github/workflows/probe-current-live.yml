@@ -1,4 +1,4 @@
-name: Probe viewer-deck VOD
+name: Locate Clash segment in viewer-deck VOD
 
 on:
   push:
@@ -12,31 +12,28 @@ permissions:
   contents: read
 
 jobs:
-  probe:
+  locate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install tools
+      - run: python -m pip install --upgrade yt-dlp
+      - name: Inspect Twitch VOD metadata and formats
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          python -m pip install --upgrade yt-dlp
-      - name: Print VOD metadata
-        run: |
-          yt-dlp --skip-download             --print "id=%(id)s"             --print "timestamp=%(timestamp)s"             --print "upload_date=%(upload_date)s"             --print "duration=%(duration)s"             --print "title=%(title)s"             "https://www.twitch.tv/videos/2868878839" | tee vod_meta.txt
-      - name: Download first 15 minutes at 240p
-        run: |
-          yt-dlp -f "best[height<=240]/worst" --merge-output-format mp4             --download-sections "*00:00:00-00:15:00"             -o viewer_decks_15m.mp4 "https://www.twitch.tv/videos/2868878839"
-          mkdir -p sheets
-          ffmpeg -hide_banner -loglevel error -i viewer_decks_15m.mp4             -vf "fps=1/5,scale=240:-1,tile=4x5" -q:v 4 sheets/sheet_%03d.jpg
+          yt-dlp --skip-download --dump-single-json "https://www.twitch.tv/videos/2868878839" > info.json
+          python - <<'PY'
+          import json
+          j=json.load(open("info.json",encoding="utf-8"))
+          for k in ("id","timestamp","upload_date","duration","title","categories","tags","chapters","thumbnail"):
+              print(k, "=", j.get(k))
+          print("FORMATS")
+          for f in j.get("formats",[]):
+              print(f.get("format_id"), f.get("ext"), f.get("protocol"), f.get("width"), f.get("height"), f.get("format_note"), f.get("url","")[:180])
+          PY
       - uses: actions/upload-artifact@v4
         with:
-          name: viewer-decks-first-15m
-          path: |
-            vod_meta.txt
-            viewer_decks_15m.mp4
-            sheets
-          retention-days: 2
+          name: viewer-deck-vod-info
+          path: info.json
+          retention-days: 1
