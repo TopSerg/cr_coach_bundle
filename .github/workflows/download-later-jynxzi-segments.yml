@@ -24,7 +24,7 @@ jobs:
       - name: Resolve 160p HLS
         run: |
           yt-dlp -g -f "160p/worst" "https://www.twitch.tv/videos/2868878839" | head -1 > stream_url.txt
-      - name: Download one HLS segment every 10 seconds from 78m to 140m
+      - name: Download one HLS segment every 10 seconds from 140m to 215m
         shell: python
         run: |
           import json, urllib.parse, urllib.request
@@ -45,7 +45,7 @@ jobs:
           from concurrent.futures import ThreadPoolExecutor, as_completed
           out=Path("segments"); out.mkdir()
           jobs=[]
-          for sec in range(4680,8400,10):
+          for sec in range(8400,12900,20):
               idx=next((i for i,s in enumerate(segments) if s["start"] <= sec < s["end"]),None)
               if idx is None: continue
               jobs.append((sec,idx,segments[idx]))
@@ -68,6 +68,6 @@ jobs:
           print("downloaded",len(chosen),"segments",sum(x["bytes"] for x in chosen),"bytes")
       - uses: actions/upload-artifact@v4
         with:
-          name: jynxzi-hls-scan-segments-78m-140m
+          name: jynxzi-hls-scan-segments-140m-215m
           path: segments
           retention-days: 1
