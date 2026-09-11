@@ -2,14 +2,19 @@
 
 ## Воспроизведение по постановкам
 
-```shell
-python setup_simulator.py
-python simulate.py examples/hog_cannon_primary.json --out outputs/primary
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\rudy_windows\install_core_bundle.ps1 -Bundle .\hog-cannon-princess-core-win64-py3.12.zip
+py simulate.py examples\hog_cannon_secondary.json --out outputs\secondary
 ```
 
-Откройте `outputs/primary/replay.html`. Вход — JSON/CSV: время, сторона, карта, клетка.
-109 обычных карт уровня 11, журнал событий и продолжение из checkpoint.
-Совпадение с реальной игрой пока не подтверждено.
+Откройте `outputs/secondary/replay.html`. Вход — JSON/CSV: время, сторона, карта,
+клетка. По умолчанию используется пропатченный Rudy: его ядро Хог + Пушка +
+Princess Tower проходит строгие проверки по двум независимым видео и отдельному
+эпизоду Хога против башни. Это ещё не означает точность всех карт Clash Royale.
+
+Для портативного исследовательского backend без Rust используйте
+`python setup_simulator.py`, затем добавьте `--engine crbot`. Он исполняет 109
+обычных карт уровня 11 и поддерживает checkpoint, но не прошёл видеокалибровку.
 
 [Инструкция](docs/REPLAY_SIMULATOR_RU.md) · [Аудит точности](docs/SIMULATOR_AUDIT_RU.md)
 

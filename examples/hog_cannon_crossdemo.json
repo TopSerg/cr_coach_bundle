@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "battle_id": "d02-crossdemo-clean-interaction",
+  "mode": "placements",
+  "level": 11,
+  "duration_s": 12,
+  "coordinate_system": "world_cells",
+  "events": [
+    {"time": 0, "side": "opponent", "card": "cannon", "x": 8, "y": 10},
+    {"time": 1.65, "side": "team", "card": "hog-rider", "x": 3, "y": 17}
+  ],
+  "notes": "d02 clean cross-demo; time zero is Cannon play, 1.65 seconds before Hog play."
+}

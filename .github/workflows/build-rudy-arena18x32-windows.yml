@@ -44,6 +44,7 @@ jobs:
           python tools/rudy_windows/patch_rudy_tower_geometry_cadence.py
           python tools/rudy_windows/patch_rudy_homing_projectile_timing.py
           python tools/rudy_windows/patch_rudy_debug_combat_snapshots.py
+          python tools/rudy_windows/patch_rudy_observed_placements.py
           python tools/rudy_windows/patch_rudy_building_grid.py
           python tools/rudy_windows/patch_rudy_building_deploy_targeting.py
           python tools/rudy_windows/patch_rudy_normal_evolution_semantics.py
@@ -87,6 +88,12 @@ jobs:
         run: |
           python tools/cr_hog_fidelity_test/assert_core_hog_cannon_suite.py --postfix-summary outputs/rudy_core_postfix/summary.json --solo-report outputs/rudy_core_existing/hog_solo_report.json --out outputs/rudy_core_postfix/core_hog_cannon_summary.md --github-step-summary
 
+      - name: Verify user-facing Rudy replay runtime
+        shell: pwsh
+        run: |
+          python tools/cr_hog_fidelity_test/verify_rudy_replay_runtime.py --input examples/hog_cannon_secondary.json --reference physical_tests/references/d03_hog_cannon_01_secondary.json --data-dir outputs/rudy_tournament11_data --out outputs/rudy_runtime_secondary
+          python tools/cr_hog_fidelity_test/verify_rudy_replay_runtime.py --input examples/hog_cannon_crossdemo.json --reference physical_tests/references/d02_hog_cannon_01_crossdemo.json --data-dir outputs/rudy_tournament11_data --out outputs/rudy_runtime_crossdemo
+
       - name: Write bundle README
         shell: pwsh
         run: |
@@ -113,6 +120,8 @@ jobs:
             outputs/rudy_tournament11_data
             outputs/rudy_core_existing
             outputs/rudy_core_postfix
+            outputs/rudy_runtime_secondary
+            outputs/rudy_runtime_crossdemo
             outputs/HOG_CANNON_CORE_README.txt
           if-no-files-found: error
           retention-days: 14
