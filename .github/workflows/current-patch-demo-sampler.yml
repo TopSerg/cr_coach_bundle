@@ -26,8 +26,8 @@ jobs:
           python -m pip install --upgrade yt-dlp
       - name: Download first fresh-match window
         run: |
-          yt-dlp -f "best[height<=360]/best" --merge-output-format mp4 \
-            --download-sections "*00:00:00-00:06:30" --force-keyframes-at-cuts \
+          yt-dlp -f "best[height<=160]/best" --merge-output-format mp4 \
+            --download-sections "*00:00:00-00:02:00" --force-keyframes-at-cuts \
             -o current_patch_demo.mp4 "https://www.twitch.tv/videos/2870511240"
           ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 current_patch_demo.mp4
       - name: Build overview contact sheets
@@ -35,7 +35,7 @@ jobs:
           rm -rf probe_outputs
           mkdir -p probe_outputs/overview
           ffmpeg -hide_banner -loglevel error -i current_patch_demo.mp4 \
-            -vf "fps=1/2,scale=240:-1,tile=4x5" -q:v 4 probe_outputs/overview/sheet_%03d.jpg
+            -vf "fps=1/1,scale=240:-1,tile=4x5" -q:v 4 probe_outputs/overview/sheet_%03d.jpg
           ls -lh probe_outputs/overview
       - name: Commit overview sheets to probe branch
         run: |
