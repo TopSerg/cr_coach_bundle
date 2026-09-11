@@ -15,24 +15,18 @@ jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
-      - name: Fetch pages
+      - name: Fetch pages and JS
         run: |
           curl -fL -A "Mozilla/5.0" "https://www.royalecctracker.com/latest-winners" -o latest.html
-          curl -fL -A "Mozilla/5.0" "https://www.royalecctracker.com/leaderboard/09/2026" -o leaderboard.html
-          echo "=== OLD RHOMBUS CONTEXT ==="
-          grep -n -B4 -A8 -i "Old-Rhombus" latest.html || true
-          echo "=== MINIKUI CONTEXT ==="
-          grep -n -B4 -A8 -i "Minikui" latest.html || true
-          echo "=== SCRIPT SRCS ==="
-          grep -oE '<script[^>]+src="[^"]+"' latest.html | head -50 || true
-          echo "=== POSSIBLE TAGS / API ==="
-          grep -oE '(playerTag|player_tag|battleTag|battle_tag|api/[A-Za-z0-9_/?=&.-]+|#[0289PYLQGRJCUV]{6,})' latest.html | sort -u | head -100 || true
-          echo "=== URLS ==="
-          grep -oE 'https?://[^"'\'' <]+' latest.html | sort -u | head -100 || true
+          curl -fL -A "Mozilla/5.0" "https://www.royalecctracker.com/_next/static/chunks/pages/latest-winners-a0bd0a944749761d.js" -o page.js
+          echo "=== endpoints / fetch calls ==="
+          grep -oE '.{0,120}(fetch\(|axios|/api/|latest-winners|wins|battle).{0,220}' page.js | head -120 || true
+          echo "=== API-like strings ==="
+          strings page.js | grep -Eo 'https?://[^" ]+|/api/[A-Za-z0-9_/?=&.-]+' | sort -u | head -100 || true
       - uses: actions/upload-artifact@v4
         with:
-          name: royalecc-html
+          name: royalecc-js
           path: |
             latest.html
-            leaderboard.html
+            page.js
           retention-days: 1
