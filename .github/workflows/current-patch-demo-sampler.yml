@@ -1,0 +1,47 @@
+name: Current patch demo sampler
+
+on:
+  push:
+    branches:
+      - probe/current-patch-demo
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install downloader
+        run: python -m pip install --upgrade yt-dlp
+      - name: Download fresh Ian77 post-balance video
+        run: |
+          yt-dlp --no-playlist -f "bv*[height<=480]+ba/b[height<=480]" --merge-output-format mp4             -o current_patch_demo.mp4 "https://www.youtube.com/watch?v=kAdFwFV0ZSM"
+          ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 current_patch_demo.mp4
+      - name: Build 10-second contact sheets
+        run: |
+          mkdir -p sheets
+          ffmpeg -hide_banner -loglevel error -i current_patch_demo.mp4             -vf "fps=1/10,scale=180:-1,tile=5x6" -q:v 5 sheets/sheet_%03d.jpg
+          ls -lh sheets
+      - name: Emit contact sheets
+        shell: python
+        run: |
+          import base64
+          from pathlib import Path
+          for p in sorted(Path("sheets").glob("*.jpg")):
+              print(f"BEGIN_SHEET {p.name}")
+              print(base64.b64encode(p.read_bytes()).decode())
+              print(f"END_SHEET {p.name}")
+      - name: Upload source and sheets
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-patch-demo-sample
+          path: |
+            current_patch_demo.mp4
+            sheets
+          retention-days: 2
