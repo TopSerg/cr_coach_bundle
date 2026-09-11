@@ -1,0 +1,65 @@
+name: Scan later Jynxzi viewer decks
+
+on:
+  push:
+    branches:
+      - probe/current-patch-demo
+    paths:
+      - ".github/workflows/scan-later-jynxzi.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install media tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade yt-dlp
+      - name: Resolve 160p HLS
+        run: |
+          yt-dlp -g -f "160p/360p/worst" "https://www.twitch.tv/videos/2868878839" | head -1 > stream_url.txt
+      - name: Scan 78m to 140m every 10 seconds
+        run: |
+          mkdir -p frames sheets
+          ffmpeg -hide_banner -loglevel warning             -ss 4680 -i "$(cat stream_url.txt)" -t 3720             -vf "fps=1/10,scale=284:160" -q:v 5 frames/frame_%04d.jpg
+          python - <<'PY'
+          from PIL import Image, ImageDraw
+          from pathlib import Path
+          files=sorted(Path("frames").glob("frame_*.jpg"))
+          rows=[]
+          for i,p in enumerate(files):
+              sec=4680+i*10
+              rows.append((p,sec))
+          with open("frames/index.csv","w",encoding="utf-8") as f:
+              f.write("file,vod_seconds,vod_time\n")
+              for p,sec in rows:
+                  f.write(f"{p.name},{sec},{sec//60:02d}:{sec%60:02d}\n")
+          per=30
+          for batch in range((len(rows)+per-1)//per):
+              subset=rows[batch*per:(batch+1)*per]
+              out=Image.new("RGB",(5*284,6*185),"white")
+              for j,(p,sec) in enumerate(subset):
+                  im=Image.open(p).convert("RGB")
+                  c=Image.new("RGB",(284,185),"white")
+                  c.paste(im,(0,25))
+                  ImageDraw.Draw(c).text((4,4),f"{sec//60:02d}:{sec%60:02d}",fill="black")
+                  out.paste(c,((j%5)*284,(j//5)*185))
+              out.save(f"sheets/sheet_{batch:03d}.jpg",quality=88)
+          print("frames",len(rows),"sheets",len(list(Path("sheets").glob("*.jpg"))))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: jynxzi-clean-deck-scan-78m-140m
+          path: |
+            frames/index.csv
+            sheets
+          retention-days: 1
