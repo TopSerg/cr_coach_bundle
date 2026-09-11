@@ -120,6 +120,30 @@ def test_mid_horizon_checkpoint_keeps_a_live_tower_projectile(tmp_path: Path):
     )
 
 
+def test_checkpoint_continuation_matches_uninterrupted_state(tmp_path: Path):
+    payload = {
+        "mode": "placements",
+        "duration_s": 5,
+        "events": [
+            {"time": 0, "side": "team", "card": "hog-rider", "x": 3, "y": 20},
+            {"time": 0, "side": "opponent", "card": "cannon", "x": 3, "y": 10},
+        ],
+    }
+    full, _, _ = _run(tmp_path, payload, name="full")
+    _, half_out, _ = _run(tmp_path, {**payload, "duration_s": 3.2}, name="half-resume")
+    continued, _, _ = _run(
+        tmp_path,
+        {
+            "mode": "placements",
+            "duration_s": 5,
+            "initial_state": str(half_out / "checkpoint.json"),
+            "events": [],
+        },
+        name="continued",
+    )
+    assert continued["state_hash"] == full["state_hash"]
+
+
 def test_rejected_match_action_is_reported_with_its_original_index(tmp_path: Path):
     payload = {
         "mode": "match",
