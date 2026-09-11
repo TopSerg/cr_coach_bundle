@@ -1,4 +1,4 @@
-name: Cut first viewer-deck Clash match
+name: Cut clean viewer-deck match candidate
 
 on:
   push:
@@ -24,19 +24,21 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ffmpeg
           python -m pip install --upgrade yt-dlp
-      - name: Resolve 720p HLS
+      - name: Resolve 360p HLS
         run: |
-          yt-dlp -g -f "720p60/480p/360p" "https://www.twitch.tv/videos/2868878839" | head -1 > stream_url.txt
-      - name: Cut around first Clash match
+          yt-dlp -g -f "360p/480p/160p" "https://www.twitch.tv/videos/2868878839" | head -1 > stream_url.txt
+      - name: Cut 65m20s to 71m30s
         run: |
-          ffmpeg -hide_banner -loglevel warning             -ss 3600 -i "$(cat stream_url.txt)" -t 480             -c copy first_clash_match.mp4
-          ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 first_clash_match.mp4
-          mkdir -p frames
-          ffmpeg -hide_banner -loglevel error -i first_clash_match.mp4             -vf "fps=1/2,scale=480:-1,tile=4x5" -q:v 3 frames/sheet_%03d.jpg
+          ffmpeg -hide_banner -loglevel warning             -ss 3920 -i "$(cat stream_url.txt)" -t 370             -c copy match_candidate.mp4
+          mkdir -p frames_5s frames_1s
+          ffmpeg -hide_banner -loglevel error -i match_candidate.mp4             -vf "fps=1/5,scale=640:-1,tile=4x5" -q:v 3 frames_5s/sheet_%03d.jpg
+          ffmpeg -hide_banner -loglevel error -i match_candidate.mp4             -vf "fps=1,scale=640:-1,tile=4x5" -q:v 4 frames_1s/sheet_%03d.jpg
+          ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 match_candidate.mp4
       - uses: actions/upload-artifact@v4
         with:
-          name: first-viewer-clash-match-window
+          name: clean-match-candidate-65m20-71m30
           path: |
-            first_clash_match.mp4
-            frames
+            match_candidate.mp4
+            frames_5s
+            frames_1s
           retention-days: 2
