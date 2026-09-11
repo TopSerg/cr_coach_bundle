@@ -17,7 +17,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Resolve direct video stream through public Piped instances
+      - name: Resolve direct video stream through public Invidious instances
         shell: python
         run: |
           import json
@@ -25,48 +25,42 @@ jobs:
 
           video_id = "kAdFwFV0ZSM"
           instances = [
-              "https://pipedapi.kavin.rocks",
-              "https://pipedapi.leptons.xyz",
-              "https://pipedapi.nosebs.ru",
-              "https://piped-api.privacy.com.de",
-              "https://api.piped.yt",
-              "https://pipedapi.drgns.space",
-              "https://pipedapi.owo.si",
-              "https://pipedapi.ducks.party",
-              "https://piped-api.codespace.cz",
-              "https://api.piped.private.coffee",
+              "https://inv.nadeko.net",
+              "https://invidious.nerdvpn.de",
+              "https://yt.chocolatemoo53.com",
+              "https://invidious.tiekoetter.com",
           ]
           errors = []
           for base in instances:
-              endpoint = f"{base}/streams/{video_id}"
+              endpoint = f"{base}/api/v1/videos/{video_id}"
               try:
                   req = urllib.request.Request(endpoint, headers={"User-Agent": "Mozilla/5.0"})
-                  with urllib.request.urlopen(req, timeout=20) as resp:
+                  with urllib.request.urlopen(req, timeout=30) as resp:
                       data = json.load(resp)
-                  streams = data.get("videoStreams") or []
+                  streams = data.get("formatStreams") or []
                   candidates = []
                   for stream in streams:
                       url = stream.get("url")
-                      quality = str(stream.get("quality") or "")
+                      label = str(stream.get("qualityLabel") or stream.get("quality") or "")
                       if not url:
                           continue
-                      digits = "".join(ch for ch in quality if ch.isdigit())
+                      digits = "".join(ch for ch in label if ch.isdigit())
                       height = int(digits) if digits else 9999
                       if height <= 480:
-                          candidates.append((height, not bool(stream.get("videoOnly")), url, quality))
+                          candidates.append((height, url, label))
                   if not candidates:
-                      raise RuntimeError(f"no <=480 video streams ({len(streams)} total)")
-                  candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
+                      raise RuntimeError(f"no <=480 muxed streams ({len(streams)} total)")
+                  candidates.sort(key=lambda x: x[0], reverse=True)
                   chosen = candidates[0]
-                  print(f"PIPE_INSTANCE={base}")
-                  print(f"PIPE_QUALITY={chosen[3]}")
+                  print(f"IV_INSTANCE={base}")
+                  print(f"IV_QUALITY={chosen[2]}")
                   with open("stream_url.txt", "w", encoding="utf-8") as fh:
-                      fh.write(chosen[2])
+                      fh.write(chosen[1])
                   break
               except Exception as exc:
                   errors.append(f"{base}: {exc}")
           else:
-              raise SystemExit("No Piped instance succeeded:\n" + "\n".join(errors))
+              raise SystemExit("No Invidious instance succeeded:\n" + "\n".join(errors))
       - name: Download resolved video stream
         run: |
           curl -fL --retry 3 --retry-all-errors --connect-timeout 20 \
