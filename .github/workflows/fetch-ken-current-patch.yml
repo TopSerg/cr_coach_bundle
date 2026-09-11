@@ -1,0 +1,48 @@
+name: Fetch Ken current-patch candidate
+
+on:
+  push:
+    branches:
+      - probe/current-patch-demo
+    paths:
+      - ".github/workflows/fetch-ken-current-patch.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install tools
+        run: |
+          python -m pip install --upgrade yt-dlp
+      - name: Try YouTube clients
+        shell: bash
+        run: |
+          set -u
+          URL="https://www.youtube.com/watch?v=uxYYIZ_PbgM"
+          : > attempts.log
+          for client in tv_embedded android_vr android web_safari web; do
+            echo "=== $client ===" | tee -a attempts.log
+            if yt-dlp --extractor-args "youtube:player_client=$client"               --skip-download --print "%(id)s|%(upload_date)s|%(duration)s|%(title)s"               "$URL" 2>&1 | tee -a attempts.log; then
+              if yt-dlp --extractor-args "youtube:player_client=$client"                 -f "best[height<=360]/worst" --merge-output-format mp4                 --download-sections "*00:00:00-00:01:00"                 -o candidate.mp4 "$URL" 2>&1 | tee -a attempts.log; then
+                echo "$client" > successful_client.txt
+                break
+              fi
+            fi
+          done
+          test -s candidate.mp4
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ken-current-patch-candidate
+          path: |
+            candidate.mp4
+            attempts.log
+            successful_client.txt
+          retention-days: 1
