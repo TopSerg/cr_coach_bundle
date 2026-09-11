@@ -1,4 +1,4 @@
-name: Locate Clash segment in viewer-deck VOD
+name: Download viewer-deck VOD storyboard
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  locate:
+  storyboard:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -20,20 +20,13 @@ jobs:
         with:
           python-version: "3.12"
       - run: python -m pip install --upgrade yt-dlp
-      - name: Inspect Twitch VOD metadata and formats
+      - name: Download high storyboard
         run: |
-          yt-dlp --skip-download --dump-single-json "https://www.twitch.tv/videos/2868878839" > info.json
-          python - <<'PY'
-          import json
-          j=json.load(open("info.json",encoding="utf-8"))
-          for k in ("id","timestamp","upload_date","duration","title","categories","tags","chapters","thumbnail"):
-              print(k, "=", j.get(k))
-          print("FORMATS")
-          for f in j.get("formats",[]):
-              print(f.get("format_id"), f.get("ext"), f.get("protocol"), f.get("width"), f.get("height"), f.get("format_note"), f.get("url","")[:180])
-          PY
+          yt-dlp --skip-download --write-subs 2>/dev/null || true
+          yt-dlp -f sb0 -o "storyboard.%(ext)s" "https://www.twitch.tv/videos/2868878839"
+          ls -lh storyboard.*
       - uses: actions/upload-artifact@v4
         with:
-          name: viewer-deck-vod-info
-          path: info.json
+          name: viewer-deck-storyboard
+          path: storyboard.*
           retention-days: 1
