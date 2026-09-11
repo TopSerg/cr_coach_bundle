@@ -1,0 +1,34 @@
+name: Discover fresh base Hog VODs
+
+on:
+  push:
+    branches:
+      - probe/current-patch-demo
+    paths:
+      - ".github/workflows/discover-hog-cycle-vods.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade yt-dlp
+      - name: List recent archives
+        shell: bash
+        run: |
+          : > vods.txt
+          for channel in yersoncz alikiller_cr sirtagcr oyassuu; do
+            echo "=== $channel ===" | tee -a vods.txt
+            yt-dlp --flat-playlist --playlist-end 12               --print "%(id)s|%(timestamp)s|%(upload_date)s|%(duration)s|%(title)s"               "https://www.twitch.tv/$channel/videos?filter=archives&sort=time"               2>&1 | tee -a vods.txt || true
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: fresh-hog-cycle-vod-list
+          path: vods.txt
+          retention-days: 1
