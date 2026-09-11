@@ -1,0 +1,60 @@
+name: Sample Clash candidate stills
+
+on:
+  push:
+    branches:
+      - probe/current-patch-demo
+    paths:
+      - ".github/workflows/sample-clash-candidate-stills.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sample:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade yt-dlp
+      - name: Resolve 360p HLS
+        run: |
+          yt-dlp -g -f "360p/480p/160p" "https://www.twitch.tv/videos/2868878839" | head -1 > stream_url.txt
+      - name: Sample stills
+        shell: bash
+        run: |
+          mkdir stills
+          URL="$(cat stream_url.txt)"
+          for sec in 3960 3980 4000 4020 4040 4060 4080 4100 4120 4140 4160 4180 4200 4220 4240 4260; do
+            ffmpeg -hide_banner -loglevel error -ss "$sec" -i "$URL" -frames:v 1 -q:v 2 "stills/t_${sec}.jpg"
+          done
+          python - <<'PY'
+          from PIL import Image, ImageDraw
+          from pathlib import Path
+          files=sorted(Path("stills").glob("t_*.jpg"), key=lambda p:int(p.stem.split("_")[1]))
+          tiles=[]
+          for p in files:
+              im=Image.open(p).convert("RGB")
+              im.thumbnail((640,360))
+              c=Image.new("RGB",(640,390),"white")
+              c.paste(im,((640-im.width)//2,30))
+              sec=int(p.stem.split("_")[1]); m=sec//60; s=sec%60
+              ImageDraw.Draw(c).text((8,7),f"{m:02d}:{s:02d}",fill="black")
+              tiles.append(c)
+          out=Image.new("RGB",(1280,390*((len(tiles)+1)//2)),"white")
+          for i,t in enumerate(tiles):
+              out.paste(t,((i%2)*640,(i//2)*390))
+          out.save("stills/contact.jpg",quality=92)
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clash-candidate-stills
+          path: stills
+          retention-days: 1
