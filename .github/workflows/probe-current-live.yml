@@ -1,4 +1,4 @@
-name: Download viewer-deck VOD storyboard
+name: Cut first viewer-deck Clash match
 
 on:
   push:
@@ -12,21 +12,31 @@ permissions:
   contents: read
 
 jobs:
-  storyboard:
+  cut:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - run: python -m pip install --upgrade yt-dlp
-      - name: Download high storyboard
+      - name: Install tools
         run: |
-          yt-dlp --skip-download --write-subs 2>/dev/null || true
-          yt-dlp -f sb0 -o "storyboard.%(ext)s" "https://www.twitch.tv/videos/2868878839"
-          ls -lh storyboard.*
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade yt-dlp
+      - name: Resolve 720p HLS
+        run: |
+          yt-dlp -g -f "720p60/480p/360p" "https://www.twitch.tv/videos/2868878839" | head -1 > stream_url.txt
+      - name: Cut around first Clash match
+        run: |
+          ffmpeg -hide_banner -loglevel warning             -ss 3600 -i "$(cat stream_url.txt)" -t 480             -c copy first_clash_match.mp4
+          ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 first_clash_match.mp4
+          mkdir -p frames
+          ffmpeg -hide_banner -loglevel error -i first_clash_match.mp4             -vf "fps=1/2,scale=480:-1,tile=4x5" -q:v 3 frames/sheet_%03d.jpg
       - uses: actions/upload-artifact@v4
         with:
-          name: viewer-deck-storyboard
-          path: storyboard.*
-          retention-days: 1
+          name: first-viewer-clash-match-window
+          path: |
+            first_clash_match.mp4
+            frames
+          retention-days: 2
