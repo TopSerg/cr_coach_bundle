@@ -20,23 +20,21 @@ jobs:
         with:
           python-version: "3.12"
       - name: Install tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          python -m pip install --upgrade yt-dlp
+        run: python -m pip install --upgrade yt-dlp imageio-ffmpeg
       - name: Resolve 360p HLS
         run: |
           yt-dlp -g -f "360p/480p/160p" "https://www.twitch.tv/videos/2868878839" | head -1 > stream_url.txt
-      - name: Sample stills
+      - name: Sample untested deck screens
         shell: bash
         run: |
           mkdir stills
           URL="$(cat stream_url.txt)"
-          for sec in 4789 5414 5727 6560 6976 7080 7393 7705; do
-            ffmpeg -hide_banner -loglevel error -ss "$sec" -i "$URL" -frames:v 1 -q:v 2 "stills/t_${sec}.jpg"
+          FFMPEG="$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+          for sec in 5705 5715 5725 5735 5745 6120 6130 6140 6150 6160 7370 7380 7390 7400 7410; do
+            "$FFMPEG" -hide_banner -loglevel error -ss "$sec" -i "$URL" -frames:v 1 -q:v 2 "stills/t_${sec}.jpg"
           done
       - uses: actions/upload-artifact@v4
         with:
-          name: clash-candidate-stills
+          name: clash-candidate-stills-targeted
           path: stills
           retention-days: 1
