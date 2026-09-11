@@ -29,7 +29,7 @@ jobs:
         run: |
           rm -rf probe_outputs
           mkdir -p probe_outputs/overview
-          ffmpeg -hide_banner -loglevel error -i current_patch_demo.mp4             -vf "fps=1/10,scale=240:-1,tile=4x5" -q:v 4 probe_outputs/overview/sheet_%03d.jpg
+          ffmpeg -hide_banner -loglevel error -i current_patch_demo.mp4             -vf "fps=1/4,scale=240:-1,tile=4x5" -q:v 4 probe_outputs/overview/sheet_%03d.jpg
           ls -lh probe_outputs/overview
       - name: Commit overview sheets to probe branch
         run: |
