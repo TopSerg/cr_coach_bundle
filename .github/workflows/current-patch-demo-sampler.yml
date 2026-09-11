@@ -7,24 +7,34 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   sample:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: probe/current-patch-demo
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
       - name: Install yt-dlp
         run: python -m pip install --upgrade yt-dlp
-      - name: List latest Morten Twitch VODs
+      - name: Download short fresh Twitch VOD
         run: |
-          yt-dlp --flat-playlist --playlist-end 12             --print "%(id)s|%(timestamp)s|%(duration)s|%(title)s"             "https://www.twitch.tv/mortenroyale/videos?filter=archives&sort=time"             | tee twitch_vods.txt
-      - name: Upload VOD list
-        uses: actions/upload-artifact@v4
-        with:
-          name: twitch-vod-list
-          path: twitch_vods.txt
-          retention-days: 1
+          yt-dlp -f "best[height<=480]/best" --merge-output-format mp4             -o current_patch_demo.mp4 "https://www.twitch.tv/videos/2870511240"
+          ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 current_patch_demo.mp4
+      - name: Build overview contact sheets
+        run: |
+          rm -rf probe_outputs
+          mkdir -p probe_outputs/overview
+          ffmpeg -hide_banner -loglevel error -i current_patch_demo.mp4             -vf "fps=1/10,scale=240:-1,tile=4x5" -q:v 4 probe_outputs/overview/sheet_%03d.jpg
+          ls -lh probe_outputs/overview
+      - name: Commit overview sheets to probe branch
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add probe_outputs/overview
+          git commit -m "Add current patch VOD overview sheets" || exit 0
+          git push origin HEAD:probe/current-patch-demo
