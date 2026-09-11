@@ -1,0 +1,30 @@
+name: Locate BigSpin Sep9 F2P segment
+
+on:
+  push:
+    branches:
+      - probe/current-patch-demo
+    paths:
+      - ".github/workflows/locate-bigspin-f2p.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  locate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python -m pip install --upgrade yt-dlp
+      - name: List recent BigSpin archives
+        run: |
+          yt-dlp --flat-playlist --playlist-end 8             --print "%(id)s|%(timestamp)s|%(upload_date)s|%(duration)s|%(title)s"             "https://www.twitch.tv/bigspincr/videos?filter=archives&sort=time"             | tee bigspin_vods.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bigspin-vod-list
+          path: bigspin_vods.txt
+          retention-days: 1
