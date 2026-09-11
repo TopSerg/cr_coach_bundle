@@ -1,0 +1,12 @@
+{
+  "battle_id": "strict-hog-cycle-example",
+  "mode": "match",
+  "duration_s": 30,
+  "team_deck": ["hog-rider", "cannon", "musketeer", "skeletons", "ice-golem", "ice-spirit", "fireball", "log"],
+  "opponent_deck": ["hog-rider", "cannon", "musketeer", "skeletons", "ice-golem", "ice-spirit", "fireball", "log"],
+  "events": [
+    {"time": 0, "side": "team", "card": "hog-rider", "x": 14, "y": 17},
+    {"time": 2.45, "side": "opponent", "card": "cannon", "x": 9, "y": 10},
+    {"time": 5, "side": "team", "card": "skeletons", "x": 4, "y": 19}
+  ]
+}

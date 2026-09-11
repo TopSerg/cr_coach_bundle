@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "battle_id": "d03-primary-isolated-hypothesis",
+  "mode": "placements",
+  "ruleset_id": "2026-08-04-roster",
+  "level": 11,
+  "duration_s": 13,
+  "coordinate_system": "world_cells",
+  "events": [
+    {"time": 0, "side": "team", "card": "hog-rider", "x": 9, "y": 18},
+    {"time": 2.45, "side": "opponent", "card": "cannon", "x": 9, "y": 10}
+  ],
+  "notes": "PRIMARY is not a complete reconstruction: the video contains a simultaneous left-lane push."
+}
