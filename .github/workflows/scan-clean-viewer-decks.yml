@@ -27,7 +27,8 @@ jobs:
       - name: Sample every 10 seconds from 65m to 130m
         run: |
           mkdir frames
-          ffmpeg -hide_banner -loglevel warning             -ss 3900 -i "$(cat stream_url.txt)" -t 3900             -vf "fps=1/10,scale=320:-1" -q:v 5 frames/frame_%04d.jpg
+          FFMPEG="$(python -c 'import imageio_ffmpeg; print(imageio_ffmpeg.get_ffmpeg_exe())')"
+          "$FFMPEG" -hide_banner -loglevel warning -ss 3900 -i "$(cat stream_url.txt)" -t 3900 -vf "fps=1/10,scale=320:-1" -q:v 5 frames/frame_%04d.jpg
           python - <<'PY'
           from pathlib import Path
           files=sorted(Path("frames").glob("frame_*.jpg"))
