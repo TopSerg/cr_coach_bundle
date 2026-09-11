@@ -17,22 +17,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Inspect Redlib media markup
-        shell: python
+      - name: Install yt-dlp
+        run: python -m pip install --upgrade yt-dlp
+      - name: List latest Morten Twitch VODs
         run: |
-          import re, urllib.request
-          url="https://safereddit.com/r/ClashRoyale/comments/1wcndph/i_did_it_my_way/"
-          req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"})
-          with urllib.request.urlopen(req,timeout=25) as resp:
-              text=resp.read().decode("utf-8","replace")
-          open("redlib.html","w",encoding="utf-8").write(text)
-          print("HTML_BYTES",len(text))
-          for i,line in enumerate(text.splitlines()):
-              if re.search(r"video|media|source|dash|hls|mp4|poster|gif",line,re.I):
-                  print(f"HTML_LINE_{i}: {line[:4000]}")
-      - name: Upload Redlib HTML
+          yt-dlp --flat-playlist --playlist-end 12             --print "%(id)s|%(timestamp)s|%(duration)s|%(title)s"             "https://www.twitch.tv/mortenroyale/videos?filter=archives&sort=time"             | tee twitch_vods.txt
+      - name: Upload VOD list
         uses: actions/upload-artifact@v4
         with:
-          name: redlib-markup
-          path: redlib.html
+          name: twitch-vod-list
+          path: twitch_vods.txt
           retention-days: 1
