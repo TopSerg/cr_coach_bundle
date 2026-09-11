@@ -17,72 +17,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Resolve Reddit media through Redlib
+      - name: Inspect Redlib media markup
         shell: python
         run: |
-          import html
-          import re
-          import urllib.parse
-          import urllib.request
-
-          path = "/r/ClashRoyale/comments/1wcndph/i_did_it_my_way/"
-          hosts = [
-              "https://safereddit.com",
-              "https://redlib.catsarch.com",
-              "https://red.artemislena.eu",
-              "https://redlib.privacyredirect.com",
-              "https://redlib.nadeko.net",
-              "https://redlib.privadency.com",
-          ]
-          errors=[]
-          for base in hosts:
-              try:
-                  url=base+path
-                  req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"})
-                  with urllib.request.urlopen(req,timeout=25) as resp:
-                      text=resp.read().decode("utf-8","replace")
-                  open("redlib.html","w",encoding="utf-8").write(text)
-                  raw=[html.unescape(x) for x in re.findall(r'(?:src|href)="([^"]+)"',text)]
-                  candidates=[]
-                  for x in raw:
-                      low=x.lower()
-                      if ".mp4" in low or "v.redd.it" in low or "/vid/" in low or "/video/" in low:
-                          candidates.append(urllib.parse.urljoin(base,x))
-                  print("REDLIB_INSTANCE=",base)
-                  print("MEDIA_CANDIDATES=",len(candidates))
-                  for c in candidates[:20]:
-                      print("CANDIDATE=",c)
-                  if candidates:
-                      open("stream_url.txt","w",encoding="utf-8").write(candidates[0])
-                      break
-              except Exception as exc:
-                  errors.append(f"{base}: {exc}")
-          else:
-              raise SystemExit("No Redlib media candidate found:\n"+"\n".join(errors))
-      - name: Download fresh Reddit match
-        run: |
-          curl -fL --retry 3 --retry-all-errors --connect-timeout 20             -A "Mozilla/5.0" -o current_patch_demo.mp4 "$(cat stream_url.txt)"
-          ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 current_patch_demo.mp4
-      - name: Build 5-second contact sheets
-        run: |
-          mkdir -p sheets
-          ffmpeg -hide_banner -loglevel error -i current_patch_demo.mp4             -vf "fps=1/5,scale=180:-1,tile=5x6" -q:v 5 sheets/sheet_%03d.jpg
-          ls -lh sheets
-      - name: Emit contact sheets
-        shell: python
-        run: |
-          import base64
-          from pathlib import Path
-          for p in sorted(Path("sheets").glob("*.jpg")):
-              print(f"BEGIN_SHEET {p.name}")
-              print(base64.b64encode(p.read_bytes()).decode())
-              print(f"END_SHEET {p.name}")
-      - name: Upload source and sheets
+          import re, urllib.request
+          url="https://safereddit.com/r/ClashRoyale/comments/1wcndph/i_did_it_my_way/"
+          req=urllib.request.Request(url,headers={"User-Agent":"Mozilla/5.0"})
+          with urllib.request.urlopen(req,timeout=25) as resp:
+              text=resp.read().decode("utf-8","replace")
+          open("redlib.html","w",encoding="utf-8").write(text)
+          print("HTML_BYTES",len(text))
+          for i,line in enumerate(text.splitlines()):
+              if re.search(r"video|media|source|dash|hls|mp4|poster|gif",line,re.I):
+                  print(f"HTML_LINE_{i}: {line[:4000]}")
+      - name: Upload Redlib HTML
         uses: actions/upload-artifact@v4
         with:
-          name: current-patch-reddit-match
-          path: |
-            current_patch_demo.mp4
-            redlib.html
-            sheets
-          retention-days: 2
+          name: redlib-markup
+          path: redlib.html
+          retention-days: 1
