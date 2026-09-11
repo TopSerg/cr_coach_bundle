@@ -60,7 +60,7 @@ def main(argv=None):
         report = run_replay(spec, args.out, sample_ticks=args.sample_ticks)
         print(json.dumps({k: report[k] for k in ('battle_id','status','end_tick','ruleset_id','state_hash','fidelity')}, indent=2))
         print(f"Playback: {(args.out / 'replay.html').resolve()}")
-        return 0
+        return 2 if report['status'] == 'failed' else 0
     except (ValueError, KeyError, RuntimeError, OSError, subprocess.SubprocessError) as exc:
         print(f"ERROR: {exc}", file=sys.stderr)
         return 2

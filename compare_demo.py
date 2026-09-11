@@ -26,11 +26,11 @@ def main():
     result=dict(reference_id=reference['id'],ruleset_id=report['ruleset_id'],simulation=actual,**comparison)
     result['reference_complete']=False
     result['certified_real_game_fidelity']=False
-    result['limitations']=[
+    result['limitations']=reference.get('reference_limitations', [
         'The isolated input omits the concurrent left-lane push visible in PRIMARY.',
         'Mapped cells are approximate; see docs/SIMULATOR_AUDIT_RU.md.',
         'Events on tick N are compared at first observable state boundary (N+1)/20 s.'
-    ]
+    ])
     write_json(args.out/'comparison.json',result)
     print(json.dumps(result,ensure_ascii=False,indent=2))
     return 0 if comparison['passed'] else 1

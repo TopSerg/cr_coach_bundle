@@ -1,6 +1,6 @@
 # Starter glue code
 
-Это не simulator. Это тонкий слой, который мы сохраняем своим независимо от выбранного upstream backend.
+Наш слой загрузки постановок, адаптеров, runtime и проверки точности поверх закреплённого backend. Готовый запуск: [инструкция](../docs/REPLAY_SIMULATOR_RU.md).
 
 Canonical boundary:
 

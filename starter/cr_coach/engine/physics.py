@@ -8,7 +8,7 @@ This does not calibrate jump duration, attack loading or complete game fidelity.
 from simulator.engine import BattleEngine
 from simulator.navigation import plan_route, segment_is_walkable
 
-PHYSICS_PROFILE = 'hog-crown-bridge-v1'
+PHYSICS_PROFILE = 'hog-bridge-first-hit-v1'
 
 
 class CoachBattleEngine(BattleEngine):
@@ -46,3 +46,24 @@ class CoachBattleEngine(BattleEngine):
         entity.navigation_revision = state.navigation_revision
         entity.navigation_goal_x_mtile, entity.navigation_goal_y_mtile = goal
         return entity.navigation_waypoints[0] if entity.navigation_waypoints else start
+
+    def _advance_attacks(self, state):
+        # SECONDARY shows ~0.6s from reaching Cannon to first damage. The
+        # upstream preload consumes this delay during approach, shifting all
+        # three hits ~0.65s early. Keep the declared timer full until range.
+        waiting = []
+        for entity in state.entities.values():
+            if (entity.card_id != 'hog-rider' or not entity.alive or entity.hp <= 0
+                    or entity.attack_count != 0 or entity.deploy_remaining_us > 0):
+                continue
+            target = state.entities.get(entity.target_uid)
+            if target is not None and target.alive and not self._in_attack_range(entity, target):
+                waiting.append((entity, target.uid))
+        result = super()._advance_attacks(state)
+        # Reset after the parent's tick progress so Rage/slow/freeze do not
+        # alter the amount preserved while still out of range.
+        for entity, target_uid in waiting:
+            if entity.alive and entity.hp > 0 and entity.attack_count == 0:
+                entity.pending_target_uid = target_uid
+                entity.attack_load_remaining_us = int(self._definition(entity).first_hit_delay_us or 0)
+        return result

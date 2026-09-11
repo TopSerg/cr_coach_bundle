@@ -1,0 +1,10 @@
+{
+  "battle_id": "d03-secondary-clean-interaction",
+  "mode": "placements",
+  "duration_s": 13,
+  "events": [
+    {"time": 0, "side": "team", "card": "hog-rider", "x": 14, "y": 17},
+    {"time": 2.90, "side": "opponent", "card": "cannon", "x": 10, "y": 10}
+  ],
+  "notes": "Held-out interaction, source d03 at55.25s. No other active troops visible. Friendly right tower already2398HP is not reconstructed; only enemy tower protection and Hog/Cannon timings are compared. Deployment times/cells remain approximate."
+}

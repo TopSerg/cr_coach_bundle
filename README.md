@@ -1,5 +1,18 @@
 # CR Coach Bundle
 
+## Воспроизведение по постановкам
+
+```shell
+python setup_simulator.py
+python simulate.py examples/hog_cannon_primary.json --out outputs/primary
+```
+
+Откройте `outputs/primary/replay.html`. Вход — JSON/CSV: время, сторона, карта, клетка.
+109 обычных карт уровня 11, журнал событий и продолжение из checkpoint.
+Совпадение с реальной игрой пока не подтверждено.
+
+[Инструкция](docs/REPLAY_SIMULATOR_RU.md) · [Аудит точности](docs/SIMULATOR_AUDIT_RU.md)
+
 Набор исходников, документации и glue-кода для экспериментов с симуляцией и анализом боёв Clash Royale.
 
 Подробное описание архитектуры и первого milestone находится в [README_START_HERE.md](README_START_HERE.md).

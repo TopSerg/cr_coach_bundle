@@ -161,6 +161,12 @@ class CrBotEngineAdapter:
         return int(self._state.tick)
 
     @property
+    def terminal(self) -> bool:
+        """Expose the backend's terminal flag without leaking it into policy."""
+
+        return self._state_is_terminal()
+
+    @property
     def state(self) -> Any:
         """Expose the authoritative state for diagnostics, not policy input."""
 
@@ -188,12 +194,36 @@ class CrBotEngineAdapter:
                 f"cannot rewind cr-bot from tick {self.tick} to tick {tick}"
             )
 
+        # cr-bot's ``step`` is intentionally a no-op after a match has ended.
+        # Stop here as well, otherwise a caller asking for a replay horizon
+        # beyond a king's death would loop forever waiting for the tick to
+        # reach its target.
+        if self._state_is_terminal():
+            return
+
         while self.tick < tick:
             current_tick = self.tick
             pending = self._pending_actions.pop(current_tick, {})
             actions = tuple(pending[player] for player in sorted(pending))
             events = self._engine.step(self._state, actions)
             self._raise_on_rejected_actions(current_tick, pending, events)
+            new_tick = self.tick
+            if new_tick == current_tick:
+                if self._state_is_terminal():
+                    return
+                raise CrBotAdapterError(
+                    f"cr-bot engine made no progress at tick={current_tick}"
+                )
+            if new_tick != current_tick + 1:
+                raise CrBotAdapterError(
+                    "cr-bot engine advanced by an unexpected number of ticks: "
+                    f"before={current_tick}, after={new_tick}"
+                )
+            if self._state_is_terminal():
+                # The state cursor is valid, but there is no useful work left
+                # for a later horizon.  Future calls return immediately.
+                self._pending_actions.clear()
+                return
 
     def play_card(
         self,
@@ -202,6 +232,10 @@ class CrBotEngineAdapter:
         card: str,
         cell: tuple[int, int],
     ) -> None:
+        if self._state_is_terminal():
+            raise CrBotAdapterError(
+                f"match_ended at tick={self.tick}; cannot play {card!r}"
+            )
         player = self._player(side)
         pending = self._pending_actions.setdefault(self.tick, {})
         if player in pending:
@@ -221,6 +255,10 @@ class CrBotEngineAdapter:
         pending[player] = self._play_action_factory(player, slot, cell)
 
     def activate_ability(self, *, side: str, card: str | None) -> None:
+        if self._state_is_terminal():
+            raise CrBotAdapterError(
+                f"match_ended at tick={self.tick}; cannot activate {card!r}"
+            )
         # cr-bot currently exposes UseAbilityAction in its schema, but its
         # scheduler intentionally rejects it as ability_not_supported. Fail
         # before mutating state so the replay divergence is explicit.
@@ -228,6 +266,27 @@ class CrBotEngineAdapter:
             f"cr-bot ability replay is not supported yet: "
             f"tick={self.tick}, side={side}, card={card!r}"
         )
+
+    def _state_is_terminal(self) -> bool:
+        """Handle both current BattleState and lightweight test states."""
+
+        value = getattr(self._state, "terminal", False)
+        if value is True:
+            return True
+        if value is not False and value is not None and bool(value):
+            return True
+        phase = getattr(self._state, "phase", None)
+        if isinstance(phase, str) and phase.lower() in {
+            "ended",
+            "complete",
+            "completed",
+            "finished",
+            "game_over",
+            "game-over",
+            "terminal",
+        }:
+            return True
+        return False
 
     def snapshot(self) -> dict[str, Any]:
         if hasattr(self._state, "to_primitive"):
@@ -288,7 +347,7 @@ class CrBotEngineAdapter:
         pending: dict[int, Any],
         events: Any,
     ) -> None:
-        if not pending:
+        if not pending or events is None:
             return
         pending_players = set(pending)
         for event in events:

@@ -10,7 +10,10 @@ from compare import compare
 
 def synthetic_solo_trace():
     hp_values = [3052, 2735, 2418, 2101, 1784, 1467, 1150, 833]
-    hit_times = [7.26, 8.80, 10.40, 11.98, 13.66, 15.22, 16.82]
+    # ``hog_solo.json`` stores tower HP transitions relative to the Hog play
+    # (the source clip puts that play at 2.94 s).  Keep the fixture on the
+    # same clock as the comparator's trace input.
+    hit_times = [5.12, 6.66, 8.26, 9.84, 11.52, 13.08, 14.68]
     frames = [{
         "tick": 0, "t_rel_s": 0.0,
         "p1": {"king_hp": 4824, "princess_left_hp": 3052, "princess_right_hp": 3052},
@@ -23,7 +26,7 @@ def synthetic_solo_trace():
         frames.append({
             "tick": round(t * 20), "t_rel_s": t,
             "p1": {"king_hp": 4824, "princess_left_hp": 3052, "princess_right_hp": 3052},
-            "p2": {"king_hp": 4824, "princess_left_hp": hp, "princess_right_hp": 3052},
+            "p2": {"king_hp": 4824, "princess_left_hp": 3052, "princess_right_hp": hp},
             "entities": [{"id": 1, "team": 1, "kind": "troop", "card": "hog-rider",
                           "x": -5100, "y": 9000, "hp": 1000, "max_hp": 1000,
                           "damage": 317, "alive": True, "attack_phase": "backswing"}]

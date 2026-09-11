@@ -14,6 +14,11 @@ class EngineAdapter(Protocol):
     @property
     def tick(self) -> int: ...
 
+    @property
+    def terminal(self) -> bool:
+        """Whether the authoritative match has ended, when exposed."""
+        ...
+
     def advance_to(self, tick: int) -> None:
         """Execute physics ticks until ``self.tick == tick``."""
         ...
