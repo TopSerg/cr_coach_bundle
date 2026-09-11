@@ -15,7 +15,6 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -23,10 +22,10 @@ jobs:
       - name: Resolve 160p HLS
         run: |
           yt-dlp -g -f "160p/worst" "https://www.twitch.tv/videos/2870568499" | head -1 > stream_url.txt
-      - name: Download one segment per minute from 3h15m to end
+      - name: Download one segment per 30s from final 2h
         shell: python
         run: |
-          import json, urllib.parse, urllib.request
+          import json, subprocess, urllib.parse, urllib.request
           from pathlib import Path
           from concurrent.futures import ThreadPoolExecutor, as_completed
 
@@ -34,41 +33,35 @@ jobs:
           req=urllib.request.Request(playlist_url,headers={"User-Agent":"Mozilla/5.0"})
           text=urllib.request.urlopen(req,timeout=30).read().decode("utf-8","replace")
           lines=[x.strip() for x in text.splitlines() if x.strip()]
-          segs=[]; cur=0.0; dur=None; init_url=None
-          import re
+          segs=[]; cur=0.0; dur=None
           for line in lines:
-              if line.startswith("#EXT-X-MAP:"):
-                  m=re.search(r'URI="([^"]+)"',line)
-                  if m: init_url=urllib.parse.urljoin(playlist_url,m.group(1))
-              elif line.startswith("#EXTINF:"):
+              if line.startswith("#EXTINF:"):
                   dur=float(line.split(":",1)[1].split(",",1)[0])
               elif not line.startswith("#") and dur is not None:
                   segs.append({"start":cur,"end":cur+dur,"url":urllib.parse.urljoin(playlist_url,line)})
                   cur+=dur; dur=None
-          start=11700
-          targets=list(range(start,int(cur),60))
+          start=max(0,int(cur)-7200)
           jobs=[]
-          for sec in targets:
+          for sec in range(start,int(cur),30):
               idx=next((i for i,s in enumerate(segs) if s["start"]<=sec<s["end"]),None)
-              if idx is not None: jobs.append((sec,idx,segs[idx]))
+              if idx is not None:
+                  jobs.append((sec,idx,segs[idx]))
           out=Path("segments"); out.mkdir()
-          if init_url:
-              r=urllib.request.Request(init_url,headers={"User-Agent":"Mozilla/5.0"})
-              (out/"init.mp4").write_bytes(urllib.request.urlopen(r,timeout=30).read())
           def fetch(job):
               sec,idx,s=job
-              name=f"t_{sec:05d}_seg_{idx:05d}.m4s"
+              name=f"t_{sec:05d}_seg_{idx:05d}.ts"
               r=urllib.request.Request(s["url"],headers={"User-Agent":"Mozilla/5.0"})
               data=urllib.request.urlopen(r,timeout=30).read()
               (out/name).write_bytes(data)
-              return {"requested_s":sec,"time":f"{sec//3600}:{(sec%3600)//60:02d}:{sec%60:02d}","file":name,"bytes":len(data)}
+              return {"requested_s":sec,"time":f"{sec//3600}:{(sec%3600)//60:02d}:{sec%60:02d}",
+                      "segment_index":idx,"file":name,"bytes":len(data)}
           rows=[]
           with ThreadPoolExecutor(max_workers=16) as ex:
               for fut in as_completed([ex.submit(fetch,j) for j in jobs]):
                   rows.append(fut.result())
           rows.sort(key=lambda x:x["requested_s"])
-          (out/"manifest.json").write_text(json.dumps({"duration":cur,"rows":rows},indent=2),encoding="utf-8")
-          print("vod_duration",cur,"downloaded",len(rows))
+          (out/"manifest.json").write_text(json.dumps({"duration":cur,"start":start,"samples":rows},indent=2),encoding="utf-8")
+          print("duration",cur,"start",start,"downloaded",len(rows))
       - uses: actions/upload-artifact@v4
         with:
           name: bigspin-sep10-f2p-tail-scan
