@@ -26,8 +26,8 @@ jobs:
           python -m pip install --upgrade yt-dlp
       - name: Download first fresh-match window
         run: |
-          yt-dlp -f "best[height<=160]/best" --merge-output-format mp4 \
-            --download-sections "*00:00:00-00:02:00" --force-keyframes-at-cuts \
+          yt-dlp -f "best[height<=240]/best" --merge-output-format mp4 \
+            --download-sections "*00:02:00-00:05:30" --force-keyframes-at-cuts \
             -o current_patch_demo.mp4 "https://www.twitch.tv/videos/2870511240"
           ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 current_patch_demo.mp4
       - name: Build overview contact sheets
@@ -37,10 +37,11 @@ jobs:
           ffmpeg -hide_banner -loglevel error -i current_patch_demo.mp4 \
             -vf "fps=1/1,scale=240:-1,tile=4x5" -q:v 4 probe_outputs/overview/sheet_%03d.jpg
           ls -lh probe_outputs/overview
-      - name: Commit overview sheets to probe branch
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add probe_outputs/overview
-          git commit -m "Add current patch VOD overview sheets" || exit 0
-          git push origin HEAD:probe/current-patch-demo
+      - name: Upload probe window
+        uses: actions/upload-artifact@v4
+        with:
+          name: current-patch-window-2m00-5m30
+          path: |
+            current_patch_demo.mp4
+            probe_outputs/overview
+          retention-days: 2
