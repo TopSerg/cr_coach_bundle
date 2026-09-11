@@ -17,16 +17,66 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install downloader
-        run: python -m pip install --upgrade yt-dlp
-      - name: Download fresh Ian77 post-balance video
+      - name: Resolve direct video stream through public Piped instances
+        shell: python
         run: |
-          yt-dlp --no-playlist -f "bv*[height<=480]+ba/b[height<=480]" --merge-output-format mp4             -o current_patch_demo.mp4 "https://www.youtube.com/watch?v=kAdFwFV0ZSM"
+          import json
+          import urllib.request
+
+          video_id = "kAdFwFV0ZSM"
+          instances = [
+              "https://pipedapi.kavin.rocks",
+              "https://pipedapi.leptons.xyz",
+              "https://pipedapi.nosebs.ru",
+              "https://piped-api.privacy.com.de",
+              "https://api.piped.yt",
+              "https://pipedapi.drgns.space",
+              "https://pipedapi.owo.si",
+              "https://pipedapi.ducks.party",
+              "https://piped-api.codespace.cz",
+              "https://api.piped.private.coffee",
+          ]
+          errors = []
+          for base in instances:
+              endpoint = f"{base}/streams/{video_id}"
+              try:
+                  req = urllib.request.Request(endpoint, headers={"User-Agent": "Mozilla/5.0"})
+                  with urllib.request.urlopen(req, timeout=20) as resp:
+                      data = json.load(resp)
+                  streams = data.get("videoStreams") or []
+                  candidates = []
+                  for stream in streams:
+                      url = stream.get("url")
+                      quality = str(stream.get("quality") or "")
+                      if not url:
+                          continue
+                      digits = "".join(ch for ch in quality if ch.isdigit())
+                      height = int(digits) if digits else 9999
+                      if height <= 480:
+                          candidates.append((height, not bool(stream.get("videoOnly")), url, quality))
+                  if not candidates:
+                      raise RuntimeError(f"no <=480 video streams ({len(streams)} total)")
+                  candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
+                  chosen = candidates[0]
+                  print(f"PIPE_INSTANCE={base}")
+                  print(f"PIPE_QUALITY={chosen[3]}")
+                  with open("stream_url.txt", "w", encoding="utf-8") as fh:
+                      fh.write(chosen[2])
+                  break
+              except Exception as exc:
+                  errors.append(f"{base}: {exc}")
+          else:
+              raise SystemExit("No Piped instance succeeded:\n" + "\n".join(errors))
+      - name: Download resolved video stream
+        run: |
+          curl -fL --retry 3 --retry-all-errors --connect-timeout 20 \
+            -o current_patch_demo.mp4 "$(cat stream_url.txt)"
           ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 current_patch_demo.mp4
       - name: Build 10-second contact sheets
         run: |
           mkdir -p sheets
-          ffmpeg -hide_banner -loglevel error -i current_patch_demo.mp4             -vf "fps=1/10,scale=180:-1,tile=5x6" -q:v 5 sheets/sheet_%03d.jpg
+          ffmpeg -hide_banner -loglevel error -i current_patch_demo.mp4 \
+            -vf "fps=1/10,scale=180:-1,tile=5x6" -q:v 5 sheets/sheet_%03d.jpg
           ls -lh sheets
       - name: Emit contact sheets
         shell: python
