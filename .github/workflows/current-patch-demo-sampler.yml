@@ -27,7 +27,7 @@ jobs:
       - name: Download first fresh-match window
         run: |
           yt-dlp -f "best[height<=240]/best" --merge-output-format mp4 \
-            --download-sections "*00:02:00-00:05:30" --force-keyframes-at-cuts \
+            --download-sections "*00:02:00-00:03:00" \
             -o current_patch_demo.mp4 "https://www.twitch.tv/videos/2870511240"
           ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 current_patch_demo.mp4
       - name: Build overview contact sheets
@@ -40,7 +40,7 @@ jobs:
       - name: Upload probe window
         uses: actions/upload-artifact@v4
         with:
-          name: current-patch-window-2m00-5m30
+          name: current-patch-window-2m00-3m00
           path: |
             current_patch_demo.mp4
             probe_outputs/overview
