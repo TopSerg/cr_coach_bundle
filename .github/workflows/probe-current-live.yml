@@ -1,0 +1,41 @@
+name: Probe current live match
+
+on:
+  push:
+    branches:
+      - probe/current-patch-demo
+    paths:
+      - ".github/workflows/probe-current-live.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install tools
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          python -m pip install --upgrade yt-dlp
+      - name: Capture 30 seconds of current BigSpin live
+        run: |
+          yt-dlp --print "%(id)s|%(is_live)s|%(timestamp)s|%(title)s" "https://www.twitch.tv/bigspincr" | head -1 | tee live_meta.txt
+          STREAM_URL="$(yt-dlp -g -f 'best[height<=240]/worst' 'https://www.twitch.tv/bigspincr' | head -1)"
+          ffmpeg -hide_banner -loglevel error -i "$STREAM_URL" -t 30 -c copy live_probe.mp4
+          mkdir frames
+          ffmpeg -hide_banner -loglevel error -i live_probe.mp4 -vf "fps=1/5" frames/frame_%02d.jpg
+      - uses: actions/upload-artifact@v4
+        with:
+          name: bigspin-current-live-probe
+          path: |
+            live_meta.txt
+            live_probe.mp4
+            frames
+          retention-days: 1
