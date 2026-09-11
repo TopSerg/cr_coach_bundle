@@ -1,0 +1,26 @@
+name: Export current patch probe sheets
+
+on:
+  push:
+    branches:
+      - probe/current-patch-demo
+    paths:
+      - ".github/workflows/export-current-patch-probe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: probe/current-patch-demo
+      - uses: actions/upload-artifact@v4
+        with:
+          name: current-patch-probe-sheets
+          path: probe_outputs/overview
+          if-no-files-found: error
+          retention-days: 2
