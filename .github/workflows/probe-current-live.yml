@@ -1,4 +1,4 @@
-name: Probe current live match
+name: Discover fresh no-special-form VOD
 
 on:
   push:
@@ -12,30 +12,20 @@ permissions:
   contents: read
 
 jobs:
-  probe:
+  discover:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Install tools
+      - name: Install yt-dlp
+        run: python -m pip install --upgrade yt-dlp
+      - name: List recent Jynxzi Twitch archives
         run: |
-          sudo apt-get update
-          sudo apt-get install -y ffmpeg
-          python -m pip install --upgrade yt-dlp
-      - name: Capture 30 seconds of current BigSpin live
-        run: |
-          yt-dlp --print "%(id)s|%(is_live)s|%(timestamp)s|%(title)s" "https://www.twitch.tv/bigspincr" | head -1 | tee live_meta.txt
-          STREAM_URL="$(yt-dlp -g -f 'best[height<=240]/worst' 'https://www.twitch.tv/bigspincr' | head -1)"
-          ffmpeg -hide_banner -loglevel error -i "$STREAM_URL" -t 30 -c copy live_probe.mp4
-          mkdir frames
-          ffmpeg -hide_banner -loglevel error -i live_probe.mp4 -vf "fps=1/5" frames/frame_%02d.jpg
+          yt-dlp --flat-playlist --playlist-end 12             --print "%(id)s|%(duration)s|%(title)s"             "https://www.twitch.tv/jynxzi/videos?filter=archives&sort=time"             | tee jynxzi_vods.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: bigspin-current-live-probe
-          path: |
-            live_meta.txt
-            live_probe.mp4
-            frames
+          name: jynxzi-vod-list
+          path: jynxzi_vods.txt
           retention-days: 1
