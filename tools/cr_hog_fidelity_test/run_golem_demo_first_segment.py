@@ -8,7 +8,7 @@ sys.path.insert(0,str(ROOT/"starter"))
 from cr_coach.replay.io import load_replay
 from cr_coach.runtime.rudy_runner import run_rudy_replay
 
-CHECK_TICKS={0,21,48,60,80,100,120,140,160,180,190}
+CHECK_TICKS={0,21,48,49,50,55,60,80,85,100,120,140,160,180,190}
 
 def compact(snapshot):
     rows=[]
@@ -47,12 +47,17 @@ def main():
         and str((row.get("data") or {}).get("card_id","")).lower() in {"blowdartgoblin","dart-goblin"}
     ]
     first_dart_death_tick=min(dart_death_ticks) if dart_death_ticks else None
-    skeleton_create_ticks=[
-        int(row["state_tick"])
-        for row in generated
-        if row.get("kind")=="entity_created"
-        and "skeleton" in str((row.get("data") or {}).get("card_id","")).lower()
-    ]
+    skeleton_counts_by_tick={}
+    for snapshot in snaps:
+        tick=int(snapshot["tick"])
+        if tick not in {49,50,55,60}:
+            continue
+        skeleton_counts_by_tick[str(tick)]=sum(
+            1 for entity in snapshot.get("entities",[])
+            if entity.get("kind")!="tower"
+            and "skeleton" in str(entity.get("card_id","")).lower()
+            and bool(entity.get("alive",True))
+        )
     # Video: Night Witch placement is ~19.1s and the first Bat is first visible
     # at ~22.0s.  With the replay origin at 18.0s this is tick ~80 (20 Hz).
     expected_first_bat_tick=80
@@ -74,10 +79,10 @@ def main():
                 "actual_tick":first_dart_death_tick,
                 "gating":False,
             },
-            "skeletons_created":{
+            "skeletons_after_play":{
                 "play_tick":48,
-                "creation_ticks":skeleton_create_ticks,
-                "count":len(skeleton_create_ticks),
+                "counts_by_tick":skeleton_counts_by_tick,
+                "expected_initial_count":3,
                 "gating":False,
             },
         },
