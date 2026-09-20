@@ -76,6 +76,14 @@ jobs:
           python tools/cr_hog_fidelity_test/patch_tournament_ranged_projectiles.py --data-dir outputs/rudy_tournament11_data --building-name Cannon --projectile-name TowerCannonball --level 11 --damage 202
           python tools/cr_hog_fidelity_test/patch_full_demo_cards.py --data-dir outputs/rudy_tournament11_data
 
+      - name: Apply current September 2026 public card stats
+        shell: pwsh
+        run: python tools/cr_hog_fidelity_test/apply_current_card_stats.py --data-dir outputs/rudy_tournament11_data --catalog tools/cr_hog_fidelity_test/current_card_stats_2026_09.json
+
+      - name: Verify current September 2026 card stat coverage
+        shell: pwsh
+        run: python tools/cr_hog_fidelity_test/assert_current_card_stats.py --data-dir outputs/rudy_tournament11_data --catalog tools/cr_hog_fidelity_test/current_card_stats_2026_09.json --out outputs/rudy_current_cards/summary.json
+
       - name: Verify Firecracker fan and Magic Archer piercing
         shell: pwsh
         run: python tools/cr_hog_fidelity_test/assert_line_projectile_mechanics.py --data-dir outputs/rudy_tournament11_data --out outputs/rudy_line_projectiles/summary.json
@@ -120,7 +128,7 @@ jobs:
           Rudy upstream: nguiaSoren/clash-royale-suite@050275d70b84614953877e8075dc4b8ba907c67f
           Engine: patched cr_engine wheel in wheel/
           Data: Tournament-11 overlay in data/
-          Validation: Solo Hog + d03 SECONDARY + d02 CROSSDEMO plus demo2 Firecracker, Magic Archer, rolling bridge/spawn, Electro Spirit and remaining-card gates passed on this same Windows build.
+          Validation: current Sep-2026 public stat catalog (123 base / 42 evolutions / 17 heroes) plus Solo Hog, d03 SECONDARY, d02 CROSSDEMO, Firecracker, Magic Archer, rolling bridge/spawn, Electro Spirit and full-demo gates passed on this same Windows build.
           "@ | Set-Content -Encoding UTF8 outputs/HOG_CANNON_CORE_README.txt
 
       - name: Show built wheel
@@ -139,6 +147,7 @@ jobs:
             outputs/rudy_line_projectiles
             outputs/rudy_demo2_cards
             outputs/rudy_full_demo_cards
+            outputs/rudy_current_cards
             outputs/rudy_runtime_secondary
             outputs/rudy_runtime_crossdemo
             outputs/HOG_CANNON_CORE_README.txt
