@@ -37,6 +37,33 @@ def lv11(record: dict[str, Any], array_field: str, scalar_field: str) -> int | N
     return None if value is None else int(value)
 
 
+def find_spell_projectile(
+    projectiles: list[dict[str, Any]],
+    registry_record: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    if not registry_record:
+        return None
+    sk=str(registry_record.get("sc_key") or "")
+    if not sk:
+        return None
+    for candidate in (f"{sk}Spell",f"{sk}Projectile",f"{sk}ProjectileRolling",sk):
+        found=find(projectiles,candidate)
+        if found is not None:
+            return found
+    wanted=norm(sk)
+    candidates=[
+        p for p in projectiles
+        if wanted and wanted in norm(p.get("name"))
+        and (int(p.get("damage") or 0)>0 or int(p.get("spawn_character_count") or 0)>0)
+    ]
+    if not candidates:
+        return None
+    return max(
+        candidates,
+        key=lambda p:int(p.get("damage") or 0)+int(p.get("spawn_character_count") or 0)*100,
+    )
+
+
 def require(cond: bool, msg: str, failures: list[str]) -> None:
     if not cond:
         failures.append(msg)
@@ -76,13 +103,19 @@ def main() -> None:
     missing_runtime=[]
     for key,stat in base:
         selectors=(key.replace("_","-"),stat.get("display",""))
-        if find(registry,*selectors) is None:
+        registry_record=find(registry,*selectors)
+        if registry_record is None:
             missing_registry.append(key)
-        if (
-            find(characters,*selectors) is None
-            and find(buildings,*selectors) is None
-            and find(spells,*selectors) is None
-        ):
+        direct_runtime=(
+            find(characters,*selectors)
+            or find(buildings,*selectors)
+            or find(spells,*selectors)
+        )
+        projectile_runtime=(
+            find_spell_projectile(projectiles,registry_record)
+            if stat.get("kind")=="spell" else None
+        )
+        if direct_runtime is None and projectile_runtime is None:
             missing_runtime.append(key)
     require(not missing_registry,f"missing registry cards: {missing_registry}",failures)
     require(not missing_runtime,f"missing runtime stat records: {missing_runtime}",failures)
@@ -142,9 +175,12 @@ def main() -> None:
         require(lv11(ronin,"damage_per_level","damage")==337,"Ronin damage != 337",failures)
         require(int(ronin.get("hit_speed",0))==1300,"Ronin hit speed != 1.3s",failures)
 
-    fireball=find(spells,"fireball","Fireball")
-    require(fireball is not None,"Fireball spell record missing",failures)
+    fireball_registry=find(registry,"fireball","Fireball")
+    fireball=find_spell_projectile(projectiles,fireball_registry)
+    require(fireball is not None,"Fireball projectile-spell record missing",failures)
     if fireball:
+        require(lv11(fireball,"damage_per_level","damage")==688,
+                "Fireball Level-11 damage != 688",failures)
         require(int(fireball.get("crown_tower_damage_percent",999))==-77,
                 "Fireball current crown-tower reduction should encode 159/688 ~= -77%",failures)
 
