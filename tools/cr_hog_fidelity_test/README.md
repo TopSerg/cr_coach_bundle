@@ -30,7 +30,22 @@ The CR Coach Rudy build is intentionally not stock upstream Rudy. The current bu
    - for Hog Rider: 1600 ms Hit Speed - 1000 ms Load Time = 600 ms first windup;
    - `load_first_hit` is not added as a second pre-hit cooldown.
 
-Tournament-level card data is generated separately from `tournament11_profile.json` with `build_tournament_data.py`.
+Tournament-level card data is generated separately from `tournament11_profile.json` with
+`build_tournament_data.py`. The full Golem replay also uses three cards absent
+from the pinned Rudy snapshot; CI applies `patch_full_demo_cards.py` immediately
+after the Tournament-11 overlay and runs `assert_full_demo_cards.py`.
+
+The full replay deck is:
+
+```text
+topserg: Golem, Baby Dragon, Skeleton Dragons, Fireball, The Log, Night Witch,
+         Valkyrie, Skeletons
+EgoRkaa: Dart Goblin, Goblin Curse, Giant, Goblins, Goblin Demolisher,
+         Goblin Drill, Suspicious Bush, Clone
+```
+
+The demo-pack README labels these two replays in reverse; use the visible deck
+history and `docs/demo2_full_demo_kernel_audit.md` as the authoritative mapping.
 
 Do not compare a new fidelity result against old stock-Rudy coordinates/speeds before confirming all patches and the Tournament-11 overlay were applied.
 

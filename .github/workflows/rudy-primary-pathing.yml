@@ -46,6 +46,9 @@ jobs:
           python tools/rudy_windows/patch_rudy_building_hp_decay.py
           python tools/rudy_windows/patch_rudy_troop_speed.py
           python tools/rudy_windows/patch_rudy_attack_timing.py
+          python tools/rudy_windows/patch_rudy_firecracker_magic_archer.py
+          python tools/rudy_windows/patch_rudy_rolling_bridge_spawn.py
+          python tools/rudy_windows/patch_rudy_electro_spirit_chain.py
 
       - name: Build and install patched Rudy
         working-directory: third_party/clash-royale-suite/cr-rudy-sim/simulator/engine
@@ -66,6 +69,26 @@ jobs:
             --projectile-name TowerCannonball \
             --level 11 \
             --damage 202
+          python tools/cr_hog_fidelity_test/patch_full_demo_cards.py \
+            --data-dir outputs/rudy_tournament11_data
+
+      - name: Verify Firecracker fan and Magic Archer piercing
+        run: |
+          python tools/cr_hog_fidelity_test/assert_line_projectile_mechanics.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --out outputs/rudy_line_projectiles/summary.json
+
+      - name: Verify remaining demo2 card mechanics
+        run: |
+          python tools/cr_hog_fidelity_test/assert_demo2_card_mechanics.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --out outputs/rudy_demo2_cards/summary.json
+
+      - name: Verify full Golem replay card mechanics
+        run: |
+          python tools/cr_hog_fidelity_test/assert_full_demo_cards.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --out outputs/rudy_full_demo_cards/summary.json
 
       - name: Run existing solo and preplaced-Cannon probes
         run: |

@@ -51,6 +51,9 @@ jobs:
           python tools/rudy_windows/patch_rudy_building_hp_decay.py
           python tools/rudy_windows/patch_rudy_troop_speed.py
           python tools/rudy_windows/patch_rudy_attack_timing.py
+          python tools/rudy_windows/patch_rudy_firecracker_magic_archer.py
+          python tools/rudy_windows/patch_rudy_rolling_bridge_spawn.py
+          python tools/rudy_windows/patch_rudy_electro_spirit_chain.py
 
       - name: Install maturin
         run: python -m pip install --upgrade pip maturin
@@ -71,6 +74,19 @@ jobs:
         run: |
           python tools/cr_hog_fidelity_test/build_tournament_data.py --source-data-dir third_party/clash-royale-suite/cr-rudy-sim/simulator/data --profile tools/cr_hog_fidelity_test/tournament11_profile.json --out-dir outputs/rudy_tournament11_data
           python tools/cr_hog_fidelity_test/patch_tournament_ranged_projectiles.py --data-dir outputs/rudy_tournament11_data --building-name Cannon --projectile-name TowerCannonball --level 11 --damage 202
+          python tools/cr_hog_fidelity_test/patch_full_demo_cards.py --data-dir outputs/rudy_tournament11_data
+
+      - name: Verify Firecracker fan and Magic Archer piercing
+        shell: pwsh
+        run: python tools/cr_hog_fidelity_test/assert_line_projectile_mechanics.py --data-dir outputs/rudy_tournament11_data --out outputs/rudy_line_projectiles/summary.json
+
+      - name: Verify remaining demo2 card mechanics
+        shell: pwsh
+        run: python tools/cr_hog_fidelity_test/assert_demo2_card_mechanics.py --data-dir outputs/rudy_tournament11_data --out outputs/rudy_demo2_cards/summary.json
+
+      - name: Verify full Golem replay card mechanics
+        shell: pwsh
+        run: python tools/cr_hog_fidelity_test/assert_full_demo_cards.py --data-dir outputs/rudy_tournament11_data --out outputs/rudy_full_demo_cards/summary.json
 
       - name: Run Solo Hog Princess guard
         shell: pwsh
@@ -104,7 +120,7 @@ jobs:
           Rudy upstream: nguiaSoren/clash-royale-suite@050275d70b84614953877e8075dc4b8ba907c67f
           Engine: patched cr_engine wheel in wheel/
           Data: Tournament-11 overlay in data/
-          Validation: Solo Hog + d03 SECONDARY + d02 CROSSDEMO strict gate passed on this same Windows build.
+          Validation: Solo Hog + d03 SECONDARY + d02 CROSSDEMO plus demo2 Firecracker, Magic Archer, rolling bridge/spawn, Electro Spirit and remaining-card gates passed on this same Windows build.
           "@ | Set-Content -Encoding UTF8 outputs/HOG_CANNON_CORE_README.txt
 
       - name: Show built wheel
@@ -120,6 +136,9 @@ jobs:
             outputs/rudy_tournament11_data
             outputs/rudy_core_existing
             outputs/rudy_core_postfix
+            outputs/rudy_line_projectiles
+            outputs/rudy_demo2_cards
+            outputs/rudy_full_demo_cards
             outputs/rudy_runtime_secondary
             outputs/rudy_runtime_crossdemo
             outputs/HOG_CANNON_CORE_README.txt
