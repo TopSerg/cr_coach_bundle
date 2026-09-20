@@ -58,6 +58,19 @@ def patch(data_dir: Path) -> dict:
     spells = load(root / "cards_stats_spell.json")
     buffs = load(root / "cards_stats_character_buff.json")
 
+    # Video calibration from XRecorder_20260920_02(2).mp4:
+    # Night Witch is played at ~19.1s and the first Bat wave becomes visible
+    # at ~22.0s.  The pinned data releases that first wave ~1s too early.
+    # Keep the normal repeating cadence, but move the initial wave to 3.0s.
+    for index, record in enumerate(characters):
+        if record.get("key") == "night-witch" or record.get("name") == "DarkWitch":
+            patched = copy.deepcopy(record)
+            patched["spawn_start_time"] = 3000
+            characters[index] = patched
+            break
+    else:
+        raise RuntimeError("Night Witch character row not found for spawn timing calibration")
+
     # Card registry entries are used for hand/deck validation and elixir cost.
     dart_card = one(cards, "key", "dart-goblin")
     drill_card = one(cards, "key", "goblin-drill")
@@ -165,6 +178,7 @@ def patch(data_dir: Path) -> dict:
     return {
         "cards": ["goblin-demolisher", "suspicious-bush", "goblin-curse"],
         "mechanics": {
+            "night-witch": "first Bat wave calibrated to 3.0s from card placement in supplied full replay",
             "goblin-demolisher": "ranged ground splash + death blast; charge threshold pending calibration",
             "suspicious-bush": "stealth building-targeting kamikaze + two Goblins",
             "goblin-curse": "6s DOT/slow zone + Goblin on cursed-unit death",
