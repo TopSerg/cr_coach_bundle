@@ -11,12 +11,12 @@ import cr_engine
 
 
 TEAM_DECK = [
-    "golem", "baby-dragon", "skeleton-dragons", "fireball",
+    "golem", "electro-dragon", "skeleton-dragons", "fireball",
     "the-log", "night-witch", "valkyrie", "skeletons",
 ]
 OPPONENT_DECK = [
-    "dart-goblin", "goblin-curse", "giant", "goblins",
-    "goblin-demolisher", "goblin-drill", "suspicious-bush", "clone",
+    "clone", "dart-goblin", "goblin-cage", "goblin-curse",
+    "goblins", "goblin-demolisher", "suspicious-bush", "golden-knight",
 ]
 
 
@@ -136,7 +136,6 @@ def main() -> None:
         "night_witch": night_witch_bats(data),
         "golem": golem_split(data),
         "clone": clone_probe(data),
-        "goblin_drill": goblin_drill_probe(data),
         "goblin_curse": curse_probe(data),
     }
     out = Path(args.out)
