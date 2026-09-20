@@ -5,8 +5,8 @@
   "mode": "placements",
   "coordinate_system": "world_cells",
   "level": 11,
-  "end_tick": 440,
-  "notes": "Video-derived opening segment. Time origin is the first Dart Goblin deployment at source 18.00s. Observed plays: Night Witch 19.05s, Skeletons 20.40s, Goblin Gang 27.45s, Goblin Demolisher ~34.75s. Gang/Demolisher cells are video-grid estimates pending sub-tile calibration.",
+  "end_tick": 650,
+  "notes": "Video-derived opening segment. Time origin is first Dart Goblin deployment at 18.00s. Observed plays: Night Witch 19.05s, Skeletons 20.40s, Goblin Gang 27.45s, Goblin Demolisher ~34.75s, Electro Dragon ~38.45s, Suspicious Bush ~41.95s, Golden Knight ~45.05s. Later placement cells are video-grid estimates pending sub-tile calibration.",
   "events": [
     {
       "tick": 0,
@@ -42,6 +42,27 @@
       "card": "goblin-demolisher",
       "x": 9,
       "y": 8
+    },
+    {
+      "tick": 409,
+      "side": "team",
+      "card": "electro-dragon",
+      "x": 9,
+      "y": 18
+    },
+    {
+      "tick": 479,
+      "side": "opponent",
+      "card": "suspicious-bush",
+      "x": 4,
+      "y": 14
+    },
+    {
+      "tick": 541,
+      "side": "opponent",
+      "card": "golden-knight",
+      "x": 4,
+      "y": 13
     }
   ]
 }
