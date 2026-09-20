@@ -373,6 +373,13 @@ HOMOGENEOUS_MULTI_UNITS = {
     "zappies": "minizapmachine",
 }
 
+MIXED_MULTI_UNITS = {
+    # Current Goblin Gang: 3 melee Goblins + 3 Spear Goblins.
+    "goblin_gang": ("goblin", 3, "speargoblin", 3),
+    # Rascals: one Boy + two Girls.
+    "rascals": ("rascalboy", 1, "rascalgirl", 2),
+}
+
 
 def main() -> None:
     ap = argparse.ArgumentParser()
@@ -462,6 +469,17 @@ def main() -> None:
                 record["summon_number"] = public_count
                 record["summon_character"] = HOMOGENEOUS_MULTI_UNITS[key]
                 changed.extend(["summon_number", "summon_character"])
+
+        if pool_name == "character" and key in MIXED_MULTI_UNITS:
+            first_unit, first_count, second_unit, second_count = MIXED_MULTI_UNITS[key]
+            record["summon_number"] = first_count
+            record["summon_character"] = first_unit
+            record["summon_character_second"] = second_unit
+            record["summon_character_second_count"] = second_count
+            changed.extend([
+                "summon_number", "summon_character",
+                "summon_character_second", "summon_character_second_count",
+            ])
 
         # Synchronize a simple ranged attack projectile when the record exposes
         # one. This is safe for ordinary one-projectile attackers and is skipped
