@@ -74,15 +74,15 @@ jobs:
 
       - name: Apply current September 2026 public card stats
         run: |
-          python tools/cr_hog_fidelity_test/apply_current_card_stats.py \\
-            --data-dir outputs/rudy_tournament11_data \\
+          python tools/cr_hog_fidelity_test/apply_current_card_stats.py \
+            --data-dir outputs/rudy_tournament11_data \
             --catalog tools/cr_hog_fidelity_test/current_card_stats_2026_09.json
 
       - name: Verify current September 2026 card stat coverage
         run: |
-          python tools/cr_hog_fidelity_test/assert_current_card_stats.py \\
-            --data-dir outputs/rudy_tournament11_data \\
-            --catalog tools/cr_hog_fidelity_test/current_card_stats_2026_09.json \\
+          python tools/cr_hog_fidelity_test/assert_current_card_stats.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --catalog tools/cr_hog_fidelity_test/current_card_stats_2026_09.json \
             --out outputs/rudy_current_cards/summary.json
 
       - name: Verify Firecracker fan and Magic Archer piercing
