@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "battle_id": "xrecorder_20260920_golem_first_segment",
+  "ticks_per_second": 20,
+  "mode": "placements",
+  "coordinate_system": "world_cells",
+  "level": 11,
+  "end_tick": 190,
+  "notes": "Video-derived first segment. Time origin is the first Dart Goblin deployment at source 18.00s; later events are relative to that frame.",
+  "events": [
+    {
+      "tick": 0,
+      "side": "opponent",
+      "card": "dart-goblin",
+      "x": 14,
+      "y": 14
+    },
+    {
+      "tick": 21,
+      "side": "team",
+      "card": "night-witch",
+      "x": 9,
+      "y": 30
+    },
+    {
+      "tick": 48,
+      "side": "team",
+      "card": "skeletons",
+      "x": 15,
+      "y": 17
+    }
+  ]
+}
