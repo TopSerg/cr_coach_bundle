@@ -8,7 +8,7 @@ sys.path.insert(0,str(ROOT/"starter"))
 from cr_coach.replay.io import load_replay
 from cr_coach.runtime.rudy_runner import run_rudy_replay
 
-CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260}
+CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260,335,336,345,355,365,385,405,425,440}
 
 def compact(snapshot):
     rows=[]
@@ -88,6 +88,27 @@ def main():
     expected_first_bat_tick=80
     bat_error_ticks=None if first_bat_tick is None else first_bat_tick-expected_first_bat_tick
     bat_timing_pass=first_bat_tick is not None and abs(bat_error_ticks)<=2
+    demolisher_by_tick={}
+    for snapshot in snaps:
+        tick=int(snapshot["tick"])
+        if tick not in {336,345,355,365,385}:
+            continue
+        rows=[
+            {
+                "uid":int(entity["uid"]),
+                "card":str(entity.get("card_id","")),
+                "x":int(entity["x_mtile"]),
+                "y":int(entity["y_mtile"]),
+                "hp":int(entity["hp"]),
+                "deploy_us":int(entity.get("deploy_remaining_us") or 0),
+            }
+            for entity in snapshot.get("entities",[])
+            if "goblindemolisher" in str(entity.get("card_id","")).lower()
+            or "goblin-demolisher" in str(entity.get("card_id","")).lower()
+        ]
+        demolisher_by_tick[str(tick)]=rows
+    demolisher_created=bool(demolisher_by_tick.get("336"))
+
     payload={
         "report":report,
         "selected":selected,
@@ -121,6 +142,14 @@ def main():
                 "passed":(goblin_gang_by_tick.get("190") or {}).get("total")==6,
                 "gating":True,
             },
+            "goblin_demolisher_after_play":{
+                "play_tick":335,
+                "video_time_s":34.75,
+                "placement_cell_estimate":[9,8],
+                "states_by_tick":demolisher_by_tick,
+                "passed":demolisher_created,
+                "gating":True,
+            },
         },
     }
     (args.out/"opening_probe.json").write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
@@ -128,7 +157,7 @@ def main():
     dart_pass=first_dart_death_tick is not None and 78 <= first_dart_death_tick <= 80
     skeleton_pass=skeleton_counts_by_tick.get("49")==3
     gang_pass=(goblin_gang_by_tick.get("190") or {}).get("total")==6
-    return 0 if report["status"]!="failed" and bat_timing_pass and dart_pass and skeleton_pass and gang_pass else 1
+    return 0 if report["status"]!="failed" and bat_timing_pass and dart_pass and skeleton_pass and gang_pass and demolisher_created else 1
 
 if __name__=="__main__":
     raise SystemExit(main())
