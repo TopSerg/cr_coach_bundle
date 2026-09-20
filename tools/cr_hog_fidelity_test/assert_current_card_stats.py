@@ -125,6 +125,36 @@ def main() -> None:
     def char(key:str,display:str) -> dict[str,Any] | None:
         return find(characters,key,display) or find(buildings,key,display)
 
+    # Internal identity must stay data-driven. Display names are not safe SC keys
+    # (Magic Archer is EliteArcher in Supercell/Rudy data).
+    magic_registry=find(registry,"magic-archer","Magic Archer")
+    require(magic_registry is not None,"Magic Archer registry record missing",failures)
+    if magic_registry:
+        require(
+            magic_registry.get("sc_key")=="EliteArcher",
+            f"Magic Archer sc_key changed to {magic_registry.get('sc_key')!r}",
+            failures,
+        )
+
+    # Current Cannon value after the April 2026 official nerf is 202 at Level 11.
+    cannon=char("cannon","Cannon")
+    require(cannon is not None,"Cannon runtime record missing",failures)
+    if cannon:
+        require(lv11(cannon,"hitpoints_per_level","hitpoints")==824,"Cannon HP != 824",failures)
+        cannon_projectile=find(projectiles,str(cannon.get("projectile") or ""))
+        require(cannon_projectile is not None,"Cannon projectile missing",failures)
+        if cannon_projectile:
+            require(
+                lv11(cannon_projectile,"damage_per_level","damage")==202,
+                "Cannon Level-11 damage != 202",
+                failures,
+            )
+
+    three=catalog["cards"].get("three_musketeers") or {}
+    require(three.get("melee_damage")==314,"Three Musketeers melee damage != 314",failures)
+    require(three.get("melee_range_tiles")==1.6,"Three Musketeers melee range != 1.6 tiles",failures)
+    require(three.get("melee_hit_speed")==1.3,"Three Musketeers melee hit speed != 1.3s",failures)
+
     # Screenshot/public-stat anchor: Electro Spirit.
     es=char("electro-spirit","Electro Spirit")
     require(es is not None,"Electro Spirit runtime record missing",failures)
