@@ -54,5 +54,26 @@ new_cond='''                } else if card_key == "goblins" {
 count=text.count(old_cond)
 if count!=1:
     raise RuntimeError(f"expected one old Goblins/triangle branch, found {count}")
-LIB.write_text(text.replace(old_cond,new_cond,1),encoding="utf-8")
-print("Rudy patched: ordinary Goblins deploy four units instead of the old three-unit cap.")
+text=text.replace(old_cond,new_cond,1)
+
+# Skeletons are one simultaneous three-unit card deployment. The old generic
+# triangle code additionally staggered unit 2/3 using the component Skeleton's
+# deploy_delay, producing 1.0/1.4/1.8s activation in the replay. Current game
+# data carries a 1.0s deploy time but no per-Skeleton stagger for this card.
+triangle_marker="// ── Triangle formation (3-unit cards) ──"
+triangle_pos=text.index(triangle_marker)
+stagger='''                    if i > 0 && unit_stats.deploy_delay > 0 {
+                        let stagger = entities::ms_to_ticks(unit_stats.deploy_delay) * i as i32;
+                        entity.deploy_timer += stagger;
+                    }
+'''
+stagger_pos=text.index(stagger,triangle_pos)
+replacement='''                    if card_key != "skeletons" && i > 0 && unit_stats.deploy_delay > 0 {
+                        let stagger = entities::ms_to_ticks(unit_stats.deploy_delay) * i as i32;
+                        entity.deploy_timer += stagger;
+                    }
+'''
+text=text[:stagger_pos]+replacement+text[stagger_pos+len(stagger):]
+
+LIB.write_text(text,encoding="utf-8")
+print("Rudy patched: current four-Goblin deployment + simultaneous Skeletons card deploy.")
