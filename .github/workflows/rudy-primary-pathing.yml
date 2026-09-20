@@ -72,6 +72,19 @@ jobs:
           python tools/cr_hog_fidelity_test/patch_full_demo_cards.py \
             --data-dir outputs/rudy_tournament11_data
 
+      - name: Apply current September 2026 public card stats
+        run: |
+          python tools/cr_hog_fidelity_test/apply_current_card_stats.py \\
+            --data-dir outputs/rudy_tournament11_data \\
+            --catalog tools/cr_hog_fidelity_test/current_card_stats_2026_09.json
+
+      - name: Verify current September 2026 card stat coverage
+        run: |
+          python tools/cr_hog_fidelity_test/assert_current_card_stats.py \\
+            --data-dir outputs/rudy_tournament11_data \\
+            --catalog tools/cr_hog_fidelity_test/current_card_stats_2026_09.json \\
+            --out outputs/rudy_current_cards/summary.json
+
       - name: Verify Firecracker fan and Magic Archer piercing
         run: |
           python tools/cr_hog_fidelity_test/assert_line_projectile_mechanics.py \
@@ -180,6 +193,8 @@ jobs:
             outputs/rudy_existing
             outputs/rudy_pathing_legacy
             outputs/rudy_postfix
+            outputs/rudy_current_cards
+            outputs/rudy_tournament11_data/CURRENT_CARD_STATS_MANIFEST.json
             outputs/rudy_tournament11_data/_tournament11_manifest.json
           if-no-files-found: warn
           retention-days: 14
