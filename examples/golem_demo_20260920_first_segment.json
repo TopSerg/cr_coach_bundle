@@ -5,8 +5,8 @@
   "mode": "placements",
   "coordinate_system": "world_cells",
   "level": 11,
-  "end_tick": 190,
-  "notes": "Video-derived first segment. Time origin is the first Dart Goblin deployment at source 18.00s; later events are relative to that frame.",
+  "end_tick": 260,
+  "notes": "Video-derived opening segment. Time origin is the first Dart Goblin deployment at source 18.00s. Exact observed plays: Night Witch 19.05s, Skeletons 20.40s, Goblins 27.45s. Goblins anchor cell is video-grid estimate pending sub-tile calibration.",
   "events": [
     {
       "tick": 0,
@@ -28,6 +28,13 @@
       "card": "skeletons",
       "x": 15,
       "y": 17
+    },
+    {
+      "tick": 189,
+      "side": "opponent",
+      "card": "goblins",
+      "x": 11,
+      "y": 2
     }
   ]
 }
