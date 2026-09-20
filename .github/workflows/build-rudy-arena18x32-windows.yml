@@ -54,6 +54,7 @@ jobs:
           python tools/rudy_windows/patch_rudy_firecracker_magic_archer.py
           python tools/rudy_windows/patch_rudy_rolling_bridge_spawn.py
           python tools/rudy_windows/patch_rudy_electro_spirit_chain.py
+          python tools/rudy_windows/patch_rudy_zero_damage_buff_scaling.py
 
       - name: Install maturin
         run: python -m pip install --upgrade pip maturin
