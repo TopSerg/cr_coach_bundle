@@ -198,11 +198,22 @@ def patch_spell(record: dict[str, Any], stat: dict[str, Any], *, generated: bool
     return fields
 
 
-def clone_template(records: list[dict[str, Any]], candidates: list[str]) -> dict[str, Any]:
+def clone_template(
+    records: list[dict[str, Any]],
+    candidates: list[str],
+    predicate=None,
+) -> dict[str, Any]:
     for candidate in candidates:
         found = find_one(records, candidate)
         if found is not None:
             return copy.deepcopy(found)
+    if predicate is not None:
+        for record in records:
+            try:
+                if predicate(record):
+                    return copy.deepcopy(record)
+            except Exception:
+                continue
     raise RuntimeError(f"no template found: {candidates}")
 
 
@@ -272,14 +283,22 @@ def add_runtime_stub(
     if kind == "spell":
         # Missing current zone spells (e.g. Vines/Void) get a neutral timed-zone
         # schema template. Projectile spells are detected before this function.
-        record = clone_template(spells, ["poison", "Poison", "zap", "Zap"])
+        record = clone_template(
+            spells,
+            ["poison", "Poison", "zap", "Zap"],
+            predicate=lambda r: int(r.get("radius") or 0) > 0,
+        )
         record.update(key=ck, name=sk, name_en=display, sc_key=sk, id=int(stat.get("official_id") or synthetic_id), elixir=int(stat.get("elixir") or 0))
         patch_spell(record, stat, generated=True)
         upsert_by_key(spells, record)
         return record, "spell"
 
     if kind == "building":
-        record = clone_template(buildings, ["cannon", "Cannon"])
+        record = clone_template(
+            buildings,
+            ["cannon", "Cannon"],
+            predicate=lambda r: int(r.get("hitpoints") or 0) > 0,
+        )
         record.update(key=ck, name=sk, name_en=display, sc_key=sk, id=int(stat.get("official_id") or synthetic_id), elixir=int(stat.get("elixir") or 0))
         patch_character(record, stat, generated=True)
         upsert_by_key(buildings, record)
@@ -288,14 +307,18 @@ def add_runtime_stub(
     # Troop template is chosen to preserve the broad movement/targeting family.
     attacks = set(stat.get("attacks") or [])
     if stat.get("movement") == "air":
-        candidates = ["FlyingMachine", "flying-machine", "Minions"]
+        candidates = ["MegaMinion", "megaminion", "BabyDragon", "Minion", "FlyingMachine"]
+        predicate = lambda r: int(r.get("flying_height") or 0) > 0 and int(r.get("hitpoints") or 0) > 0
     elif attacks == {"buildings"}:
-        candidates = ["Giant", "giant"]
+        candidates = ["Giant", "giant", "HogRider"]
+        predicate = lambda r: bool(r.get("target_only_buildings")) and int(r.get("hitpoints") or 0) > 0
     elif float(stat.get("range_tiles") or 0) >= 2.5:
-        candidates = ["BlowdartGoblin", "dart-goblin", "Musketeer"]
+        candidates = ["BlowdartGoblin", "Musketeer", "Archer"]
+        predicate = lambda r: int(r.get("range") or 0) >= 2500 and int(r.get("hitpoints") or 0) > 0
     else:
-        candidates = ["Knight", "knight"]
-    record = clone_template(characters, candidates)
+        candidates = ["Knight", "Barbarian", "Goblins"]
+        predicate = lambda r: int(r.get("hitpoints") or 0) > 0 and int(r.get("range") or 0) <= 2000
+    record = clone_template(characters, candidates, predicate=predicate)
     record.update(key=ck, name=sk, name_en=display, sc_key=sk, id=int(stat.get("official_id") or synthetic_id), elixir=int(stat.get("elixir") or 0))
     # Do not inherit another card's unique mechanics into a generic stub.
     for special in (
