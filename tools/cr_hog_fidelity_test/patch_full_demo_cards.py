@@ -59,13 +59,13 @@ def patch(data_dir: Path) -> dict:
     buffs = load(root / "cards_stats_character_buff.json")
 
     # Video calibration from XRecorder_20260920_02(2).mp4:
-    # Night Witch is played at ~19.1s and the first Bat wave becomes visible
-    # at ~22.0s.  The pinned data releases that first wave ~1s too early.
-    # Keep the normal repeating cadence, but move the initial wave to 3.0s.
+    # Night Witch is played at 19.05s and the first Bat wave becomes visible
+    # at ~21.95-22.00s. Rudy's spawn_start_time begins after the 1.0s deploy,
+    # so a 2.0s initial spawn timer reproduces the ~3.0s placement-to-wave delay.
     for index, record in enumerate(characters):
         if record.get("key") == "night-witch" or record.get("name") == "DarkWitch":
             patched = copy.deepcopy(record)
-            patched["spawn_start_time"] = 3000
+            patched["spawn_start_time"] = 2000
             characters[index] = patched
             break
     else:
@@ -178,7 +178,7 @@ def patch(data_dir: Path) -> dict:
     return {
         "cards": ["goblin-demolisher", "suspicious-bush", "goblin-curse"],
         "mechanics": {
-            "night-witch": "first Bat wave calibrated to 3.0s from card placement in supplied full replay",
+            "night-witch": "first Bat wave: 1.0s deploy + 2.0s initial spawn timer ~= 3.0s from placement",
             "goblin-demolisher": "ranged ground splash + death blast; charge threshold pending calibration",
             "suspicious-bush": "stealth building-targeting kamikaze + two Goblins",
             "goblin-curse": "6s DOT/slow zone + Goblin on cursed-unit death",
