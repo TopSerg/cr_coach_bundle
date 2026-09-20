@@ -72,13 +72,13 @@ def main():
             "dart_goblin_death":{
                 "video_window_ticks":[78,80],
                 "actual_tick":first_dart_death_tick,
-                "gating":false,
+                "gating":False,
             },
             "skeletons_created":{
                 "play_tick":48,
                 "creation_ticks":skeleton_create_ticks,
                 "count":len(skeleton_create_ticks),
-                "gating":false,
+                "gating":False,
             },
         },
     }
