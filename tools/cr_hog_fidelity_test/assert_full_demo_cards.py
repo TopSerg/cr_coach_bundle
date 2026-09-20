@@ -68,6 +68,34 @@ def goblin_gang_count_probe(data: Any) -> dict[str, Any]:
     return {"total": total, "breakdown": breakdown}
 
 
+def goblin_demolisher_morph_probe(data: Any) -> dict[str, Any]:
+    match = cr_engine.new_match(data, TEAM_DECK, OPPONENT_DECK)
+    source_id = int(match.seed_troop_state(
+        2, "goblin-demolisher", 0, 2_000, 11, 49, True
+    ))
+    match.step()
+    rows = entities(match)
+    source = next((e for e in rows if int(e["id"]) == source_id), None)
+    morphed = [
+        e for e in rows
+        if e["team"] == 2
+        and str(e["card_key"]).lower() == "goblin-demolisher-kamikaze"
+        and e.get("alive", True)
+    ]
+    if source is not None and source.get("alive", True):
+        raise AssertionError("Goblin Demolisher stayed in ranged form below 50% HP")
+    if len(morphed) != 1:
+        raise AssertionError(
+            f"Goblin Demolisher created {len(morphed)} kamikaze forms, expected 1"
+        )
+    return {
+        "source_id": source_id,
+        "morphed_id": int(morphed[0]["id"]),
+        "morphed_hp": int(morphed[0]["hp"]),
+        "card_key": str(morphed[0]["card_key"]),
+    }
+
+
 def night_witch_bats(data: Any) -> dict[str, Any]:
     match = cr_engine.new_match(data, TEAM_DECK, OPPONENT_DECK)
     match.spawn_troop(1, "night-witch", 0, -4_000, 11)
@@ -158,6 +186,7 @@ def main() -> None:
         "decks": {"team": TEAM_DECK, "opponent": OPPONENT_DECK},
         "card_smoke": smoke_cards(data),
         "goblin_gang": goblin_gang_count_probe(data),
+        "goblin_demolisher": goblin_demolisher_morph_probe(data),
         "night_witch": night_witch_bats(data),
         "golem": golem_split(data),
         "clone": clone_probe(data),
