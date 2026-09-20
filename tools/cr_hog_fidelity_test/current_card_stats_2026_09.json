@@ -29,7 +29,14 @@
       "time": "seconds",
       "hp_damage": "level-11"
     },
-    "note": "Public/UI truth layer. Hidden timings, projectile geometry, collision and pathing remain separately calibrated against game data/video."
+    "note": "Public/UI truth layer. Hidden timings, projectile geometry, collision and pathing remain separately calibrated against game data/video.",
+    "official_api_crosscheck": {
+      "source_repository": "outlierSlug/immaculate-grid-engine",
+      "source_file": "ingestion/clashroyale/raw/clashroyale_cards_raw.json",
+      "current_base_cards": 123,
+      "matched_base_cards": 123,
+      "missing": []
+    }
   },
   "cards": {
     "archer_queen": {
@@ -55,7 +62,9 @@
         "revid": 436755,
         "fetched": "2026-08-26"
       },
-      "champion": true
+      "champion": true,
+      "official_id": 26000072,
+      "max_level": 6
     },
     "archers": {
       "display": "Archers",
@@ -79,7 +88,10 @@
       "_src": {
         "revid": 437494,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000001,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "archers_evo": {
       "display": "Evo Archers",
@@ -126,7 +138,9 @@
       "_src": {
         "revid": 437304,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000001,
+      "max_level": 16
     },
     "baby_dragon": {
       "display": "Baby Dragon",
@@ -151,7 +165,10 @@
       "_src": {
         "revid": 437335,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000015,
+      "max_level": 11,
+      "max_evolution_level": 1
     },
     "baby_dragon_evo": {
       "display": "Evo Baby Dragon",
@@ -203,7 +220,10 @@
       "_src": {
         "revid": 437164,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000006,
+      "max_level": 11,
+      "max_evolution_level": 2
     },
     "balloon_hero": {
       "display": "Hero Balloon",
@@ -256,7 +276,9 @@
       "_src": {
         "revid": 436852,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000046,
+      "max_level": 8
     },
     "barbarian_barrel": {
       "display": "Barbarian Barrel",
@@ -281,7 +303,10 @@
       "_src": {
         "revid": 437163,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000015,
+      "max_level": 11,
+      "max_evolution_level": 2
     },
     "barbarian_barrel_hero": {
       "display": "Hero Barbarian Barrel",
@@ -328,7 +353,9 @@
       "_src": {
         "revid": 436519,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000005,
+      "max_level": 14
     },
     "barbarians": {
       "display": "Barbarians",
@@ -350,7 +377,10 @@
       "_src": {
         "revid": 437362,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000008,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "barbarians_evo": {
       "display": "Evo Barbarians",
@@ -398,7 +428,10 @@
       "_src": {
         "revid": 437216,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000049,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "bats_evo": {
       "display": "Evo Bats",
@@ -446,7 +479,9 @@
       "_src": {
         "revid": 437490,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000068,
+      "max_level": 14
     },
     "battle_ram": {
       "display": "Battle Ram",
@@ -472,7 +507,10 @@
         "revid": 436977,
         "fetched": "2026-08-26"
       },
-      "sight_range_tiles": 6.5
+      "sight_range_tiles": 6.5,
+      "official_id": 26000036,
+      "max_level": 14,
+      "max_evolution_level": 1
     },
     "battle_ram_evo": {
       "display": "Evo Battle Ram",
@@ -525,7 +563,10 @@
       "_src": {
         "revid": 436948,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000102,
+      "max_level": 16,
+      "max_evolution_level": 2
     },
     "berserker_hero": {
       "display": "Hero Berserker",
@@ -577,7 +618,9 @@
       "_src": {
         "revid": 436520,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000004,
+      "max_level": 14
     },
     "bomber": {
       "display": "Bomber",
@@ -601,7 +644,10 @@
       "_src": {
         "revid": 436694,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000013,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "bomber_evo": {
       "display": "Evo Bomber",
@@ -655,7 +701,9 @@
         "revid": 437146,
         "fetched": "2026-08-26"
       },
-      "champion": true
+      "champion": true,
+      "official_id": 26000103,
+      "max_level": 6
     },
     "bowler": {
       "display": "Bowler",
@@ -680,7 +728,10 @@
       "_src": {
         "revid": 437377,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000034,
+      "max_level": 11,
+      "max_evolution_level": 2
     },
     "bowler_hero": {
       "display": "Hero Bowler",
@@ -729,7 +780,10 @@
       "_src": {
         "revid": 437251,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000000,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "cannon_cart": {
       "display": "Cannon Cart",
@@ -753,7 +807,9 @@
       "_src": {
         "revid": 436728,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000054,
+      "max_level": 11
     },
     "cannon_evo": {
       "display": "Evo Cannon",
@@ -790,7 +846,9 @@
       "_src": {
         "revid": 436842,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000013,
+      "max_level": 11
     },
     "dark_prince": {
       "display": "Dark Prince",
@@ -821,7 +879,10 @@
       "_src": {
         "revid": 437262,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000027,
+      "max_level": 11,
+      "max_evolution_level": 2
     },
     "dark_prince_hero": {
       "display": "Hero Dark Prince",
@@ -877,7 +938,10 @@
       "_src": {
         "revid": 437213,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000040,
+      "max_level": 14,
+      "max_evolution_level": 1
     },
     "dart_goblin_evo": {
       "display": "Evo Dart Goblin",
@@ -923,7 +987,9 @@
       "_src": {
         "revid": 437302,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000014,
+      "max_level": 14
     },
     "electro_dragon": {
       "display": "Electro Dragon",
@@ -948,7 +1014,10 @@
       "_src": {
         "revid": 437293,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000063,
+      "max_level": 11,
+      "max_evolution_level": 1
     },
     "electro_dragon_evo": {
       "display": "Evo Electro Dragon",
@@ -999,7 +1068,9 @@
       "_src": {
         "revid": 436724,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000085,
+      "max_level": 11
     },
     "electro_spirit": {
       "display": "Electro Spirit",
@@ -1024,7 +1095,9 @@
         "fetched": "2026-08-26"
       },
       "chain_range_tiles": 3,
-      "chain_count": 9
+      "chain_count": 9,
+      "official_id": 26000084,
+      "max_level": 16
     },
     "electro_wizard": {
       "display": "Electro Wizard",
@@ -1049,7 +1122,9 @@
       "_src": {
         "revid": 436732,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000042,
+      "max_level": 8
     },
     "elite_barbarians": {
       "display": "Elite Barbarians",
@@ -1071,7 +1146,10 @@
       "_src": {
         "revid": 436475,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000043,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "elite_barbarians_evo": {
       "display": "Evo Elite Barbarians",
@@ -1098,7 +1176,9 @@
       "_src": {
         "revid": 436522,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000007,
+      "max_level": 14
     },
     "elixir_golem": {
       "display": "Elixir Golem",
@@ -1125,7 +1205,9 @@
       "_src": {
         "revid": 437532,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000067,
+      "max_level": 14
     },
     "executioner": {
       "display": "Executioner",
@@ -1152,7 +1234,10 @@
       "_src": {
         "revid": 437375,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000045,
+      "max_level": 11,
+      "max_evolution_level": 1
     },
     "executioner_evo": {
       "display": "Evo Executioner",
@@ -1205,7 +1290,9 @@
       "_src": {
         "revid": 437343,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000031,
+      "max_level": 16
     },
     "fireball": {
       "display": "Fireball",
@@ -1224,7 +1311,9 @@
       "_src": {
         "revid": 437299,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000000,
+      "max_level": 14
     },
     "firecracker": {
       "display": "Firecracker",
@@ -1251,7 +1340,10 @@
       "_src": {
         "revid": 437467,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000064,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "firecracker_evo": {
       "display": "Evo Firecracker",
@@ -1303,7 +1395,9 @@
       "_src": {
         "revid": 437257,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000061,
+      "max_level": 8
     },
     "flying_machine": {
       "display": "Flying Machine",
@@ -1327,7 +1421,9 @@
       "_src": {
         "revid": 436539,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000057,
+      "max_level": 14
     },
     "freeze": {
       "display": "Freeze",
@@ -1346,7 +1442,9 @@
       "_src": {
         "revid": 437301,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000005,
+      "max_level": 11
     },
     "furnace": {
       "display": "Furnace",
@@ -1374,7 +1472,10 @@
       "_src": {
         "revid": 437285,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000010,
+      "max_level": 14,
+      "max_evolution_level": 1
     },
     "furnace_evo": {
       "display": "Evo Furnace",
@@ -1427,7 +1528,10 @@
       "_src": {
         "revid": 437161,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000003,
+      "max_level": 14,
+      "max_evolution_level": 2
     },
     "giant_skeleton": {
       "display": "Giant Skeleton",
@@ -1451,7 +1555,9 @@
       "_src": {
         "revid": 436713,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000020,
+      "max_level": 11
     },
     "giant_snowball": {
       "display": "Giant Snowball",
@@ -1471,7 +1577,10 @@
       "_src": {
         "revid": 437307,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000017,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "giant_snowball_evo": {
       "display": "Evo Giant Snowball",
@@ -1539,7 +1648,10 @@
       "_src": {
         "revid": 436494,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000004,
+      "max_level": 11,
+      "max_evolution_level": 1
     },
     "goblin_barrel_evo": {
       "display": "Evo Goblin Barrel",
@@ -1585,7 +1697,10 @@
       "_src": {
         "revid": 436552,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000012,
+      "max_level": 14,
+      "max_evolution_level": 1
     },
     "goblin_cage_evo": {
       "display": "Evo Goblin Cage",
@@ -1637,7 +1752,9 @@
       "_src": {
         "revid": 437353,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000024,
+      "max_level": 11
     },
     "goblin_demolisher": {
       "display": "Goblin Demolisher",
@@ -1668,7 +1785,9 @@
       "_src": {
         "revid": 437137,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000095,
+      "max_level": 14
     },
     "goblin_drill": {
       "display": "Goblin Drill",
@@ -1690,7 +1809,10 @@
       "_src": {
         "revid": 437382,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000013,
+      "max_level": 11,
+      "max_evolution_level": 1
     },
     "goblin_drill_evo": {
       "display": "Evo Goblin Drill",
@@ -1769,7 +1891,9 @@
       "_src": {
         "revid": 436482,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000041,
+      "max_level": 16
     },
     "goblin_giant": {
       "display": "Goblin Giant",
@@ -1796,7 +1920,10 @@
       "_src": {
         "revid": 437386,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000060,
+      "max_level": 11,
+      "max_evolution_level": 1
     },
     "goblin_giant_evo": {
       "display": "Evo Goblin Giant",
@@ -1848,7 +1975,9 @@
       "_src": {
         "revid": 437256,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000001,
+      "max_level": 14
     },
     "goblin_machine": {
       "display": "Goblin Machine",
@@ -1870,7 +1999,9 @@
       "_src": {
         "revid": 437354,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000096,
+      "max_level": 8
     },
     "goblins": {
       "display": "Goblins",
@@ -1892,7 +2023,10 @@
       "_src": {
         "revid": 437504,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000002,
+      "max_level": 16,
+      "max_evolution_level": 2
     },
     "goblins_hero": {
       "display": "Hero Goblins",
@@ -1973,7 +2107,9 @@
         "revid": 437348,
         "fetched": "2026-08-26"
       },
-      "champion": true
+      "champion": true,
+      "official_id": 26000099,
+      "max_level": 6
     },
     "golden_knight": {
       "display": "Golden Knight",
@@ -1997,7 +2133,9 @@
         "revid": 437147,
         "fetched": "2026-08-26"
       },
-      "champion": true
+      "champion": true,
+      "official_id": 26000074,
+      "max_level": 6
     },
     "golem": {
       "display": "Golem",
@@ -2026,7 +2164,9 @@
         "revid": 436719,
         "fetched": "2026-08-26"
       },
-      "sight_range_tiles": 7.5
+      "sight_range_tiles": 7.5,
+      "official_id": 26000009,
+      "max_level": 11
     },
     "graveyard": {
       "display": "Graveyard",
@@ -2048,7 +2188,9 @@
       "_src": {
         "revid": 437290,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000010,
+      "max_level": 8
     },
     "guards": {
       "display": "Guards",
@@ -2071,7 +2213,9 @@
       "_src": {
         "revid": 436700,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000025,
+      "max_level": 11
     },
     "heal_spirit": {
       "display": "Heal Spirit",
@@ -2094,7 +2238,9 @@
       "_src": {
         "revid": 437344,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000016,
+      "max_level": 14
     },
     "hog_rider": {
       "display": "Hog Rider",
@@ -2117,7 +2263,9 @@
       "_src": {
         "revid": 436540,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000021,
+      "max_level": 14
     },
     "hunter": {
       "display": "Hunter",
@@ -2143,7 +2291,10 @@
       "_src": {
         "revid": 436717,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000044,
+      "max_level": 11,
+      "max_evolution_level": 1
     },
     "hunter_evo": {
       "display": "Evo Hunter",
@@ -2197,7 +2348,10 @@
       "_src": {
         "revid": 436644,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000038,
+      "max_level": 14,
+      "max_evolution_level": 2
     },
     "ice_golem_hero": {
       "display": "Hero Ice Golem",
@@ -2247,7 +2401,10 @@
       "_src": {
         "revid": 437338,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000030,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "ice_spirit_evo": {
       "display": "Evo Ice Spirit",
@@ -2301,7 +2458,10 @@
       "_src": {
         "revid": 436741,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000023,
+      "max_level": 8,
+      "max_evolution_level": 2
     },
     "inferno_dragon": {
       "display": "Inferno Dragon",
@@ -2329,7 +2489,10 @@
       "_src": {
         "revid": 436733,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000037,
+      "max_level": 8,
+      "max_evolution_level": 1
     },
     "inferno_dragon_evo": {
       "display": "Evo Inferno Dragon",
@@ -2387,7 +2550,9 @@
       "_src": {
         "revid": 437542,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000003,
+      "max_level": 14
     },
     "knight": {
       "display": "Knight",
@@ -2409,7 +2574,10 @@
       "_src": {
         "revid": 437500,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000000,
+      "max_level": 16,
+      "max_evolution_level": 3
     },
     "knight_evo": {
       "display": "Evo Knight",
@@ -2487,7 +2655,9 @@
       "_src": {
         "revid": 436744,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000029,
+      "max_level": 8
     },
     "lightning": {
       "display": "Lightning",
@@ -2499,7 +2669,9 @@
       "_src": {
         "revid": 437298,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000007,
+      "max_level": 11
     },
     "little_prince": {
       "display": "Little Prince",
@@ -2530,7 +2702,9 @@
         "revid": 437347,
         "fetched": "2026-08-26"
       },
-      "champion": true
+      "champion": true,
+      "official_id": 26000093,
+      "max_level": 6
     },
     "lumberjack": {
       "display": "Lumberjack",
@@ -2552,7 +2726,10 @@
       "_src": {
         "revid": 436746,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000035,
+      "max_level": 8,
+      "max_evolution_level": 1
     },
     "lumberjack_evo": {
       "display": "Evo Lumberjack",
@@ -2608,7 +2785,10 @@
       "_src": {
         "revid": 437369,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000062,
+      "max_level": 8,
+      "max_evolution_level": 2
     },
     "magic_archer_hero": {
       "display": "Hero Magic Archer",
@@ -2665,7 +2845,10 @@
       "_src": {
         "revid": 436729,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000055,
+      "max_level": 8,
+      "max_evolution_level": 1
     },
     "mega_knight_evo": {
       "display": "Evo Mega Knight",
@@ -2721,7 +2904,10 @@
       "_src": {
         "revid": 436530,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000039,
+      "max_level": 14,
+      "max_evolution_level": 2
     },
     "mega_minion_hero": {
       "display": "Hero Mega Minion",
@@ -2781,7 +2967,9 @@
         "revid": 437349,
         "fetched": "2026-08-26"
       },
-      "champion": true
+      "champion": true,
+      "official_id": 26000065,
+      "max_level": 6
     },
     "miner": {
       "display": "Miner",
@@ -2803,7 +2991,9 @@
       "_src": {
         "revid": 437332,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000032,
+      "max_level": 8
     },
     "mini_pekka": {
       "display": "Mini P.E.K.K.A.",
@@ -2825,7 +3015,10 @@
       "_src": {
         "revid": 436435,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000018,
+      "max_level": 14,
+      "max_evolution_level": 2
     },
     "mini_pekka_hero": {
       "display": "Hero Mini P.E.K.K.A.",
@@ -2873,7 +3066,10 @@
       "_src": {
         "revid": 436476,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000022,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "minion_horde_evo": {
       "display": "Evo Minion Horde",
@@ -2909,7 +3105,9 @@
       "_src": {
         "revid": 437493,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000005,
+      "max_level": 16
     },
     "mirror": {
       "display": "Mirror",
@@ -2919,7 +3117,9 @@
       "_src": {
         "revid": 436846,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000006,
+      "max_level": 11
     },
     "monk": {
       "display": "Monk",
@@ -2942,7 +3142,9 @@
         "revid": 437140,
         "fetched": "2026-08-26"
       },
-      "champion": true
+      "champion": true,
+      "official_id": 26000077,
+      "max_level": 6
     },
     "mortar": {
       "display": "Mortar",
@@ -2965,7 +3167,10 @@
       "_src": {
         "revid": 437360,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000002,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "mortar_evo": {
       "display": "Evo Mortar",
@@ -3025,7 +3230,9 @@
       "_src": {
         "revid": 436750,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000083,
+      "max_level": 8
     },
     "musketeer": {
       "display": "Musketeer",
@@ -3049,7 +3256,10 @@
       "_src": {
         "revid": 436481,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000014,
+      "max_level": 14,
+      "max_evolution_level": 3
     },
     "musketeer_evo": {
       "display": "Evo Musketeer",
@@ -3130,7 +3340,9 @@
       "_src": {
         "revid": 436745,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000048,
+      "max_level": 8
     },
     "pekka": {
       "display": "P.E.K.K.A.",
@@ -3152,7 +3364,10 @@
       "_src": {
         "revid": 436708,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000004,
+      "max_level": 11,
+      "max_evolution_level": 1
     },
     "pekka_evo": {
       "display": "Evo P.E.K.K.A.",
@@ -3200,7 +3415,9 @@
       "_src": {
         "revid": 437212,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000087,
+      "max_level": 8
     },
     "poison": {
       "display": "Poison",
@@ -3213,7 +3430,9 @@
       "_src": {
         "revid": 437536,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000009,
+      "max_level": 11
     },
     "prince": {
       "display": "Prince",
@@ -3242,7 +3461,9 @@
       "_src": {
         "revid": 436711,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000016,
+      "max_level": 11
     },
     "princess": {
       "display": "Princess",
@@ -3267,7 +3488,10 @@
       "_src": {
         "revid": 436737,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000026,
+      "max_level": 8,
+      "max_evolution_level": 1
     },
     "princess_evo": {
       "display": "Evo Princess",
@@ -3294,7 +3518,9 @@
       "_src": {
         "revid": 437309,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000002,
+      "max_level": 11
     },
     "ram_rider": {
       "display": "Ram Rider",
@@ -3324,7 +3550,9 @@
       "_src": {
         "revid": 437334,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000051,
+      "max_level": 8
     },
     "rascals": {
       "display": "Rascals",
@@ -3378,7 +3606,9 @@
       "_src": {
         "revid": 437287,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000053,
+      "max_level": 16
     },
     "rocket": {
       "display": "Rocket",
@@ -3397,7 +3627,9 @@
       "_src": {
         "revid": 437297,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000003,
+      "max_level": 14
     },
     "ronin": {
       "display": "Ronin",
@@ -3427,7 +3659,9 @@
         "source": "deckshop.pro/card/detail/ronin + Supercell September 2026 hit-speed change",
         "checked": "2026-09-20",
         "note": "337 damage retained because the September official patch changes hit speed only; some third-party sources disagree."
-      }
+      },
+      "official_id": 26000106,
+      "max_level": 8
     },
     "royal_delivery": {
       "display": "Royal Delivery",
@@ -3454,7 +3688,9 @@
       "_src": {
         "revid": 437384,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000018,
+      "max_level": 16
     },
     "royal_ghost": {
       "display": "Royal Ghost",
@@ -3476,7 +3712,10 @@
       "_src": {
         "revid": 437224,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000050,
+      "max_level": 8,
+      "max_evolution_level": 1
     },
     "royal_ghost_evo": {
       "display": "Evo Royal Ghost",
@@ -3530,7 +3769,10 @@
       "_src": {
         "revid": 437219,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000024,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "royal_giant_evo": {
       "display": "Evo Royal Giant",
@@ -3579,7 +3821,10 @@
       "_src": {
         "revid": 436541,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000059,
+      "max_level": 14,
+      "max_evolution_level": 1
     },
     "royal_hogs_evo": {
       "display": "Evo Royal Hogs",
@@ -3627,7 +3872,10 @@
       "_src": {
         "revid": 436459,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000047,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "royal_recruits_evo": {
       "display": "Evo Royal Recruits",
@@ -3676,7 +3924,9 @@
       "_src": {
         "revid": 437296,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000101,
+      "max_level": 11
     },
     "skeleton_army": {
       "display": "Skeleton Army",
@@ -3698,7 +3948,10 @@
       "_src": {
         "revid": 436703,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000012,
+      "max_level": 11,
+      "max_evolution_level": 1
     },
     "skeleton_army_evo": {
       "display": "Evo Skeleton Army",
@@ -3757,7 +4010,10 @@
       "_src": {
         "revid": 436976,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000056,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "skeleton_barrel_evo": {
       "display": "Evo Skeleton Barrel",
@@ -3814,7 +4070,9 @@
       "_src": {
         "revid": 437268,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000080,
+      "max_level": 16
     },
     "skeleton_king": {
       "display": "Skeleton King",
@@ -3843,7 +4101,9 @@
         "revid": 436753,
         "fetched": "2026-08-26"
       },
-      "champion": true
+      "champion": true,
+      "official_id": 26000069,
+      "max_level": 6
     },
     "skeletons": {
       "display": "Skeletons",
@@ -3865,7 +4125,10 @@
       "_src": {
         "revid": 436874,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000010,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "skeletons_evo": {
       "display": "Evo Skeletons",
@@ -3914,7 +4177,9 @@
       "_src": {
         "revid": 436735,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000033,
+      "max_level": 8
     },
     "spear_goblins": {
       "display": "Spear Goblins",
@@ -3938,7 +4203,9 @@
       "_src": {
         "revid": 437502,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000019,
+      "max_level": 16
     },
     "spirit_empress": {
       "display": "Spirit Empress",
@@ -3957,7 +4224,10 @@
       "_src": {
         "revid": 437418,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000025,
+      "max_level": 8,
+      "elixir": 6
     },
     "suspicious_bush": {
       "display": "Suspicious Bush",
@@ -3984,7 +4254,9 @@
       "_src": {
         "revid": 437381,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000097,
+      "max_level": 14
     },
     "tesla": {
       "display": "Tesla",
@@ -4006,7 +4278,10 @@
       "_src": {
         "revid": 437288,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000006,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "tesla_evo": {
       "display": "Evo Tesla",
@@ -4048,7 +4323,9 @@
       "_src": {
         "revid": 437310,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000011,
+      "max_level": 8
     },
     "three_musketeers": {
       "display": "Three Musketeers",
@@ -4076,7 +4353,9 @@
       "_supplement": {
         "source": "deckshop.pro/card/detail/three-musketeers",
         "checked": "2026-09-20"
-      }
+      },
+      "official_id": 26000028,
+      "max_level": 14
     },
     "tombstone": {
       "display": "Tombstone",
@@ -4096,7 +4375,10 @@
       "_src": {
         "revid": 436518,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000009,
+      "max_level": 14,
+      "max_evolution_level": 2
     },
     "tombstone_hero": {
       "display": "Hero Tombstone",
@@ -4137,7 +4419,9 @@
       "_src": {
         "revid": 436504,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000012,
+      "max_level": 11
     },
     "valkyrie": {
       "display": "Valkyrie",
@@ -4160,7 +4444,10 @@
       "_src": {
         "revid": 437199,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000011,
+      "max_level": 14,
+      "max_evolution_level": 3
     },
     "valkyrie_evo": {
       "display": "Evo Valkyrie",
@@ -4231,7 +4518,9 @@
       "_src": {
         "revid": 437543,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000026,
+      "max_level": 11
     },
     "void": {
       "display": "Void",
@@ -4249,7 +4538,9 @@
         "revid": 437352,
         "fetched": "2026-08-26"
       },
-      "hit_frequency_s": 1
+      "hit_frequency_s": 1,
+      "official_id": 28000023,
+      "max_level": 11
     },
     "wall_breakers": {
       "display": "Wall Breakers",
@@ -4270,7 +4561,10 @@
       "_src": {
         "revid": 437357,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000058,
+      "max_level": 11,
+      "max_evolution_level": 1
     },
     "wall_breakers_evo": {
       "display": "Evo Wall Breakers",
@@ -4330,7 +4624,10 @@
       "_src": {
         "revid": 436707,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000007,
+      "max_level": 11,
+      "max_evolution_level": 1
     },
     "witch_evo": {
       "display": "Evo Witch",
@@ -4386,7 +4683,10 @@
         "revid": 437068,
         "fetched": "2026-08-26"
       },
-      "first_hit_s": 0.5
+      "first_hit_s": 0.5,
+      "official_id": 26000017,
+      "max_level": 14,
+      "max_evolution_level": 3
     },
     "wizard_evo": {
       "display": "Evo Wizard",
@@ -4469,7 +4769,9 @@
       "_src": {
         "revid": 437356,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 27000008,
+      "max_level": 11
     },
     "zap": {
       "display": "Zap",
@@ -4488,7 +4790,10 @@
       "_src": {
         "revid": 437305,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 28000008,
+      "max_level": 16,
+      "max_evolution_level": 1
     },
     "zap_evo": {
       "display": "Evo Zap",
@@ -4535,7 +4840,9 @@
       "_src": {
         "revid": 437385,
         "fetched": "2026-08-26"
-      }
+      },
+      "official_id": 26000052,
+      "max_level": 14
     },
     "minion_giant": {
       "display": "Minion Giant",
@@ -4561,7 +4868,9 @@
       "_src": {
         "source": "RoyaleAPI Minion Giant September 2026 + Supercell September 16 balance",
         "checked": "2026-09-20"
-      }
+      },
+      "official_id": 26000107,
+      "max_level": 14
     },
     "ice_wizard_hero": {
       "display": "Hero Ice Wizard",
