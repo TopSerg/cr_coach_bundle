@@ -5,8 +5,8 @@
   "mode": "placements",
   "coordinate_system": "world_cells",
   "level": 11,
-  "end_tick": 650,
-  "notes": "Video-derived opening segment. Time origin is first Dart Goblin deployment at 18.00s. Observed plays: Night Witch 19.05s, Skeletons 20.40s, Goblin Gang 27.45s, Goblin Demolisher ~34.75s, Electro Dragon ~38.45s, Suspicious Bush ~41.95s, Golden Knight ~45.05s. Later placement cells are video-grid estimates pending sub-tile calibration.",
+  "end_tick": 760,
+  "notes": "Video-derived opening segment. Time origin 18.00s. Observed: Dart Goblin 18.00, Night Witch 19.05, Skeletons 20.40, Goblin Gang 27.45, Goblin Demolisher ~34.75, Electro Dragon ~38.45, Suspicious Bush ~41.95, Golden Knight ~45.05, Golden Knight ability ~46.70, Valkyrie ~48.90. Placement cells after the opening fight are video-grid estimates pending sub-tile calibration.",
   "events": [
     {
       "tick": 0,
@@ -63,6 +63,19 @@
       "card": "golden-knight",
       "x": 4,
       "y": 13
+    },
+    {
+      "tick": 574,
+      "side": "opponent",
+      "event_type": "ability_activation",
+      "ability_card": "golden-knight"
+    },
+    {
+      "tick": 618,
+      "side": "team",
+      "card": "valkyrie",
+      "x": 3,
+      "y": 24
     }
   ]
 }
