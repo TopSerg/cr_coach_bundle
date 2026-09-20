@@ -8,7 +8,7 @@ sys.path.insert(0,str(ROOT/"starter"))
 from cr_coach.replay.io import load_replay
 from cr_coach.runtime.rudy_runner import run_rudy_replay
 
-CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260,335,336,345,355,365,385,405,409,410,420,440,460,479,480,500,520,541,542,560,574,575,580,600,618,619,630,650,700,740,760}
+CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260,335,336,345,355,365,385,405,409,410,420,440,460,479,480,500,520,541,542,560,574,575,580,600,618,619,630,650,700,740,760,900,948,949,960,980,990,991,1000,1040,1100,1160,1161,1180,1220,1260,1300}
 
 def compact(snapshot):
     rows=[]
@@ -120,6 +120,9 @@ def main():
         "suspicious-bush":479,
         "golden-knight":541,
         "valkyrie":618,
+        "golem":948,
+        "dart-goblin":990,
+        "goblin-cage":1160,
     }
     created_cards={}
     for card,play_tick in expected_new_cards.items():
@@ -190,6 +193,9 @@ def main():
                     "golden-knight":{"tick":541,"video_time_s":45.05,"cell":[4,13]},
                     "golden-knight-ability":{"tick":574,"video_time_s":46.70},
                     "valkyrie":{"tick":618,"video_time_s":48.90,"cell":[3,24]},
+                    "golem":{"tick":948,"video_time_s":65.40,"cell":[9,30]},
+                    "dart-goblin-2":{"tick":990,"video_time_s":67.50,"cell":[4,14]},
+                    "goblin-cage":{"tick":1160,"video_time_s":76.00,"cell":[9,10]},
                 },
                 "created":created_cards,
                 "ability_events":golden_knight_ability_events,
