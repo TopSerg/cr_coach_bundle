@@ -100,15 +100,20 @@ def patch_registry(cards: list[dict[str, Any]], key: str, stat: dict[str, Any], 
             raise RuntimeError(f"registry template {template_name!r} not found")
         record = copy.deepcopy(template)
         record["id"] = int(stat.get("official_id") or synthetic_id)
+        record["sc_key"] = str(stat.get("sc_key") or sc_key(stat.get("display", key)))
+        if stat.get("kind") in {"troop", "building"}:
+            record["summon_character"] = record["sc_key"]
         cards.append(record)
+    elif not record.get("sc_key"):
+        # Existing Rudy cards already carry the real internal Supercell key
+        # (Magic Archer -> EliteArcher, Bandit -> Assassin, etc.). Never replace
+        # that identity with a display-name-derived guess.
+        record["sc_key"] = str(stat.get("sc_key") or sc_key(stat.get("display", key)))
     record["key"] = ck
     record["name"] = stat.get("display", key)
-    record["sc_key"] = sc_key(stat.get("display", key))
     record["elixir"] = int(stat.get("elixir") or record.get("elixir") or 0)
     record["rarity"] = str(stat.get("rarity") or record.get("rarity") or "").title()
     record["type"] = str(stat.get("kind") or record.get("type") or "").title()
-    if stat.get("kind") in {"troop", "building"}:
-        record["summon_character"] = record["sc_key"]
     return record, created
 
 
@@ -277,7 +282,7 @@ def add_runtime_stub(
 ) -> tuple[dict[str, Any], str]:
     ck = card_key(key)
     display = stat.get("display", key)
-    sk = sc_key(display)
+    sk = str(stat.get("sc_key") or sc_key(display))
     kind = stat.get("kind")
 
     if kind == "spell":
