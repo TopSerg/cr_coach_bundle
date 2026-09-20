@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """Preserve projectile chain data when a kamikaze troop resolves.
 
-Electro Spirit is modelled as a kamikaze troop in Rudy.  Its projectile record
-contains chained_hit_count=9 and chained_hit_radius=4000, but the kamikaze event
+Electro Spirit is modelled as a kamikaze troop in Rudy.  Its projectile record contains the chain count/radius, but the kamikaze event
 previously kept only damage/radius/buff and silently discarded both chain
-fields.  This patch performs nearest-target sequential bounces, damaging and
+fields. The current-card data overlay owns the patch-sensitive values (9 targets
+and a 3-tile chain radius as of the August 26, 2026 balance).  This patch performs nearest-target sequential bounces, damaging and
 stunning each entity once and allowing Crown Towers to participate in the
 chain.
 """
@@ -228,6 +228,6 @@ replace_once(
 
 
 print(
-    "Rudy patched: Electro Spirit preserves its data-driven 9-target, 4-tile "
-    "nearest-target damage/stun chain."
+    "Rudy patched: Electro Spirit preserves its data-driven nearest-target "
+    "damage/stun chain; count/radius come from the current data overlay."
 )
