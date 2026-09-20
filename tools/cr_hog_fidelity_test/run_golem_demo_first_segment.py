@@ -40,6 +40,19 @@ def main():
         and str((row.get("data") or {}).get("card_id","")).lower()=="bat"
     ]
     first_bat_tick=min(bat_ticks) if bat_ticks else None
+    dart_death_ticks=[
+        int(row["state_tick"])
+        for row in generated
+        if row.get("kind")=="entity_died"
+        and str((row.get("data") or {}).get("card_id","")).lower() in {"blowdartgoblin","dart-goblin"}
+    ]
+    first_dart_death_tick=min(dart_death_ticks) if dart_death_ticks else None
+    skeleton_create_ticks=[
+        int(row["state_tick"])
+        for row in generated
+        if row.get("kind")=="entity_created"
+        and "skeleton" in str((row.get("data") or {}).get("card_id","")).lower()
+    ]
     # Video: Night Witch placement is ~19.1s and the first Bat is first visible
     # at ~22.0s.  With the replay origin at 18.0s this is tick ~80 (20 Hz).
     expected_first_bat_tick=80
@@ -55,7 +68,18 @@ def main():
                 "error_ticks":bat_error_ticks,
                 "tolerance_ticks":2,
                 "passed":bat_timing_pass,
-            }
+            },
+            "dart_goblin_death":{
+                "video_window_ticks":[78,80],
+                "actual_tick":first_dart_death_tick,
+                "gating":false,
+            },
+            "skeletons_created":{
+                "play_tick":48,
+                "creation_ticks":skeleton_create_ticks,
+                "count":len(skeleton_create_ticks),
+                "gating":false,
+            },
         },
     }
     (args.out/"opening_probe.json").write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
