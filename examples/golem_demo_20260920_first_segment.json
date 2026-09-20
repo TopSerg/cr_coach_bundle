@@ -5,8 +5,8 @@
   "mode": "placements",
   "coordinate_system": "world_cells",
   "level": 11,
-  "end_tick": 260,
-  "notes": "Video-derived opening segment. Time origin is the first Dart Goblin deployment at source 18.00s. Exact observed plays: Night Witch 19.05s, Skeletons 20.40s, Goblin Gang 27.45s. Goblin Gang anchor cell is a video-grid estimate pending sub-tile calibration.",
+  "end_tick": 440,
+  "notes": "Video-derived opening segment. Time origin is the first Dart Goblin deployment at source 18.00s. Observed plays: Night Witch 19.05s, Skeletons 20.40s, Goblin Gang 27.45s, Goblin Demolisher ~34.75s. Gang/Demolisher cells are video-grid estimates pending sub-tile calibration.",
   "events": [
     {
       "tick": 0,
@@ -35,6 +35,13 @@
       "card": "goblin-gang",
       "x": 11,
       "y": 2
+    },
+    {
+      "tick": 335,
+      "side": "opponent",
+      "card": "goblin-demolisher",
+      "x": 9,
+      "y": 8
     }
   ]
 }
