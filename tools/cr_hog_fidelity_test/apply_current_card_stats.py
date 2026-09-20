@@ -347,17 +347,28 @@ def main() -> None:
         # one. This is safe for ordinary one-projectile attackers and is skipped
         # for known special mechanics.
         projectile_name = record.get("projectile")
-        if (
-            key not in SPECIAL_DAMAGE_KEYS
-            and projectile_name
-            and stat.get("damage") is not None
-        ):
+        if projectile_name:
             projectile = find_one(projectiles, str(projectile_name))
             if projectile is not None:
-                level11(projectile, "damage_per_level", "damage", int(stat["damage"]))
+                projectile_changes: list[str] = []
+                if key not in SPECIAL_DAMAGE_KEYS and stat.get("damage") is not None:
+                    level11(projectile, "damage_per_level", "damage", int(stat["damage"]))
+                    projectile_changes.append("damage")
                 if stat.get("projectile_speed") is not None:
                     projectile["speed"] = int(stat["projectile_speed"])
-                manifest["projectiles_patched"].append({"card": key, "projectile": projectile_name})
+                    projectile_changes.append("speed")
+                if stat.get("chain_range_tiles") is not None:
+                    projectile["chained_hit_radius"] = int(round(float(stat["chain_range_tiles"]) * 1000))
+                    projectile_changes.append("chain_range")
+                if stat.get("chain_count") is not None:
+                    projectile["chained_hit_count"] = int(stat["chain_count"])
+                    projectile_changes.append("chain_count")
+                if projectile_changes:
+                    manifest["projectiles_patched"].append({
+                        "card": key,
+                        "projectile": projectile_name,
+                        "fields": projectile_changes,
+                    })
 
         manifest["runtime_records_patched"].append({
             "card": key,
