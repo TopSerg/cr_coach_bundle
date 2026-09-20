@@ -48,7 +48,8 @@ def smoke_cards(data: Any) -> list[dict[str, Any]]:
 def night_witch_bats(data: Any) -> dict[str, Any]:
     match = cr_engine.new_match(data, TEAM_DECK, OPPONENT_DECK)
     match.spawn_troop(1, "night-witch", 0, -4_000, 11)
-    for _ in range(45):
+    # 1.0s deploy + calibrated 2.0s initial Bat timer.
+    for _ in range(70):
         match.step()
     bats = [e for e in entities(match) if e["card_key"].lower() == "bat" and e["team"] == 1]
     if len(bats) < 2:
