@@ -36,6 +36,17 @@
       "current_base_cards": 123,
       "matched_base_cards": 123,
       "missing": []
+    },
+    "game_data_identity_crosscheck": {
+      "source_repository": "Jason-XII/clash-royale-simulator",
+      "source_file": "src/clasher_new/gamedata.json",
+      "matched_base_cards": 120,
+      "missing_base_cards": [
+        "ronin",
+        "vines",
+        "minion_giant"
+      ],
+      "note": "Internal Supercell names are preserved because display names are not always valid runtime keys (e.g. Magic Archer -> EliteArcher)."
     }
   },
   "cards": {
@@ -64,7 +75,14 @@
       },
       "champion": true,
       "official_id": 26000072,
-      "max_level": 6
+      "max_level": 6,
+      "sc_key": "ArcherQueen",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "ArcherQueen",
+        "source_table": "spells_characters"
+      }
     },
     "archers": {
       "display": "Archers",
@@ -91,7 +109,14 @@
       },
       "official_id": 26000001,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Archer",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Archer",
+        "source_table": "spells_characters"
+      }
     },
     "archers_evo": {
       "display": "Evo Archers",
@@ -140,7 +165,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000001,
-      "max_level": 16
+      "max_level": 16,
+      "sc_key": "Arrows",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Arrows",
+        "source_table": "spells_other"
+      }
     },
     "baby_dragon": {
       "display": "Baby Dragon",
@@ -168,7 +200,14 @@
       },
       "official_id": 26000015,
       "max_level": 11,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "BabyDragon",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "BabyDragon",
+        "source_table": "spells_characters"
+      }
     },
     "baby_dragon_evo": {
       "display": "Evo Baby Dragon",
@@ -223,7 +262,14 @@
       },
       "official_id": 26000006,
       "max_level": 11,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "Balloon",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Balloon",
+        "source_table": "spells_characters"
+      }
     },
     "balloon_hero": {
       "display": "Hero Balloon",
@@ -278,7 +324,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000046,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "Assassin",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Assassin",
+        "source_table": "spells_characters"
+      }
     },
     "barbarian_barrel": {
       "display": "Barbarian Barrel",
@@ -306,7 +359,14 @@
       },
       "official_id": 28000015,
       "max_level": 11,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "BarbLog",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "BarbLog",
+        "source_table": "spells_other"
+      }
     },
     "barbarian_barrel_hero": {
       "display": "Hero Barbarian Barrel",
@@ -355,7 +415,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 27000005,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "BarbarianHut",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "BarbarianHut",
+        "source_table": "spells_buildings"
+      }
     },
     "barbarians": {
       "display": "Barbarians",
@@ -380,7 +447,14 @@
       },
       "official_id": 26000008,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Barbarians",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Barbarians",
+        "source_table": "spells_characters"
+      }
     },
     "barbarians_evo": {
       "display": "Evo Barbarians",
@@ -431,7 +505,14 @@
       },
       "official_id": 26000049,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Bats",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Bats",
+        "source_table": "spells_characters"
+      }
     },
     "bats_evo": {
       "display": "Evo Bats",
@@ -481,7 +562,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000068,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "BattleHealer",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "BattleHealer",
+        "source_table": "spells_characters"
+      }
     },
     "battle_ram": {
       "display": "Battle Ram",
@@ -510,7 +598,14 @@
       "sight_range_tiles": 6.5,
       "official_id": 26000036,
       "max_level": 14,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "BattleRam",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "BattleRam",
+        "source_table": "spells_characters"
+      }
     },
     "battle_ram_evo": {
       "display": "Evo Battle Ram",
@@ -566,7 +661,14 @@
       },
       "official_id": 26000102,
       "max_level": 16,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "Berserker",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Berserker",
+        "source_table": "spells_characters"
+      }
     },
     "berserker_hero": {
       "display": "Hero Berserker",
@@ -620,7 +722,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 27000004,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "BombTower",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "BombTower",
+        "source_table": "spells_buildings"
+      }
     },
     "bomber": {
       "display": "Bomber",
@@ -647,7 +756,14 @@
       },
       "official_id": 26000013,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Bomber",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Bomber",
+        "source_table": "spells_characters"
+      }
     },
     "bomber_evo": {
       "display": "Evo Bomber",
@@ -703,7 +819,14 @@
       },
       "champion": true,
       "official_id": 26000103,
-      "max_level": 6
+      "max_level": 6,
+      "sc_key": "BossBandit",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "BossBandit",
+        "source_table": "spells_characters"
+      }
     },
     "bowler": {
       "display": "Bowler",
@@ -731,7 +854,14 @@
       },
       "official_id": 26000034,
       "max_level": 11,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "Bowler",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Bowler",
+        "source_table": "spells_characters"
+      }
     },
     "bowler_hero": {
       "display": "Hero Bowler",
@@ -766,9 +896,9 @@
       "rarity": "common",
       "kind": "building",
       "hitpoints": 824,
-      "damage": 201,
+      "damage": 202,
       "hit_speed": 1,
-      "dps": 201,
+      "dps": 202,
       "lifetime_s": 30,
       "count": 1,
       "range_tiles": 5.5,
@@ -783,7 +913,18 @@
       },
       "official_id": 27000000,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Cannon",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Cannon",
+        "source_table": "spells_buildings"
+      },
+      "_supplement": {
+        "source": "Supercell April 2026 balance: Cannon damage 212 -> 202",
+        "checked": "2026-09-20"
+      }
     },
     "cannon_cart": {
       "display": "Cannon Cart",
@@ -809,7 +950,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000054,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "MovingCannon",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "MovingCannon",
+        "source_table": "spells_characters"
+      }
     },
     "cannon_evo": {
       "display": "Evo Cannon",
@@ -848,7 +996,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000013,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "Clone",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Clone",
+        "source_table": "spells_other"
+      }
     },
     "dark_prince": {
       "display": "Dark Prince",
@@ -882,7 +1037,14 @@
       },
       "official_id": 26000027,
       "max_level": 11,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "DarkPrince",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "DarkPrince",
+        "source_table": "spells_characters"
+      }
     },
     "dark_prince_hero": {
       "display": "Hero Dark Prince",
@@ -941,7 +1103,14 @@
       },
       "official_id": 26000040,
       "max_level": 14,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "BlowdartGoblin",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "BlowdartGoblin",
+        "source_table": "spells_characters"
+      }
     },
     "dart_goblin_evo": {
       "display": "Evo Dart Goblin",
@@ -989,7 +1158,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000014,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "Earthquake",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Earthquake",
+        "source_table": "spells_other"
+      }
     },
     "electro_dragon": {
       "display": "Electro Dragon",
@@ -1017,7 +1193,14 @@
       },
       "official_id": 26000063,
       "max_level": 11,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "ElectroDragon",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "ElectroDragon",
+        "source_table": "spells_characters"
+      }
     },
     "electro_dragon_evo": {
       "display": "Evo Electro Dragon",
@@ -1070,7 +1253,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000085,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "ElectroGiant",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "ElectroGiant",
+        "source_table": "spells_characters"
+      }
     },
     "electro_spirit": {
       "display": "Electro Spirit",
@@ -1097,7 +1287,14 @@
       "chain_range_tiles": 3,
       "chain_count": 9,
       "official_id": 26000084,
-      "max_level": 16
+      "max_level": 16,
+      "sc_key": "ElectroSpirit",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "ElectroSpirit",
+        "source_table": "spells_characters"
+      }
     },
     "electro_wizard": {
       "display": "Electro Wizard",
@@ -1124,7 +1321,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000042,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "ElectroWizard",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "ElectroWizard",
+        "source_table": "spells_characters"
+      }
     },
     "elite_barbarians": {
       "display": "Elite Barbarians",
@@ -1149,7 +1353,14 @@
       },
       "official_id": 26000043,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "AngryBarbarians",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "AngryBarbarians",
+        "source_table": "spells_characters"
+      }
     },
     "elite_barbarians_evo": {
       "display": "Evo Elite Barbarians",
@@ -1178,7 +1389,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 27000007,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "Elixir Collector",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Elixir Collector",
+        "source_table": "spells_buildings"
+      }
     },
     "elixir_golem": {
       "display": "Elixir Golem",
@@ -1207,7 +1425,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000067,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "ElixirGolem",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "ElixirGolem",
+        "source_table": "spells_characters"
+      }
     },
     "executioner": {
       "display": "Executioner",
@@ -1237,7 +1462,14 @@
       },
       "official_id": 26000045,
       "max_level": 11,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "AxeMan",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "AxeMan",
+        "source_table": "spells_characters"
+      }
     },
     "executioner_evo": {
       "display": "Evo Executioner",
@@ -1292,7 +1524,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000031,
-      "max_level": 16
+      "max_level": 16,
+      "sc_key": "FireSpirits",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "FireSpirits",
+        "source_table": "spells_characters"
+      }
     },
     "fireball": {
       "display": "Fireball",
@@ -1313,7 +1552,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000000,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "Fireball",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Fireball",
+        "source_table": "spells_other"
+      }
     },
     "firecracker": {
       "display": "Firecracker",
@@ -1343,7 +1589,14 @@
       },
       "official_id": 26000064,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Firecracker",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Firecracker",
+        "source_table": "spells_characters"
+      }
     },
     "firecracker_evo": {
       "display": "Evo Firecracker",
@@ -1397,7 +1650,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000061,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "Fisherman",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Fisherman",
+        "source_table": "spells_characters"
+      }
     },
     "flying_machine": {
       "display": "Flying Machine",
@@ -1423,7 +1683,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000057,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "DartBarrell",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "DartBarrell",
+        "source_table": "spells_characters"
+      }
     },
     "freeze": {
       "display": "Freeze",
@@ -1444,7 +1711,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000005,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "Freeze",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Freeze",
+        "source_table": "spells_other"
+      }
     },
     "furnace": {
       "display": "Furnace",
@@ -1475,7 +1749,14 @@
       },
       "official_id": 27000010,
       "max_level": 14,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "FirespiritHut",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "FirespiritHut",
+        "source_table": "spells_buildings"
+      }
     },
     "furnace_evo": {
       "display": "Evo Furnace",
@@ -1531,7 +1812,14 @@
       },
       "official_id": 26000003,
       "max_level": 14,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "Giant",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Giant",
+        "source_table": "spells_characters"
+      }
     },
     "giant_skeleton": {
       "display": "Giant Skeleton",
@@ -1557,7 +1845,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000020,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "GiantSkeleton",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GiantSkeleton",
+        "source_table": "spells_characters"
+      }
     },
     "giant_snowball": {
       "display": "Giant Snowball",
@@ -1580,7 +1875,14 @@
       },
       "official_id": 28000017,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Snowball",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Snowball",
+        "source_table": "spells_other"
+      }
     },
     "giant_snowball_evo": {
       "display": "Evo Giant Snowball",
@@ -1651,7 +1953,14 @@
       },
       "official_id": 28000004,
       "max_level": 11,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "GoblinBarrel",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GoblinBarrel",
+        "source_table": "spells_other"
+      }
     },
     "goblin_barrel_evo": {
       "display": "Evo Goblin Barrel",
@@ -1700,7 +2009,14 @@
       },
       "official_id": 27000012,
       "max_level": 14,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "GoblinCage",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GoblinCage",
+        "source_table": "spells_buildings"
+      }
     },
     "goblin_cage_evo": {
       "display": "Evo Goblin Cage",
@@ -1754,7 +2070,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000024,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "GoblinCurse",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GoblinCurse",
+        "source_table": "spells_other"
+      }
     },
     "goblin_demolisher": {
       "display": "Goblin Demolisher",
@@ -1787,7 +2110,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000095,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "GoblinDemolisher",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GoblinDemolisher",
+        "source_table": "spells_characters"
+      }
     },
     "goblin_drill": {
       "display": "Goblin Drill",
@@ -1812,7 +2142,14 @@
       },
       "official_id": 27000013,
       "max_level": 11,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "GoblinDrill",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GoblinDrill",
+        "source_table": "spells_buildings"
+      }
     },
     "goblin_drill_evo": {
       "display": "Evo Goblin Drill",
@@ -1893,7 +2230,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000041,
-      "max_level": 16
+      "max_level": 16,
+      "sc_key": "GoblinGang",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GoblinGang",
+        "source_table": "spells_characters"
+      }
     },
     "goblin_giant": {
       "display": "Goblin Giant",
@@ -1923,7 +2267,14 @@
       },
       "official_id": 26000060,
       "max_level": 11,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "GoblinGiant",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GoblinGiant",
+        "source_table": "spells_characters"
+      }
     },
     "goblin_giant_evo": {
       "display": "Evo Goblin Giant",
@@ -1977,7 +2328,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 27000001,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "GoblinHut",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GoblinHut",
+        "source_table": "spells_buildings"
+      }
     },
     "goblin_machine": {
       "display": "Goblin Machine",
@@ -2001,7 +2359,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000096,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "GoblinMachine",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GoblinMachine",
+        "source_table": "spells_characters"
+      }
     },
     "goblins": {
       "display": "Goblins",
@@ -2026,7 +2391,14 @@
       },
       "official_id": 26000002,
       "max_level": 16,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "Goblins",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Goblins",
+        "source_table": "spells_characters"
+      }
     },
     "goblins_hero": {
       "display": "Hero Goblins",
@@ -2113,6 +2485,13 @@
       "champion_ability": {
         "duration_s": 3.5,
         "_source": "Supercell September 16 2026 balance"
+      },
+      "sc_key": "Goblinstein",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Goblinstein",
+        "source_table": "spells_characters"
       }
     },
     "golden_knight": {
@@ -2139,7 +2518,14 @@
       },
       "champion": true,
       "official_id": 26000074,
-      "max_level": 6
+      "max_level": 6,
+      "sc_key": "GoldenKnight",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GoldenKnight",
+        "source_table": "spells_characters"
+      }
     },
     "golem": {
       "display": "Golem",
@@ -2170,7 +2556,14 @@
       },
       "sight_range_tiles": 7.5,
       "official_id": 26000009,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "Golem",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Golem",
+        "source_table": "spells_characters"
+      }
     },
     "graveyard": {
       "display": "Graveyard",
@@ -2194,7 +2587,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000010,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "Graveyard",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Graveyard",
+        "source_table": "spells_other"
+      }
     },
     "guards": {
       "display": "Guards",
@@ -2219,7 +2619,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000025,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "SkeletonWarriors",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "SkeletonWarriors",
+        "source_table": "spells_characters"
+      }
     },
     "heal_spirit": {
       "display": "Heal Spirit",
@@ -2244,7 +2651,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000016,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "Heal",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Heal",
+        "source_table": "spells_other"
+      }
     },
     "hog_rider": {
       "display": "Hog Rider",
@@ -2269,7 +2683,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000021,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "HogRider",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "HogRider",
+        "source_table": "spells_characters"
+      }
     },
     "hunter": {
       "display": "Hunter",
@@ -2298,7 +2719,14 @@
       },
       "official_id": 26000044,
       "max_level": 11,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Hunter",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Hunter",
+        "source_table": "spells_characters"
+      }
     },
     "hunter_evo": {
       "display": "Evo Hunter",
@@ -2355,7 +2783,14 @@
       },
       "official_id": 26000038,
       "max_level": 14,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "IceGolemite",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "IceGolemite",
+        "source_table": "spells_characters"
+      }
     },
     "ice_golem_hero": {
       "display": "Hero Ice Golem",
@@ -2408,7 +2843,14 @@
       },
       "official_id": 26000030,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "IceSpirits",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "IceSpirits",
+        "source_table": "spells_characters"
+      }
     },
     "ice_spirit_evo": {
       "display": "Evo Ice Spirit",
@@ -2465,7 +2907,14 @@
       },
       "official_id": 26000023,
       "max_level": 8,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "IceWizard",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "IceWizard",
+        "source_table": "spells_characters"
+      }
     },
     "inferno_dragon": {
       "display": "Inferno Dragon",
@@ -2496,7 +2945,14 @@
       },
       "official_id": 26000037,
       "max_level": 8,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "InfernoDragon",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "InfernoDragon",
+        "source_table": "spells_characters"
+      }
     },
     "inferno_dragon_evo": {
       "display": "Evo Inferno Dragon",
@@ -2556,7 +3012,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 27000003,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "InfernoTower",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "InfernoTower",
+        "source_table": "spells_buildings"
+      }
     },
     "knight": {
       "display": "Knight",
@@ -2581,7 +3044,14 @@
       },
       "official_id": 26000000,
       "max_level": 16,
-      "max_evolution_level": 3
+      "max_evolution_level": 3,
+      "sc_key": "Knight",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Knight",
+        "source_table": "spells_characters"
+      }
     },
     "knight_evo": {
       "display": "Evo Knight",
@@ -2661,7 +3131,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000029,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "LavaHound",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "LavaHound",
+        "source_table": "spells_characters"
+      }
     },
     "lightning": {
       "display": "Lightning",
@@ -2675,7 +3152,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000007,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "Lightning",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Lightning",
+        "source_table": "spells_other"
+      }
     },
     "little_prince": {
       "display": "Little Prince",
@@ -2708,7 +3192,14 @@
       },
       "champion": true,
       "official_id": 26000093,
-      "max_level": 6
+      "max_level": 6,
+      "sc_key": "LittlePrince",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "LittlePrince",
+        "source_table": "spells_characters"
+      }
     },
     "lumberjack": {
       "display": "Lumberjack",
@@ -2733,7 +3224,14 @@
       },
       "official_id": 26000035,
       "max_level": 8,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "RageBarbarian",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "RageBarbarian",
+        "source_table": "spells_characters"
+      }
     },
     "lumberjack_evo": {
       "display": "Evo Lumberjack",
@@ -2792,7 +3290,14 @@
       },
       "official_id": 26000062,
       "max_level": 8,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "EliteArcher",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "EliteArcher",
+        "source_table": "spells_characters"
+      }
     },
     "magic_archer_hero": {
       "display": "Hero Magic Archer",
@@ -2852,7 +3357,14 @@
       },
       "official_id": 26000055,
       "max_level": 8,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "MegaKnight",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "MegaKnight",
+        "source_table": "spells_characters"
+      }
     },
     "mega_knight_evo": {
       "display": "Evo Mega Knight",
@@ -2911,7 +3423,14 @@
       },
       "official_id": 26000039,
       "max_level": 14,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "MegaMinion",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "MegaMinion",
+        "source_table": "spells_characters"
+      }
     },
     "mega_minion_hero": {
       "display": "Hero Mega Minion",
@@ -2973,7 +3492,14 @@
       },
       "champion": true,
       "official_id": 26000065,
-      "max_level": 6
+      "max_level": 6,
+      "sc_key": "MightyMiner",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "MightyMiner",
+        "source_table": "spells_characters"
+      }
     },
     "miner": {
       "display": "Miner",
@@ -2997,7 +3523,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000032,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "Miner",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Miner",
+        "source_table": "spells_characters"
+      }
     },
     "mini_pekka": {
       "display": "Mini P.E.K.K.A.",
@@ -3022,7 +3555,14 @@
       },
       "official_id": 26000018,
       "max_level": 14,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "MiniPekka",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "MiniPekka",
+        "source_table": "spells_characters"
+      }
     },
     "mini_pekka_hero": {
       "display": "Hero Mini P.E.K.K.A.",
@@ -3073,7 +3613,14 @@
       },
       "official_id": 26000022,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "MinionHorde",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "MinionHorde",
+        "source_table": "spells_characters"
+      }
     },
     "minion_horde_evo": {
       "display": "Evo Minion Horde",
@@ -3111,7 +3658,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000005,
-      "max_level": 16
+      "max_level": 16,
+      "sc_key": "Minions",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Minions",
+        "source_table": "spells_characters"
+      }
     },
     "mirror": {
       "display": "Mirror",
@@ -3123,7 +3677,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000006,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "Mirror",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Mirror",
+        "source_table": "spells_other"
+      }
     },
     "monk": {
       "display": "Monk",
@@ -3148,7 +3709,14 @@
       },
       "champion": true,
       "official_id": 26000077,
-      "max_level": 6
+      "max_level": 6,
+      "sc_key": "Monk",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Monk",
+        "source_table": "spells_characters"
+      }
     },
     "mortar": {
       "display": "Mortar",
@@ -3174,7 +3742,14 @@
       },
       "official_id": 27000002,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Mortar",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Mortar",
+        "source_table": "spells_buildings"
+      }
     },
     "mortar_evo": {
       "display": "Evo Mortar",
@@ -3236,7 +3811,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000083,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "WitchMother",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "WitchMother",
+        "source_table": "spells_characters"
+      }
     },
     "musketeer": {
       "display": "Musketeer",
@@ -3263,7 +3845,14 @@
       },
       "official_id": 26000014,
       "max_level": 14,
-      "max_evolution_level": 3
+      "max_evolution_level": 3,
+      "sc_key": "Musketeer",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Musketeer",
+        "source_table": "spells_characters"
+      }
     },
     "musketeer_evo": {
       "display": "Evo Musketeer",
@@ -3346,7 +3935,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000048,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "DarkWitch",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "DarkWitch",
+        "source_table": "spells_characters"
+      }
     },
     "pekka": {
       "display": "P.E.K.K.A.",
@@ -3371,7 +3967,14 @@
       },
       "official_id": 26000004,
       "max_level": 11,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Pekka",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Pekka",
+        "source_table": "spells_characters"
+      }
     },
     "pekka_evo": {
       "display": "Evo P.E.K.K.A.",
@@ -3421,7 +4024,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000087,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "Phoenix",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Phoenix",
+        "source_table": "spells_characters"
+      }
     },
     "poison": {
       "display": "Poison",
@@ -3436,7 +4046,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000009,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "Poison",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Poison",
+        "source_table": "spells_other"
+      }
     },
     "prince": {
       "display": "Prince",
@@ -3467,7 +4084,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000016,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "Prince",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Prince",
+        "source_table": "spells_characters"
+      }
     },
     "princess": {
       "display": "Princess",
@@ -3495,7 +4119,14 @@
       },
       "official_id": 26000026,
       "max_level": 8,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Princess",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Princess",
+        "source_table": "spells_characters"
+      }
     },
     "princess_evo": {
       "display": "Evo Princess",
@@ -3524,7 +4155,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000002,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "Rage",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Rage",
+        "source_table": "spells_other"
+      }
     },
     "ram_rider": {
       "display": "Ram Rider",
@@ -3556,7 +4194,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000051,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "RamRider",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "RamRider",
+        "source_table": "spells_characters"
+      }
     },
     "rascals": {
       "display": "Rascals",
@@ -3612,7 +4257,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000053,
-      "max_level": 16
+      "max_level": 16,
+      "sc_key": "Rascals",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Rascals",
+        "source_table": "spells_characters"
+      }
     },
     "rocket": {
       "display": "Rocket",
@@ -3633,7 +4285,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000003,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "Rocket",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Rocket",
+        "source_table": "spells_other"
+      }
     },
     "ronin": {
       "display": "Ronin",
@@ -3665,7 +4324,9 @@
         "note": "337 damage retained because the September official patch changes hit speed only; some third-party sources disagree."
       },
       "official_id": 26000106,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "Ronin",
+      "_identity_status": "unverified_internal_name"
     },
     "royal_delivery": {
       "display": "Royal Delivery",
@@ -3694,7 +4355,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000018,
-      "max_level": 16
+      "max_level": 16,
+      "sc_key": "RoyalDelivery",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "RoyalDelivery",
+        "source_table": "spells_other"
+      }
     },
     "royal_ghost": {
       "display": "Royal Ghost",
@@ -3719,7 +4387,14 @@
       },
       "official_id": 26000050,
       "max_level": 8,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Ghost",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Ghost",
+        "source_table": "spells_characters"
+      }
     },
     "royal_ghost_evo": {
       "display": "Evo Royal Ghost",
@@ -3776,7 +4451,14 @@
       },
       "official_id": 26000024,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "RoyalGiant",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "RoyalGiant",
+        "source_table": "spells_characters"
+      }
     },
     "royal_giant_evo": {
       "display": "Evo Royal Giant",
@@ -3828,7 +4510,14 @@
       },
       "official_id": 26000059,
       "max_level": 14,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "RoyalHogs",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "RoyalHogs",
+        "source_table": "spells_characters"
+      }
     },
     "royal_hogs_evo": {
       "display": "Evo Royal Hogs",
@@ -3879,7 +4568,14 @@
       },
       "official_id": 26000047,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "RoyalRecruits",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "RoyalRecruits",
+        "source_table": "spells_characters"
+      }
     },
     "royal_recruits_evo": {
       "display": "Evo Royal Recruits",
@@ -3930,7 +4626,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000101,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "GiantBuffer",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "GiantBuffer",
+        "source_table": "spells_characters"
+      }
     },
     "skeleton_army": {
       "display": "Skeleton Army",
@@ -3955,7 +4658,14 @@
       },
       "official_id": 26000012,
       "max_level": 11,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "SkeletonArmy",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "SkeletonArmy",
+        "source_table": "spells_characters"
+      }
     },
     "skeleton_army_evo": {
       "display": "Evo Skeleton Army",
@@ -4017,7 +4727,14 @@
       },
       "official_id": 26000056,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "SkeletonBalloon",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "SkeletonBalloon",
+        "source_table": "spells_characters"
+      }
     },
     "skeleton_barrel_evo": {
       "display": "Evo Skeleton Barrel",
@@ -4076,7 +4793,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000080,
-      "max_level": 16
+      "max_level": 16,
+      "sc_key": "SkeletonDragons",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "SkeletonDragons",
+        "source_table": "spells_characters"
+      }
     },
     "skeleton_king": {
       "display": "Skeleton King",
@@ -4107,7 +4831,14 @@
       },
       "champion": true,
       "official_id": 26000069,
-      "max_level": 6
+      "max_level": 6,
+      "sc_key": "SkeletonKing",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "SkeletonKing",
+        "source_table": "spells_characters"
+      }
     },
     "skeletons": {
       "display": "Skeletons",
@@ -4132,7 +4863,14 @@
       },
       "official_id": 26000010,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Skeletons",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Skeletons",
+        "source_table": "spells_characters"
+      }
     },
     "skeletons_evo": {
       "display": "Evo Skeletons",
@@ -4183,7 +4921,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000033,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "ZapMachine",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "ZapMachine",
+        "source_table": "spells_characters"
+      }
     },
     "spear_goblins": {
       "display": "Spear Goblins",
@@ -4209,7 +4954,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000019,
-      "max_level": 16
+      "max_level": 16,
+      "sc_key": "SpearGoblins",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "SpearGoblins",
+        "source_table": "spells_characters"
+      }
     },
     "spirit_empress": {
       "display": "Spirit Empress",
@@ -4231,7 +4983,14 @@
       },
       "official_id": 28000025,
       "max_level": 8,
-      "elixir": 6
+      "elixir": 6,
+      "sc_key": "MergeMaiden_Mounted",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "MergeMaiden_Mounted",
+        "source_table": "spells_characters"
+      }
     },
     "suspicious_bush": {
       "display": "Suspicious Bush",
@@ -4260,7 +5019,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000097,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "SuspiciousBush",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "SuspiciousBush",
+        "source_table": "spells_characters"
+      }
     },
     "tesla": {
       "display": "Tesla",
@@ -4285,7 +5051,14 @@
       },
       "official_id": 27000006,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Tesla",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Tesla",
+        "source_table": "spells_buildings"
+      }
     },
     "tesla_evo": {
       "display": "Evo Tesla",
@@ -4329,7 +5102,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000011,
-      "max_level": 8
+      "max_level": 8,
+      "sc_key": "Log",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Log",
+        "source_table": "spells_other"
+      }
     },
     "three_musketeers": {
       "display": "Three Musketeers",
@@ -4355,11 +5135,22 @@
       ],
       "projectile_speed": 1000,
       "_supplement": {
-        "source": "deckshop.pro/card/detail/three-musketeers",
+        "source": "RoyaleAPI Three Musketeers rework (Elite Musketeers) + Supercell February 2026 hit-speed nerf",
         "checked": "2026-09-20"
       },
       "official_id": 26000028,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "ThreeMusketeers",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "ThreeMusketeers",
+        "source_table": "spells_characters"
+      },
+      "melee_damage": 314,
+      "melee_range_tiles": 1.6,
+      "melee_hit_speed": 1.3,
+      "melee_dps": 242
     },
     "tombstone": {
       "display": "Tombstone",
@@ -4382,7 +5173,14 @@
       },
       "official_id": 27000009,
       "max_level": 14,
-      "max_evolution_level": 2
+      "max_evolution_level": 2,
+      "sc_key": "Tombstone",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Tombstone",
+        "source_table": "spells_buildings"
+      }
     },
     "tombstone_hero": {
       "display": "Hero Tombstone",
@@ -4425,7 +5223,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000012,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "Tornado",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Tornado",
+        "source_table": "spells_other"
+      }
     },
     "valkyrie": {
       "display": "Valkyrie",
@@ -4451,7 +5256,14 @@
       },
       "official_id": 26000011,
       "max_level": 14,
-      "max_evolution_level": 3
+      "max_evolution_level": 3,
+      "sc_key": "Valkyrie",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Valkyrie",
+        "source_table": "spells_characters"
+      }
     },
     "valkyrie_evo": {
       "display": "Evo Valkyrie",
@@ -4524,7 +5336,9 @@
         "fetched": "2026-08-26"
       },
       "official_id": 28000026,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "Vines",
+      "_identity_status": "unverified_internal_name"
     },
     "void": {
       "display": "Void",
@@ -4544,7 +5358,14 @@
       },
       "hit_frequency_s": 1,
       "official_id": 28000023,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "DarkMagic",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "DarkMagic",
+        "source_table": "spells_other"
+      }
     },
     "wall_breakers": {
       "display": "Wall Breakers",
@@ -4568,7 +5389,14 @@
       },
       "official_id": 26000058,
       "max_level": 11,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Wallbreakers",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Wallbreakers",
+        "source_table": "spells_characters"
+      }
     },
     "wall_breakers_evo": {
       "display": "Evo Wall Breakers",
@@ -4631,7 +5459,14 @@
       },
       "official_id": 26000007,
       "max_level": 11,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Witch",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Witch",
+        "source_table": "spells_characters"
+      }
     },
     "witch_evo": {
       "display": "Evo Witch",
@@ -4690,7 +5525,14 @@
       "first_hit_s": 0.5,
       "official_id": 26000017,
       "max_level": 14,
-      "max_evolution_level": 3
+      "max_evolution_level": 3,
+      "sc_key": "Wizard",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Wizard",
+        "source_table": "spells_characters"
+      }
     },
     "wizard_evo": {
       "display": "Evo Wizard",
@@ -4775,7 +5617,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 27000008,
-      "max_level": 11
+      "max_level": 11,
+      "sc_key": "Xbow",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Xbow",
+        "source_table": "spells_buildings"
+      }
     },
     "zap": {
       "display": "Zap",
@@ -4797,7 +5646,14 @@
       },
       "official_id": 28000008,
       "max_level": 16,
-      "max_evolution_level": 1
+      "max_evolution_level": 1,
+      "sc_key": "Zap",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "Zap",
+        "source_table": "spells_other"
+      }
     },
     "zap_evo": {
       "display": "Evo Zap",
@@ -4846,7 +5702,14 @@
         "fetched": "2026-08-26"
       },
       "official_id": 26000052,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "MiniSparkys",
+      "_game_data_identity": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "internal_name": "MiniSparkys",
+        "source_table": "spells_characters"
+      }
     },
     "minion_giant": {
       "display": "Minion Giant",
@@ -4874,7 +5737,9 @@
         "checked": "2026-09-20"
       },
       "official_id": 26000107,
-      "max_level": 14
+      "max_level": 14,
+      "sc_key": "MinionGiant",
+      "_identity_status": "unverified_internal_name"
     },
     "ice_wizard_hero": {
       "display": "Hero Ice Wizard",
