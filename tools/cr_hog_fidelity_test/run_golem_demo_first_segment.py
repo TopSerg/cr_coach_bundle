@@ -61,7 +61,7 @@ def main():
         and int((row.get("data") or {}).get("target_uid") or -1)==1
     ]
     skeleton_counts_by_tick={}
-    goblin_counts_by_tick={}
+    goblin_gang_by_tick={}
     for snapshot in snaps:
         tick=int(snapshot["tick"])
         if tick in {49,50,55,60}:
@@ -72,12 +72,17 @@ def main():
                 and bool(entity.get("alive",True))
             )
         if tick in {190,200}:
-            goblin_counts_by_tick[str(tick)]=sum(
-                1 for entity in snapshot.get("entities",[])
-                if entity.get("kind")!="tower"
-                and str(entity.get("card_id","")).lower() in {"goblin","goblins"}
-                and bool(entity.get("alive",True))
-            )
+            breakdown={}
+            for entity in snapshot.get("entities",[]):
+                if entity.get("kind")=="tower" or not bool(entity.get("alive",True)):
+                    continue
+                card=str(entity.get("card_id","")).lower()
+                if card in {"goblin","goblin-gang","speargoblin","spear-goblin"}:
+                    breakdown[card]=breakdown.get(card,0)+1
+            goblin_gang_by_tick[str(tick)]={
+                "total":sum(breakdown.values()),
+                "breakdown":breakdown,
+            }
     # Video: Night Witch placement is ~19.1s and the first Bat is first visible
     # at ~22.0s.  With the replay origin at 18.0s this is tick ~80 (20 Hz).
     expected_first_bat_tick=80
@@ -98,27 +103,32 @@ def main():
                 "video_window_ticks":[78,80],
                 "actual_tick":first_dart_death_tick,
                 "damage_events":dart_damage_events,
-                "gating":False,
+                "passed":first_dart_death_tick is not None and 78 <= first_dart_death_tick <= 80,
+                "gating":True,
             },
             "skeletons_after_play":{
                 "play_tick":48,
                 "counts_by_tick":skeleton_counts_by_tick,
                 "expected_initial_count":3,
-                "gating":False,
+                "passed":skeleton_counts_by_tick.get("49")==3,
+                "gating":True,
             },
-            "goblins_after_play":{
+            "goblin_gang_after_play":{
                 "play_tick":189,
-                "counts_by_tick":goblin_counts_by_tick,
-                "expected_initial_count":4,
-                "passed":goblin_counts_by_tick.get("190")==4,
+                "counts_by_tick":goblin_gang_by_tick,
+                "expected_total":6,
+                "expected_composition":{"goblin":3,"speargoblin":3},
+                "passed":(goblin_gang_by_tick.get("190") or {}).get("total")==6,
                 "gating":True,
             },
         },
     }
     (args.out/"opening_probe.json").write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps(payload,ensure_ascii=False,indent=2))
-    goblin_count_pass=goblin_counts_by_tick.get("190")==4
-    return 0 if report["status"]!="failed" and bat_timing_pass and goblin_count_pass else 1
+    dart_pass=first_dart_death_tick is not None and 78 <= first_dart_death_tick <= 80
+    skeleton_pass=skeleton_counts_by_tick.get("49")==3
+    gang_pass=(goblin_gang_by_tick.get("190") or {}).get("total")==6
+    return 0 if report["status"]!="failed" and bat_timing_pass and dart_pass and skeleton_pass and gang_pass else 1
 
 if __name__=="__main__":
     raise SystemExit(main())
