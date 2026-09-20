@@ -206,6 +206,56 @@ def clone_template(records: list[dict[str, Any]], candidates: list[str]) -> dict
     raise RuntimeError(f"no template found: {candidates}")
 
 
+def find_spell_projectile(
+    projectiles: list[dict[str, Any]],
+    registry: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Mirror Rudy's spell-projectile lookup for Fireball/Log/Arrows/etc."""
+    sk = str(registry.get("sc_key") or "")
+    if not sk:
+        return None
+    for candidate in (f"{sk}Spell", f"{sk}Projectile", f"{sk}ProjectileRolling", sk):
+        found = find_one(projectiles, candidate)
+        if found is not None:
+            return found
+
+    wanted = norm(sk)
+    candidates = [
+        p for p in projectiles
+        if wanted and wanted in norm(p.get("name"))
+        and (int(p.get("damage") or 0) > 0 or int(p.get("spawn_character_count") or 0) > 0)
+    ]
+    if not candidates:
+        return None
+    return max(
+        candidates,
+        key=lambda p: int(p.get("damage") or 0) + int(p.get("spawn_character_count") or 0) * 100,
+    )
+
+
+def patch_projectile_spell(record: dict[str, Any], stat: dict[str, Any]) -> list[str]:
+    fields: list[str] = []
+    if stat.get("damage") is not None:
+        level11(record, "damage_per_level", "damage", int(stat["damage"]))
+        fields.append("damage")
+    if stat.get("radius_tiles") is not None:
+        record["radius"] = int(round(float(stat["radius_tiles"]) * 1000))
+        fields.append("radius")
+    if stat.get("projectile_speed") is not None:
+        record["speed"] = int(stat["projectile_speed"])
+        fields.append("speed")
+    attacks = set(stat.get("attacks") or [])
+    if attacks:
+        record["aoe_to_ground"] = bool("ground" in attacks)
+        record["aoe_to_air"] = bool("air" in attacks)
+        fields.append("targets")
+    if stat.get("damage") and stat.get("crown_tower_damage") is not None:
+        ratio = float(stat["crown_tower_damage"]) / float(stat["damage"])
+        record["crown_tower_damage_percent"] = int(round((ratio - 1.0) * 100))
+        fields.append("crown_tower_damage")
+    return fields
+
+
 def add_runtime_stub(
     key: str,
     stat: dict[str, Any],
@@ -220,7 +270,9 @@ def add_runtime_stub(
     kind = stat.get("kind")
 
     if kind == "spell":
-        record = clone_template(spells, ["fireball", "Fireball"])
+        # Missing current zone spells (e.g. Vines/Void) get a neutral timed-zone
+        # schema template. Projectile spells are detected before this function.
+        record = clone_template(spells, ["poison", "Poison", "zap", "Zap"])
         record.update(key=ck, name=sk, name_en=display, sc_key=sk, id=int(stat.get("official_id") or synthetic_id), elixir=int(stat.get("elixir") or 0))
         patch_spell(record, stat, generated=True)
         upsert_by_key(spells, record)
@@ -326,6 +378,14 @@ def main() -> None:
                 pool_name = candidate_name
                 break
 
+        # Rudy stores direct projectile spells (Fireball, Log, Arrows, Rocket,
+        # etc.) in cards_stats_projectile.json rather than cards_stats_spell.json.
+        if record is None and kind == "spell":
+            projectile_spell = find_spell_projectile(projectiles, registry)
+            if projectile_spell is not None:
+                record = projectile_spell
+                pool_name = "projectile_spell"
+
         generated = False
         if record is None:
             record, pool_name = add_runtime_stub(key, stat, characters, buildings, spells, synthetic_id)
@@ -340,6 +400,8 @@ def main() -> None:
 
         if pool_name == "spell":
             changed = patch_spell(record, stat_for_runtime, generated=generated)
+        elif pool_name == "projectile_spell":
+            changed = patch_projectile_spell(record, stat_for_runtime)
         else:
             changed = patch_character(record, stat_for_runtime, generated=generated)
 
