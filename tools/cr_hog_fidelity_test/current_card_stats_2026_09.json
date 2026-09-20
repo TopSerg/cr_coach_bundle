@@ -2109,7 +2109,11 @@
       },
       "champion": true,
       "official_id": 26000099,
-      "max_level": 6
+      "max_level": 6,
+      "champion_ability": {
+        "duration_s": 3.5,
+        "_source": "Supercell September 16 2026 balance"
+      }
     },
     "golden_knight": {
       "display": "Golden Knight",
