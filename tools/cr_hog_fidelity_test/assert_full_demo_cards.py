@@ -72,7 +72,11 @@ def golem_split(data: Any) -> dict[str, Any]:
 
 
 def clone_probe(data: Any) -> dict[str, Any]:
-    match = cr_engine.new_match(data, TEAM_DECK, OPPONENT_DECK)
+    # Clone belongs to the opponent deck in the supplied replay.  Use a small
+    # dedicated P1 probe deck that actually contains Clone instead of relying on
+    # the old observed-card path accepting a card outside the declared deck.
+    clone_deck = ["clone"] + [card for card in TEAM_DECK if card != "clone"][:7]
+    match = cr_engine.new_match(data, clone_deck, OPPONENT_DECK)
     source_id = int(match.seed_troop_state(1, "skeletons", 0, -2_000, 11, 100, True))
     match.play_observed_card(1, "clone", 0, -2_000, 11)
     for _ in range(8):
