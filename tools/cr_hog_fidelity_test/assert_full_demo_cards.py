@@ -105,10 +105,13 @@ def goblin_drill_probe(data: Any) -> dict[str, Any]:
 
 
 def curse_probe(data: Any) -> dict[str, Any]:
+    # Goblin Curse is in the opponent deck in the supplied replay, so cast it
+    # from P2 onto a seeded P1 Giant. This keeps the observed-card path honest
+    # about deck membership while still testing the same DOT/slow mechanic.
     match = cr_engine.new_match(data, TEAM_DECK, OPPONENT_DECK)
-    target_id = int(match.seed_troop_state(2, "giant", 0, 2_000, 11, 100, True))
+    target_id = int(match.seed_troop_state(1, "giant", 0, -2_000, 11, 100, True))
     before = next(e for e in entities(match) if int(e["id"]) == target_id)
-    match.play_observed_card(1, "goblin-curse", 0, 2_000, 11)
+    match.play_observed_card(2, "goblin-curse", 0, -2_000, 11)
     for _ in range(60):
         match.step()
     target = next((e for e in entities(match) if int(e["id"]) == target_id), None)
