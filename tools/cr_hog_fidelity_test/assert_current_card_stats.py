@@ -157,6 +157,21 @@ def main() -> None:
     require(three.get("melee_range_tiles")==1.6,"Three Musketeers melee range != 1.6 tiles",failures)
     require(three.get("melee_hit_speed")==1.3,"Three Musketeers melee hit speed != 1.3s",failures)
 
+    # Public troop count is gameplay data too.  Direct card-key rows in the
+    # pinned Rudy snapshot used to bypass its fallback multi-unit table.
+    skeletons=char("skeletons","Skeletons")
+    require(skeletons is not None,"Skeletons runtime record missing",failures)
+    if skeletons:
+        require(int(skeletons.get("summon_number") or 0)==3,
+                "Skeletons summon count != 3",failures)
+        require(str(skeletons.get("summon_character") or "").lower()=="skeleton",
+                "Skeletons summon unit is not Skeleton",failures)
+    goblins=char("goblins","Goblins")
+    require(goblins is not None,"Goblins runtime record missing",failures)
+    if goblins:
+        require(int(goblins.get("summon_number") or 0)==4,
+                "Goblins summon count != current public value 4",failures)
+
     # Screenshot/public-stat anchor: Electro Spirit.
     es=char("electro-spirit","Electro Spirit")
     require(es is not None,"Electro Spirit runtime record missing",failures)
