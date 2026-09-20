@@ -8,7 +8,7 @@ sys.path.insert(0,str(ROOT/"starter"))
 from cr_coach.replay.io import load_replay
 from cr_coach.runtime.rudy_runner import run_rudy_replay
 
-CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260,335,336,345,355,365,385,405,425,440}
+CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260,335,336,345,355,365,385,405,409,410,420,440,460,479,480,500,520,541,542,560,580,600,620,650}
 
 def compact(snapshot):
     rows=[]
@@ -109,6 +109,32 @@ def main():
         demolisher_by_tick[str(tick)]=rows
     demolisher_created=bool(demolisher_by_tick.get("336"))
 
+    expected_new_cards={
+        "electro-dragon":409,
+        "suspicious-bush":479,
+        "golden-knight":541,
+    }
+    created_cards={}
+    for card,play_tick in expected_new_cards.items():
+        seen=[]
+        compact=card.replace("-","")
+        for snapshot in snaps:
+            tick=int(snapshot["tick"])
+            if tick < play_tick or tick > play_tick+3:
+                continue
+            for entity in snapshot.get("entities",[]):
+                key=str(entity.get("card_id","")).lower().replace("-","")
+                if compact in key and bool(entity.get("alive",True)):
+                    seen.append({
+                        "tick":tick,
+                        "uid":int(entity["uid"]),
+                        "card":str(entity.get("card_id","")),
+                        "x":int(entity["x_mtile"]),
+                        "y":int(entity["y_mtile"]),
+                        "deploy_us":int(entity.get("deploy_remaining_us") or 0),
+                    })
+        created_cards[card]=seen
+
     payload={
         "report":report,
         "selected":selected,
@@ -150,6 +176,16 @@ def main():
                 "passed":demolisher_created,
                 "gating":True,
             },
+            "extended_opening_plays":{
+                "expected":{
+                    "electro-dragon":{"tick":409,"video_time_s":38.45,"cell":[9,18]},
+                    "suspicious-bush":{"tick":479,"video_time_s":41.95,"cell":[4,14]},
+                    "golden-knight":{"tick":541,"video_time_s":45.05,"cell":[4,13]},
+                },
+                "created":created_cards,
+                "passed":all(created_cards.get(card) for card in expected_new_cards),
+                "gating":True,
+            },
         },
     }
     (args.out/"opening_probe.json").write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
@@ -157,7 +193,8 @@ def main():
     dart_pass=first_dart_death_tick is not None and 78 <= first_dart_death_tick <= 80
     skeleton_pass=skeleton_counts_by_tick.get("49")==3
     gang_pass=(goblin_gang_by_tick.get("190") or {}).get("total")==6
-    return 0 if report["status"]!="failed" and bat_timing_pass and dart_pass and skeleton_pass and gang_pass and demolisher_created else 1
+    extended_pass=all(created_cards.get(card) for card in expected_new_cards)
+    return 0 if report["status"]!="failed" and bat_timing_pass and dart_pass and skeleton_pass and gang_pass and demolisher_created and extended_pass else 1
 
 if __name__=="__main__":
     raise SystemExit(main())
