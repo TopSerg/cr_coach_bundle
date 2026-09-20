@@ -8,7 +8,7 @@ sys.path.insert(0,str(ROOT/"starter"))
 from cr_coach.replay.io import load_replay
 from cr_coach.runtime.rudy_runner import run_rudy_replay
 
-CHECK_TICKS={0,21,48,49,50,55,60,80,85,100,120,140,160,180,190}
+CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260}
 
 def compact(snapshot):
     rows=[]
@@ -61,16 +61,23 @@ def main():
         and int((row.get("data") or {}).get("target_uid") or -1)==1
     ]
     skeleton_counts_by_tick={}
+    goblin_counts_by_tick={}
     for snapshot in snaps:
         tick=int(snapshot["tick"])
-        if tick not in {49,50,55,60}:
-            continue
-        skeleton_counts_by_tick[str(tick)]=sum(
-            1 for entity in snapshot.get("entities",[])
-            if entity.get("kind")!="tower"
-            and "skeleton" in str(entity.get("card_id","")).lower()
-            and bool(entity.get("alive",True))
-        )
+        if tick in {49,50,55,60}:
+            skeleton_counts_by_tick[str(tick)]=sum(
+                1 for entity in snapshot.get("entities",[])
+                if entity.get("kind")!="tower"
+                and "skeleton" in str(entity.get("card_id","")).lower()
+                and bool(entity.get("alive",True))
+            )
+        if tick in {190,200}:
+            goblin_counts_by_tick[str(tick)]=sum(
+                1 for entity in snapshot.get("entities",[])
+                if entity.get("kind")!="tower"
+                and str(entity.get("card_id","")).lower() in {"goblin","goblins"}
+                and bool(entity.get("alive",True))
+            )
     # Video: Night Witch placement is ~19.1s and the first Bat is first visible
     # at ~22.0s.  With the replay origin at 18.0s this is tick ~80 (20 Hz).
     expected_first_bat_tick=80
@@ -99,11 +106,19 @@ def main():
                 "expected_initial_count":3,
                 "gating":False,
             },
+            "goblins_after_play":{
+                "play_tick":189,
+                "counts_by_tick":goblin_counts_by_tick,
+                "expected_initial_count":4,
+                "passed":goblin_counts_by_tick.get("190")==4,
+                "gating":True,
+            },
         },
     }
     (args.out/"opening_probe.json").write_text(json.dumps(payload,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps(payload,ensure_ascii=False,indent=2))
-    return 0 if report["status"]!="failed" and bat_timing_pass else 1
+    goblin_count_pass=goblin_counts_by_tick.get("190")==4
+    return 0 if report["status"]!="failed" and bat_timing_pass and goblin_count_pass else 1
 
 if __name__=="__main__":
     raise SystemExit(main())
