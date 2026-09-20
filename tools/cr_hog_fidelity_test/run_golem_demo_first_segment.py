@@ -124,14 +124,14 @@ def main():
     created_cards={}
     for card,play_tick in expected_new_cards.items():
         seen=[]
-        compact=card.replace("-","")
+        compact_card=card.replace("-","")
         for snapshot in snaps:
             tick=int(snapshot["tick"])
             if tick < play_tick or tick > play_tick+3:
                 continue
             for entity in snapshot.get("entities",[]):
                 key=str(entity.get("card_id","")).lower().replace("-","")
-                if compact in key and bool(entity.get("alive",True)):
+                if compact_card in key and bool(entity.get("alive",True)):
                     seen.append({
                         "tick":tick,
                         "uid":int(entity["uid"]),
