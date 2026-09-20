@@ -86,6 +86,12 @@ jobs:
             --catalog tools/cr_hog_fidelity_test/current_card_stats_2026_09.json \
             --out outputs/rudy_current_cards/summary.json
 
+      - name: Replay opening segment from supplied Golem demo
+        run: |
+          python tools/cr_hog_fidelity_test/run_golem_demo_first_segment.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --out outputs/golem_demo_opening
+
       - name: Verify Firecracker fan and Magic Archer piercing
         run: |
           python tools/cr_hog_fidelity_test/assert_line_projectile_mechanics.py \
@@ -195,6 +201,7 @@ jobs:
             outputs/rudy_pathing_legacy
             outputs/rudy_postfix
             outputs/rudy_current_cards
+            outputs/golem_demo_opening
             outputs/rudy_tournament11_data/CURRENT_CARD_STATS_MANIFEST.json
             outputs/rudy_tournament11_data/_tournament11_manifest.json
           if-no-files-found: warn
