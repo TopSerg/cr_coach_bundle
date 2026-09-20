@@ -172,6 +172,18 @@ def main() -> None:
         require(int(goblins.get("summon_number") or 0)==4,
                 "Goblins summon count != current public value 4",failures)
 
+    goblin_gang=char("goblin-gang","Goblin Gang")
+    require(goblin_gang is not None,"Goblin Gang runtime record missing",failures)
+    if goblin_gang:
+        require(int(goblin_gang.get("summon_number") or 0)==3,
+                "Goblin Gang melee count != 3",failures)
+        require(str(goblin_gang.get("summon_character") or "").lower()=="goblin",
+                "Goblin Gang primary unit is not Goblin",failures)
+        require(int(goblin_gang.get("summon_character_second_count") or 0)==3,
+                "Goblin Gang spear count != 3",failures)
+        require(str(goblin_gang.get("summon_character_second") or "").lower() in {"speargoblin","spear-goblin"},
+                "Goblin Gang secondary unit is not Spear Goblin",failures)
+
     # Screenshot/public-stat anchor: Electro Spirit.
     es=char("electro-spirit","Electro Spirit")
     require(es is not None,"Electro Spirit runtime record missing",failures)
