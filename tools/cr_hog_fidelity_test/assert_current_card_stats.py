@@ -102,7 +102,7 @@ def main() -> None:
     missing_registry=[]
     missing_runtime=[]
     for key,stat in base:
-        selectors=(key.replace("_","-"),stat.get("display",""))
+        selectors=(key.replace("_","-"),stat.get("display",""),stat.get("sc_key",""))
         registry_record=find(registry,*selectors)
         if registry_record is None:
             missing_registry.append(key)
@@ -123,7 +123,9 @@ def main() -> None:
             f"overlay patched {len(manifest.get('runtime_records_patched',[]))}/123 runtime rows",failures)
 
     def char(key:str,display:str) -> dict[str,Any] | None:
-        return find(characters,key,display) or find(buildings,key,display)
+        stat=catalog["cards"].get(key.replace("-","_")) or {}
+        selectors=(key,display,stat.get("sc_key",""))
+        return find(characters,*selectors) or find(buildings,*selectors)
 
     # Internal identity must stay data-driven. Display names are not safe SC keys
     # (Magic Archer is EliteArcher in Supercell/Rudy data).
