@@ -144,7 +144,11 @@ def barbarian_barrel_probe(data: Any) -> dict[str, Any]:
 
 def electro_spirit_chain_probe(data: Any) -> dict[str, Any]:
     match = cr_engine.new_match(data, TEAM_DECK, OPPONENT_DECK)
-    target_positions = [(0, 2_500), (3_000, 2_500), (6_000, 2_500)]
+    # Current Aug-26-2026 Electro Spirit chain radius is 3.0 tiles.
+    # Keep synthetic targets comfortably inside that limit so normal troop
+    # movement/collision before impact cannot turn an exact-boundary check into
+    # a false negative.
+    target_positions = [(0, 2_500), (2_500, 2_500), (5_000, 2_500)]
     target_ids = [
         int(match.seed_troop_state(2, "knight", x, y, 11, 100, True))
         for x, y in target_positions
