@@ -45,6 +45,21 @@ def smoke_cards(data: Any) -> list[dict[str, Any]]:
     return rows
 
 
+def goblins_count_probe(data: Any) -> dict[str, Any]:
+    match = cr_engine.new_match(data, TEAM_DECK, OPPONENT_DECK)
+    before = {int(item["id"]) for item in entities(match)}
+    match.play_observed_card(2, "goblins", 0, 5_000, 11)
+    created = [
+        item for item in entities(match)
+        if int(item["id"]) not in before
+        and item["team"] == 2
+        and "goblin" in str(item["card_key"]).lower()
+    ]
+    if len(created) != 4:
+        raise AssertionError(f"Goblins created {len(created)} units, expected current count 4")
+    return {"created_goblins": len(created)}
+
+
 def night_witch_bats(data: Any) -> dict[str, Any]:
     match = cr_engine.new_match(data, TEAM_DECK, OPPONENT_DECK)
     match.spawn_troop(1, "night-witch", 0, -4_000, 11)
@@ -134,6 +149,7 @@ def main() -> None:
         "status": "PASS",
         "decks": {"team": TEAM_DECK, "opponent": OPPONENT_DECK},
         "card_smoke": smoke_cards(data),
+        "goblins": goblins_count_probe(data),
         "night_witch": night_witch_bats(data),
         "golem": golem_split(data),
         "clone": clone_probe(data),
