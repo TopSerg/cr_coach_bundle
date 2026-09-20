@@ -47,6 +47,19 @@ def main():
         and str((row.get("data") or {}).get("card_id","")).lower() in {"blowdartgoblin","dart-goblin"}
     ]
     first_dart_death_tick=min(dart_death_ticks) if dart_death_ticks else None
+    dart_damage_events=[
+        {
+            "tick":int(row.get("tick",0)),
+            "state_tick":int(row.get("state_tick",0)),
+            "kind":row.get("kind"),
+            "source_card":(row.get("data") or {}).get("source_card_id"),
+            "damage":(row.get("data") or {}).get("damage"),
+            "hp_after":(row.get("data") or {}).get("hp_after"),
+        }
+        for row in generated
+        if row.get("kind") in {"damage_applied","damage_observed"}
+        and int((row.get("data") or {}).get("target_uid") or -1)==1
+    ]
     skeleton_counts_by_tick={}
     for snapshot in snaps:
         tick=int(snapshot["tick"])
@@ -77,6 +90,7 @@ def main():
             "dart_goblin_death":{
                 "video_window_ticks":[78,80],
                 "actual_tick":first_dart_death_tick,
+                "damage_events":dart_damage_events,
                 "gating":False,
             },
             "skeletons_after_play":{
