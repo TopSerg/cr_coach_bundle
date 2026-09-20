@@ -2086,8 +2086,8 @@
       "kind": "troop",
       "hitpoints": 1300,
       "damage": 186,
-      "hit_speed": 1.1,
-      "dps": 169,
+      "hit_speed": 1.2,
+      "dps": 155,
       "lifetime_s": 10,
       "death_damage": 404,
       "count": 1,
@@ -2117,6 +2117,19 @@
         "source_file": "src/clasher_new/gamedata.json",
         "internal_name": "GoblinDemolisher",
         "source_table": "spells_characters"
+      },
+      "first_hit_s": 0.7,
+      "collision_radius_tiles": 0.6,
+      "death_pushback_tiles": 2,
+      "transform_at_hp_percent": 50,
+      "transformed_speed_tiles": 2,
+      "transformed_target_only_buildings": true,
+      "transformed_kamikaze": true,
+      "_game_data_mechanic": {
+        "source_repository": "Jason-XII/clash-royale-simulator",
+        "source_file": "src/clasher_new/gamedata.json",
+        "checked": "2026-09-21",
+        "internal_source": "onStartingActionData healthPercentages=[50] -> GoblinDemolisher_kamikaze_form"
       }
     },
     "goblin_drill": {
