@@ -8,7 +8,7 @@ sys.path.insert(0,str(ROOT/"starter"))
 from cr_coach.replay.io import load_replay
 from cr_coach.runtime.rudy_runner import run_rudy_replay
 
-CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260,335,336,345,355,365,385,405,409,410,420,440,460,479,480,500,520,541,542,560,580,600,620,650}
+CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260,335,336,345,355,365,385,405,409,410,420,440,460,479,480,500,520,541,542,560,574,575,580,600,618,619,630,650,700,740,760}
 
 def compact(snapshot):
     rows=[]
@@ -109,10 +109,17 @@ def main():
         demolisher_by_tick[str(tick)]=rows
     demolisher_created=bool(demolisher_by_tick.get("336"))
 
+    golden_knight_ability_events=[
+        row for row in generated
+        if row.get("kind")=="ability_activated"
+        and str((row.get("data") or {}).get("card_id","")).lower()=="golden-knight"
+    ]
+
     expected_new_cards={
         "electro-dragon":409,
         "suspicious-bush":479,
         "golden-knight":541,
+        "valkyrie":618,
     }
     created_cards={}
     for card,play_tick in expected_new_cards.items():
@@ -181,9 +188,12 @@ def main():
                     "electro-dragon":{"tick":409,"video_time_s":38.45,"cell":[9,18]},
                     "suspicious-bush":{"tick":479,"video_time_s":41.95,"cell":[4,14]},
                     "golden-knight":{"tick":541,"video_time_s":45.05,"cell":[4,13]},
+                    "golden-knight-ability":{"tick":574,"video_time_s":46.70},
+                    "valkyrie":{"tick":618,"video_time_s":48.90,"cell":[3,24]},
                 },
                 "created":created_cards,
-                "passed":all(created_cards.get(card) for card in expected_new_cards),
+                "ability_events":golden_knight_ability_events,
+                "passed":all(created_cards.get(card) for card in expected_new_cards) and bool(golden_knight_ability_events),
                 "gating":True,
             },
         },
@@ -193,7 +203,7 @@ def main():
     dart_pass=first_dart_death_tick is not None and 78 <= first_dart_death_tick <= 80
     skeleton_pass=skeleton_counts_by_tick.get("49")==3
     gang_pass=(goblin_gang_by_tick.get("190") or {}).get("total")==6
-    extended_pass=all(created_cards.get(card) for card in expected_new_cards)
+    extended_pass=all(created_cards.get(card) for card in expected_new_cards) and bool(golden_knight_ability_events)
     return 0 if report["status"]!="failed" and bat_timing_pass and dart_pass and skeleton_pass and gang_pass and demolisher_created and extended_pass else 1
 
 if __name__=="__main__":
