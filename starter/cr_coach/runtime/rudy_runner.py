@@ -302,12 +302,23 @@ def run_rudy_replay(spec: Any, out_dir: str | Path, *, data_dir: str | Path, sam
                 except Exception:
                     failed_index = event_index
                     raise
+                event_type = _get(event, "event_type", "card_play")
+                event_card = (
+                    _get(event, "card")
+                    if event_type == "card_play"
+                    else _get(event, "ability_card")
+                )
                 generated.append(
                     {
                         "tick": tick,
                         "state_tick": tick + 1,
-                        "kind": "card_played" if _get(event, "event_type") == "card_play" else "ability_activated",
-                        "data": {"side": _get(event, "side"), "player": 0 if _get(event, "side") == "team" else 1, "card_id": _get(event, "card", _get(event, "ability_card")), "uid": uid},
+                        "kind": "card_played" if event_type == "card_play" else "ability_activated",
+                        "data": {
+                            "side": _get(event, "side"),
+                            "player": 0 if _get(event, "side") == "team" else 1,
+                            "card_id": event_card,
+                            "uid": uid,
+                        },
                     }
                 )
                 event_index += 1
