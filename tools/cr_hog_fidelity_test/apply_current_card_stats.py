@@ -99,7 +99,7 @@ def patch_registry(cards: list[dict[str, Any]], key: str, stat: dict[str, Any], 
         if template is None:
             raise RuntimeError(f"registry template {template_name!r} not found")
         record = copy.deepcopy(template)
-        record["id"] = synthetic_id
+        record["id"] = int(stat.get("official_id") or synthetic_id)
         cards.append(record)
     record["key"] = ck
     record["name"] = stat.get("display", key)
@@ -221,14 +221,14 @@ def add_runtime_stub(
 
     if kind == "spell":
         record = clone_template(spells, ["fireball", "Fireball"])
-        record.update(key=ck, name=sk, name_en=display, sc_key=sk, id=synthetic_id, elixir=int(stat.get("elixir") or 0))
+        record.update(key=ck, name=sk, name_en=display, sc_key=sk, id=int(stat.get("official_id") or synthetic_id), elixir=int(stat.get("elixir") or 0))
         patch_spell(record, stat, generated=True)
         upsert_by_key(spells, record)
         return record, "spell"
 
     if kind == "building":
         record = clone_template(buildings, ["cannon", "Cannon"])
-        record.update(key=ck, name=sk, name_en=display, sc_key=sk, id=synthetic_id, elixir=int(stat.get("elixir") or 0))
+        record.update(key=ck, name=sk, name_en=display, sc_key=sk, id=int(stat.get("official_id") or synthetic_id), elixir=int(stat.get("elixir") or 0))
         patch_character(record, stat, generated=True)
         upsert_by_key(buildings, record)
         return record, "building"
@@ -244,7 +244,7 @@ def add_runtime_stub(
     else:
         candidates = ["Knight", "knight"]
     record = clone_template(characters, candidates)
-    record.update(key=ck, name=sk, name_en=display, sc_key=sk, id=synthetic_id, elixir=int(stat.get("elixir") or 0))
+    record.update(key=ck, name=sk, name_en=display, sc_key=sk, id=int(stat.get("official_id") or synthetic_id), elixir=int(stat.get("elixir") or 0))
     # Do not inherit another card's unique mechanics into a generic stub.
     for special in (
         "starting_buff", "spawn_area_object", "death_spawn_character", "morph_character",
