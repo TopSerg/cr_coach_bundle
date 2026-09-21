@@ -189,6 +189,6 @@ Coordinate refinement uses different visual signals:
   is stored in `annotation.hit_area`;
 - Fireball: first robust orange/yellow impact region.
 
-The deployment-clock templates are stored as compact compressed grayscale
-fingerprints in Python source, so runtime does not depend on extra binary asset
-files.
+The deployment-clock templates are stored as tiny text PGM image assets in
+`tools/video_placement_annotator/assets/`. OpenCV reads them directly, so there
+is no fragile base64 payload and the templates remain diffable in Git.
