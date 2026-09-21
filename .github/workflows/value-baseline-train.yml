@@ -1,0 +1,142 @@
+name: CR Coach Value baseline
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "smoke = small CPU run, full = full replay corpus"
+        required: true
+        default: smoke
+        type: choice
+        options:
+          - smoke
+          - full
+      max_files:
+        description: "Raw replay files (0 = full corpus; blank uses mode default)"
+        required: false
+        default: ""
+        type: string
+      epochs:
+        description: "Epochs (blank uses mode default)"
+        required: false
+        default: ""
+        type: string
+  push:
+    branches:
+      - "ml/**"
+    paths:
+      - "ml/value_baseline/**"
+      - ".github/workflows/value-baseline-train.yml"
+  pull_request:
+    paths:
+      - "ml/value_baseline/**"
+      - ".github/workflows/value-baseline-train.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: value-baseline-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  train-value:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      PYTHONUNBUFFERED: "1"
+      COCHON_SHA: eec3887c94faecb7e9108f5d53d24a86b6bf08d5
+    steps:
+      - name: Checkout CR Coach
+        uses: actions/checkout@v4
+
+      - name: Checkout replay pipeline (pinned)
+        uses: actions/checkout@v4
+        with:
+          repository: cochon123/clash-royale-ai
+          ref: ${{ env.COCHON_SHA }}
+          path: .deps/clash-royale-ai
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: ml/value_baseline/requirements-actions.txt
+
+      - name: Install CPU PyTorch and ML dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.3,<3"
+          python -m pip install -r ml/value_baseline/requirements-actions.txt
+
+      - name: Resolve training profile
+        id: profile
+        shell: bash
+        env:
+          REQUESTED_MODE: ${{ github.event_name == 'workflow_dispatch' && inputs.mode || 'smoke' }}
+          REQUESTED_MAX_FILES: ${{ github.event_name == 'workflow_dispatch' && inputs.max_files || '' }}
+          REQUESTED_EPOCHS: ${{ github.event_name == 'workflow_dispatch' && inputs.epochs || '' }}
+        run: |
+          set -euo pipefail
+          mode="${REQUESTED_MODE:-smoke}"
+          if [[ "$mode" == "full" ]]; then
+            default_files=0
+            default_epochs=20
+            d_model=160
+            layers=4
+            batch=128
+            min_plays=12
+          else
+            default_files=800
+            default_epochs=3
+            d_model=96
+            layers=2
+            batch=64
+            min_plays=8
+          fi
+          max_files="${REQUESTED_MAX_FILES:-$default_files}"
+          epochs="${REQUESTED_EPOCHS:-$default_epochs}"
+          echo "mode=$mode" >> "$GITHUB_OUTPUT"
+          echo "max_files=$max_files" >> "$GITHUB_OUTPUT"
+          echo "epochs=$epochs" >> "$GITHUB_OUTPUT"
+          echo "d_model=$d_model" >> "$GITHUB_OUTPUT"
+          echo "layers=$layers" >> "$GITHUB_OUTPUT"
+          echo "batch=$batch" >> "$GITHUB_OUTPUT"
+          echo "min_plays=$min_plays" >> "$GITHUB_OUTPUT"
+
+      - name: Train replay-only Value model
+        env:
+          COCHON_SRC: .deps/clash-royale-ai/src
+        run: |
+          python ml/value_baseline/train_value.py \
+            --max-files "${{ steps.profile.outputs.max_files }}" \
+            --epochs "${{ steps.profile.outputs.epochs }}" \
+            --d-model "${{ steps.profile.outputs.d_model }}" \
+            --layers "${{ steps.profile.outputs.layers }}" \
+            --batch-size "${{ steps.profile.outputs.batch }}" \
+            --min-card-plays "${{ steps.profile.outputs.min_plays }}" \
+            --prefix-ratios "0.25,0.50,0.75,0.90,1.00" \
+            --output-dir outputs/value_baseline
+
+      - name: Print summary
+        if: always()
+        run: |
+          if [[ -f outputs/value_baseline/SUMMARY.md ]]; then
+            cat outputs/value_baseline/SUMMARY.md
+            cat outputs/value_baseline/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload Value checkpoint and metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: value-baseline-${{ steps.profile.outputs.mode }}-${{ github.run_number }}
+          path: |
+            outputs/value_baseline/value_transformer.pt
+            outputs/value_baseline/report.json
+            outputs/value_baseline/vocab.json
+            outputs/value_baseline/SUMMARY.md
+          if-no-files-found: warn
+          retention-days: 14
