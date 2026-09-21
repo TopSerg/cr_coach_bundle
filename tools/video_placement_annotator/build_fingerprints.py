@@ -2,10 +2,17 @@
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 import sys
 
-from fingerprints import build_database, load_elixir_map, normalize_card_key
+from fingerprints import (
+    CardFingerprintRecord,
+    FingerprintDatabase,
+    build_database,
+    load_elixir_map,
+    normalize_card_key,
+)
 
 
 def _read_allowed(values: list[str], deck_file: str | None) -> list[str] | None:
@@ -49,6 +56,11 @@ def main() -> int:
         help="Fail if two different cards have combined fingerprint similarity >= this value",
     )
     ap.add_argument("--show-nearest", type=int, default=20)
+    ap.add_argument(
+        "--supplemental",
+        default="tools/video_placement_annotator/supplemental_fingerprints.json",
+        help="Optional JSON with fingerprint records that override/mend the asset pack",
+    )
     args = ap.parse_args()
 
     allowed = _read_allowed(args.card, args.deck_file)
@@ -67,6 +79,32 @@ def main() -> int:
         allowed=allowed,
         source_label=args.source_label,
     )
+
+    if args.supplemental and Path(args.supplemental).exists():
+        raw = json.loads(Path(args.supplemental).read_text(encoding="utf-8"))
+        extra = [
+            CardFingerprintRecord.from_json(item)
+            for item in raw.get("cards", [])
+        ]
+        merged = dict(db.records)
+        for record in extra:
+            if allowed is None or record.card in set(allowed):
+                merged[record.card] = record
+        db = FingerprintDatabase(
+            merged.values(),
+            meta={**db.meta, "supplemental": args.supplemental},
+        )
+
+    if args.only_stats_cards and stats is not None:
+        expected = set(load_elixir_map(stats))
+        missing = sorted(expected - set(db.records))
+        if missing:
+            print(
+                "ERROR: current stats cards missing fingerprints: "
+                + ", ".join(missing),
+                file=sys.stderr,
+            )
+            return 3
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     db.save(out)
