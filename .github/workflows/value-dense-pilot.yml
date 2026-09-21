@@ -66,21 +66,21 @@ jobs:
       - name: Print summary
         if: always()
         run: |
-          if [[ -f outputs/value_tokenwise_pilot/SUMMARY.md ]]; then
-            cat outputs/value_tokenwise_pilot/SUMMARY.md
-            cat outputs/value_tokenwise_pilot/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          if [[ -f outputs/value_tokenwise_4500/SUMMARY.md ]]; then
+            cat outputs/value_tokenwise_4500/SUMMARY.md
+            cat outputs/value_tokenwise_4500/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Upload tokenwise pilot artifact
+      - name: Upload tokenwise artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: value-tokenwise-pilot-${{ github.run_number }}
+          name: value-tokenwise-4500-${{ github.run_number }}
           path: |
-            outputs/value_tokenwise_pilot/value_transformer_tokenwise.pt
-            outputs/value_tokenwise_pilot/report.json
-            outputs/value_tokenwise_pilot/vocab.json
-            outputs/value_tokenwise_pilot/SUMMARY.md
-            outputs/value_tokenwise_pilot/prediction_traces.json
+            outputs/value_tokenwise_4500/value_transformer_tokenwise.pt
+            outputs/value_tokenwise_4500/report.json
+            outputs/value_tokenwise_4500/vocab.json
+            outputs/value_tokenwise_4500/SUMMARY.md
+            outputs/value_tokenwise_4500/prediction_traces.json
           if-no-files-found: warn
           retention-days: 14
