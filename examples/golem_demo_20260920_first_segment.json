@@ -32,9 +32,16 @@
     {
       "tick": 189,
       "side": "opponent",
-      "card": "goblins",
+      "card": "goblin-gang",
       "x": 14,
       "y": 2
+    },
+    {
+      "tick": 260,
+      "side": "team",
+      "card": "the-log",
+      "x": 14,
+      "y": 17
     },
     {
       "tick": 335,

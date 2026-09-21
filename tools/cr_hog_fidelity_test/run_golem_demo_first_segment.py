@@ -61,7 +61,7 @@ def main():
         and int((row.get("data") or {}).get("target_uid") or -1)==1
     ]
     skeleton_counts_by_tick={}
-    goblins_by_tick={}
+    goblin_gang_by_tick={}
     for snapshot in snaps:
         tick=int(snapshot["tick"])
         if tick in {49,50,55,60}:
@@ -77,9 +77,9 @@ def main():
                 if entity.get("kind")=="tower" or not bool(entity.get("alive",True)):
                     continue
                 card=str(entity.get("card_id","")).lower()
-                if card in {"goblin","goblins"}:
+                if card in {"goblin","goblin-gang","speargoblin","spear-goblin"}:
                     breakdown[card]=breakdown.get(card,0)+1
-            goblins_by_tick[str(tick)]={
+            goblin_gang_by_tick[str(tick)]={
                 "total":sum(breakdown.values()),
                 "breakdown":breakdown,
             }
@@ -289,12 +289,12 @@ def main():
                 "passed":skeleton_counts_by_tick.get("49")==3,
                 "gating":True,
             },
-            "goblins_after_play":{
+            "goblin_gang_after_play":{
                 "play_tick":189,
-                "counts_by_tick":goblins_by_tick,
-                "expected_total":4,
-                "expected_composition":{"goblin":4},
-                "passed":(goblins_by_tick.get("190") or {}).get("total")==4,
+                "counts_by_tick":goblin_gang_by_tick,
+                "expected_total":6,
+                "expected_composition":{"goblin":3,"speargoblin":3},
+                "passed":(goblin_gang_by_tick.get("190") or {}).get("total")==6,
                 "gating":True,
             },
             "goblin_demolisher_after_play":{
@@ -347,9 +347,9 @@ def main():
     print(json.dumps(payload,ensure_ascii=False,indent=2))
     dart_pass=first_dart_death_tick is not None and 78 <= first_dart_death_tick <= 80
     skeleton_pass=skeleton_counts_by_tick.get("49")==3
-    goblins_pass=(goblins_by_tick.get("190") or {}).get("total")==4
+    gang_pass=(goblin_gang_by_tick.get("190") or {}).get("total")==6
     extended_pass=all(created_cards.get(card) for card in expected_new_cards) and bool(golden_knight_ability_events)
-    return 0 if report["status"]!="failed" and bat_timing_pass and dart_pass and skeleton_pass and goblins_pass and demolisher_created and extended_pass else 1
+    return 0 if report["status"]!="failed" and bat_timing_pass and dart_pass and skeleton_pass and gang_pass and demolisher_created and extended_pass else 1
 
 if __name__=="__main__":
     raise SystemExit(main())
