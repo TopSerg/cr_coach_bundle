@@ -151,6 +151,72 @@ def decode_slot_viterbi(
     return path
 
 
+def decode_joint_fixed_slots(
+    scores: np.ndarray,
+    *,
+    transition_penalty: float = 1.2,
+) -> np.ndarray:
+    """Jointly decode all four fixed slots with unique-card constraints.
+
+    State = ordered assignment of four distinct deck cards to the four visible
+    slots (8P4 = 1680 states). A legal transition either keeps the hand
+    unchanged or replaces exactly one slot with one of the four cards currently
+    outside the hand. This prevents impossible duplicate-card hands.
+    """
+    scores = np.asarray(scores, dtype=np.float32)
+    if scores.ndim != 3 or scores.shape[1] != 4:
+        raise ValueError("scores must be [time, 4 slots, cards]")
+    t_count, _, card_count = scores.shape
+    if card_count != 8:
+        raise ValueError("joint fixed-slot decoder requires an eight-card deck")
+
+    states = np.asarray(
+        list(__import__("itertools").permutations(range(card_count), 4)),
+        dtype=np.int8,
+    )
+    state_index = {tuple(map(int, row)): i for i, row in enumerate(states)}
+    state_count = len(states)
+
+    predecessors = np.empty((state_count, 16), dtype=np.int16)
+    for state_i, state in enumerate(states):
+        used = set(map(int, state))
+        missing = [x for x in range(card_count) if x not in used]
+        q = 0
+        for slot in range(4):
+            for old_card in missing:
+                previous = list(map(int, state))
+                previous[slot] = old_card
+                predecessors[state_i, q] = state_index[tuple(previous)]
+                q += 1
+
+    emission = np.zeros((t_count, state_count), dtype=np.float32)
+    for slot in range(4):
+        emission += scores[:, slot, states[:, slot]]
+
+    dp = emission[0].copy()
+    back = np.zeros((t_count, state_count), dtype=np.int8)
+    penalty = float(transition_penalty)
+    for t in range(1, t_count):
+        candidates = np.empty((17, state_count), dtype=np.float32)
+        candidates[0] = dp
+        for j in range(16):
+            candidates[j + 1] = dp[predecessors[:, j]] - penalty
+        choice = np.argmax(candidates, axis=0).astype(np.int8)
+        best = np.take_along_axis(candidates, choice[None, :], axis=0)[0]
+        dp = best + emission[t]
+        back[t] = choice
+
+    path = np.empty(t_count, dtype=np.int16)
+    path[-1] = int(np.argmax(dp))
+    for t in range(t_count - 1, 0, -1):
+        choice = int(back[t, path[t]])
+        path[t - 1] = (
+            path[t] if choice == 0
+            else predecessors[path[t], choice - 1]
+        )
+    return states[path]
+
+
 def absorb_short_runs(path: np.ndarray, min_samples: int = 3) -> np.ndarray:
     """Remove one-off/few-frame label glitches after Viterbi."""
     out = np.asarray(path, dtype=np.int16).copy()
@@ -320,35 +386,59 @@ class FixedSlotVideoDecoder:
             raise RuntimeError("deck is not locked")
         deck = tuple(self.deck)
         smoothed = smooth_score_cube(scores, smooth_window)
-        states: list[list[SlotState]] = []
+        joint = decode_joint_fixed_slots(
+            smoothed,
+            transition_penalty=transition_penalty,
+        )
+        states: list[list[SlotState]] = [[] for _ in range(4)]
         transitions: list[SlotTransition] = []
-        for slot in range(4):
-            path = decode_slot_viterbi(
-                smoothed[:, slot, :],
-                transition_penalty=transition_penalty,
-            )
-            path = absorb_short_runs(path, min_run_samples)
-            slot_states = []
-            for i, card_i in enumerate(path):
+        for i in range(len(joint)):
+            assigned = set(map(int, joint[i]))
+            for slot in range(4):
+                card_i = int(joint[i, slot])
                 row = smoothed[i, slot]
-                order = np.argsort(row)[::-1]
+                # Runner-up must also yield a legal unique hand.
+                alternatives = [
+                    j for j in range(len(deck))
+                    if j == card_i or j not in (assigned - {card_i})
+                ]
+                ranked = sorted(
+                    ((float(row[j]), j) for j in alternatives),
+                    reverse=True,
+                )
                 best = float(row[card_i])
-                runner = float(row[order[1]]) if len(order) > 1 else 0.0
-                slot_states.append(
+                runner = ranked[1][0] if len(ranked) > 1 else 0.0
+                states[slot].append(
                     SlotState(
-                        float(times[i]), slot, deck[int(card_i)],
+                        float(times[i]), slot, deck[card_i],
                         best, best - runner, None,
                     )
                 )
-                if i and path[i] != path[i - 1]:
-                    old = deck[int(path[i - 1])]
-                    new = deck[int(path[i])]
-                    confidence = max(0.0, min(1.0, (best + (best - runner)) / 1.2))
+            if i:
+                changed = np.where(joint[i] != joint[i - 1])[0]
+                if len(changed) == 1:
+                    slot = int(changed[0])
+                    old_i = int(joint[i - 1, slot])
+                    new_i = int(joint[i, slot])
+                    row = smoothed[i, slot]
+                    assigned = set(map(int, joint[i]))
+                    legal_runner = max(
+                        (
+                            float(row[j]) for j in range(len(deck))
+                            if j != new_i and j not in (assigned - {new_i})
+                        ),
+                        default=0.0,
+                    )
+                    best = float(row[new_i])
+                    margin = best - legal_runner
+                    confidence = max(
+                        0.0, min(1.0, (best + max(0.0, margin)) / 1.2)
+                    )
                     transitions.append(
                         SlotTransition(
-                            self.side, float(times[i]), slot, old, new, confidence
+                            self.side, float(times[i]), slot,
+                            deck[old_i], deck[new_i], confidence,
                         )
                     )
-            states.append(slot_states)
         transitions.sort(key=lambda x: x.video_time)
         return states, transitions
