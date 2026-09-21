@@ -112,6 +112,27 @@ new_troop_tuple = """                    t.target_lowest_hp,
 """
 replace_once(COMBAT, old_troop_tuple, new_troop_tuple, "flying first-target grace")
 
+old_building_tuple = """                EntityKind::Building(b) if b.hit_speed > 0 => (
+                    b.range_sq,
+                    b.min_range_sq, // Mortar dead zone
+                    b.attacks_ground,
+                    b.attacks_air,
+                    false,
+                    false,
+                    false,
+                    false, // Buildings don't target only king tower
+                    false,
+                    false,
+                    None, // Buildings don't deprioritize by buff
+                ),
+"""
+new_building_tuple = old_building_tuple.replace(
+    "                    false,\n                    None, // Buildings don't deprioritize by buff",
+    "                    false,\n                    false,\n                    None, // Buildings don't deprioritize by buff",
+    1,
+)
+replace_once(COMBAT, old_building_tuple, new_building_tuple, "building target priority default")
+
 old_targeting = """        // ── Building pull: building-only troops always retarget to nearest ──
         let force_retarget = (only_buildings && current_valid && old_target.is_some())
             || retarget_every_tick;
