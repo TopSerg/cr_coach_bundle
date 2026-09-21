@@ -89,8 +89,8 @@ jobs:
             batch=128
             min_plays=12
           else
-            default_files=800
-            default_epochs=3
+            default_files=150
+            default_epochs=8
             d_model=96
             layers=2
             batch=64
@@ -118,6 +118,9 @@ jobs:
             --batch-size "${{ steps.profile.outputs.batch }}" \
             --min-card-plays "${{ steps.profile.outputs.min_plays }}" \
             --prefix-ratios "0.25,0.50,0.75,0.90,1.00" \
+            --dense-prefixes \
+            --dense-min-events 8 \
+            --trace-matches 5 \
             --output-dir outputs/value_baseline
 
       - name: Print summary
@@ -138,5 +141,6 @@ jobs:
             outputs/value_baseline/report.json
             outputs/value_baseline/vocab.json
             outputs/value_baseline/SUMMARY.md
+            outputs/value_baseline/prediction_traces.json
           if-no-files-found: warn
           retention-days: 14
