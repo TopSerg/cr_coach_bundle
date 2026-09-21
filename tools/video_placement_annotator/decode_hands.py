@@ -35,7 +35,7 @@ def main() -> int:
     ap.add_argument("--end", type=float)
     ap.add_argument("--sample-fps", type=float, default=4.0)
     ap.add_argument("--smooth-window", type=int, default=5)
-    ap.add_argument("--transition-penalty", type=float, default=2.0)
+    ap.add_argument("--transition-penalty", type=float, default=1.2)
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
