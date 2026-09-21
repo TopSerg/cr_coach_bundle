@@ -197,6 +197,21 @@ def main() -> None:
             require(int(p.get("chained_hit_count",0))==9,"Electro Spirit chain count != 9",failures)
             require(int(p.get("chained_hit_radius",0))==3000,"Electro Spirit chain range != 3 tiles (Aug 26 current patch)",failures)
 
+    electro_dragon=char("electro-dragon","Electro Dragon")
+    require(electro_dragon is not None,"Electro Dragon runtime record missing",failures)
+    if electro_dragon:
+        require(lv11(electro_dragon,"hitpoints_per_level","hitpoints")==1049,
+                "Electro Dragon HP != current Level-11 value 1049",failures)
+        require(int(electro_dragon.get("hit_speed",0))==2100,
+                "Electro Dragon hit speed != current 2.1s",failures)
+        ed_projectile=find(projectiles,str(electro_dragon.get("projectile") or ""))
+        require(ed_projectile is not None,"Electro Dragon projectile missing",failures)
+        if ed_projectile:
+            require(lv11(ed_projectile,"damage_per_level","damage")==192,
+                    "Electro Dragon damage != current Level-11 value 192",failures)
+            require(int(ed_projectile.get("speed",0))==2000,
+                    "Electro Dragon projectile speed != current game-data 2000",failures)
+
     checks=[
         ("fire-spirit","Fire Spirit","damage_per_level","damage",215),
         ("ice-golem","Ice Golem","hitpoints_per_level","hitpoints",1228),
