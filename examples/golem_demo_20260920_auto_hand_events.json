@@ -1,0 +1,378 @@
+{
+  "schema": "cr_coach.replay_hand_events.v2",
+  "source_video": "XRecorder_20260920_02(4).mp4",
+  "decoder": "fingerprints+elixir+full_cycle+orb_confirmation",
+  "generated_for_branch": "feat/video-placement-annotator",
+  "team_deck": [
+    "skeleton-dragons",
+    "skeletons",
+    "electro-dragon",
+    "night-witch",
+    "the-log",
+    "valkyrie",
+    "golem",
+    "fireball"
+  ],
+  "opponent_deck": [
+    "goblin-gang",
+    "clone",
+    "dart-goblin",
+    "goblin-cage",
+    "goblin-curse",
+    "goblin-demolisher",
+    "golden-knight",
+    "suspicious-bush"
+  ],
+  "team_initial_hand": [
+    "skeletons",
+    "electro-dragon",
+    "night-witch",
+    "the-log"
+  ],
+  "team_initial_queue": [
+    "skeleton-dragons",
+    "fireball",
+    "golem",
+    "valkyrie"
+  ],
+  "opponent_initial_hand": [
+    "clone",
+    "dart-goblin",
+    "goblin-cage",
+    "goblin-curse"
+  ],
+  "opponent_initial_queue": [
+    "goblin-gang",
+    "goblin-demolisher",
+    "suspicious-bush",
+    "golden-knight"
+  ],
+  "notes": [
+    "Automatic hand trace. Times are first observed real slot replacement candidates; deployment-clock pass should refine release time/coordinates.",
+    "This trace intentionally remains separate from the older manual placement JSON because it reveals additional plays and several apparent manual mislabels/omissions."
+  ],
+  "events": [
+    {
+      "video_time": 18.23,
+      "side": "opponent",
+      "slot": 1,
+      "card": "dart-goblin",
+      "incoming": "goblin-gang"
+    },
+    {
+      "video_time": 19.36,
+      "side": "team",
+      "slot": 2,
+      "card": "night-witch",
+      "incoming": "skeleton-dragons"
+    },
+    {
+      "video_time": 20.78,
+      "side": "team",
+      "slot": 0,
+      "card": "skeletons",
+      "incoming": "fireball"
+    },
+    {
+      "video_time": 27.89,
+      "side": "opponent",
+      "slot": 1,
+      "card": "goblin-gang",
+      "incoming": "goblin-demolisher"
+    },
+    {
+      "video_time": 31.3,
+      "side": "team",
+      "slot": 3,
+      "card": "the-log",
+      "incoming": "golem"
+    },
+    {
+      "video_time": 35.28,
+      "side": "opponent",
+      "slot": 1,
+      "card": "goblin-demolisher",
+      "incoming": "suspicious-bush"
+    },
+    {
+      "video_time": 38.88,
+      "side": "team",
+      "slot": 1,
+      "card": "electro-dragon",
+      "incoming": "valkyrie"
+    },
+    {
+      "video_time": 42.38,
+      "side": "opponent",
+      "slot": 1,
+      "card": "suspicious-bush",
+      "incoming": "golden-knight"
+    },
+    {
+      "video_time": 45.51,
+      "side": "opponent",
+      "slot": 1,
+      "card": "golden-knight",
+      "incoming": "dart-goblin"
+    },
+    {
+      "video_time": 49.2,
+      "side": "team",
+      "slot": 1,
+      "card": "valkyrie",
+      "incoming": "night-witch"
+    },
+    {
+      "video_time": 65.69,
+      "side": "team",
+      "slot": 3,
+      "card": "golem",
+      "incoming": "skeletons"
+    },
+    {
+      "video_time": 67.87,
+      "side": "opponent",
+      "slot": 1,
+      "card": "dart-goblin",
+      "incoming": "goblin-gang"
+    },
+    {
+      "video_time": 76.3,
+      "side": "opponent",
+      "slot": 2,
+      "card": "goblin-cage",
+      "incoming": "goblin-demolisher"
+    },
+    {
+      "video_time": 79.9,
+      "side": "opponent",
+      "slot": 2,
+      "card": "goblin-demolisher",
+      "incoming": "suspicious-bush"
+    },
+    {
+      "video_time": 85.68,
+      "side": "team",
+      "slot": 1,
+      "card": "night-witch",
+      "incoming": "the-log"
+    },
+    {
+      "video_time": 87.85,
+      "side": "team",
+      "slot": 2,
+      "card": "skeleton-dragons",
+      "incoming": "electro-dragon"
+    },
+    {
+      "video_time": 90.79,
+      "side": "opponent",
+      "slot": 1,
+      "card": "goblin-gang",
+      "incoming": "golden-knight"
+    },
+    {
+      "video_time": 92.4,
+      "side": "opponent",
+      "slot": 3,
+      "card": "goblin-curse",
+      "incoming": "dart-goblin"
+    },
+    {
+      "video_time": 94.67,
+      "side": "opponent",
+      "slot": 3,
+      "card": "dart-goblin",
+      "incoming": "goblin-cage"
+    },
+    {
+      "video_time": 106.23,
+      "side": "opponent",
+      "slot": 2,
+      "card": "suspicious-bush",
+      "incoming": "goblin-demolisher"
+    },
+    {
+      "video_time": 107.56,
+      "side": "team",
+      "slot": 1,
+      "card": "the-log",
+      "incoming": "valkyrie"
+    },
+    {
+      "video_time": 108.6,
+      "side": "opponent",
+      "slot": 0,
+      "card": "clone",
+      "incoming": "goblin-gang"
+    },
+    {
+      "video_time": 114.09,
+      "side": "team",
+      "slot": 3,
+      "card": "skeletons",
+      "incoming": "golem"
+    },
+    {
+      "video_time": 119.4,
+      "side": "team",
+      "slot": 3,
+      "card": "golem",
+      "incoming": "night-witch"
+    },
+    {
+      "video_time": 126.69,
+      "side": "opponent",
+      "slot": 1,
+      "card": "golden-knight",
+      "incoming": "goblin-curse"
+    },
+    {
+      "video_time": 129.82,
+      "side": "team",
+      "slot": 1,
+      "card": "valkyrie",
+      "incoming": "skeleton-dragons"
+    },
+    {
+      "video_time": 135.5,
+      "side": "opponent",
+      "slot": 2,
+      "card": "goblin-demolisher",
+      "incoming": "dart-goblin"
+    },
+    {
+      "video_time": 138.91,
+      "side": "team",
+      "slot": 2,
+      "card": "electro-dragon",
+      "incoming": "the-log"
+    },
+    {
+      "video_time": 140.81,
+      "side": "opponent",
+      "slot": 3,
+      "card": "goblin-cage",
+      "incoming": "suspicious-bush"
+    },
+    {
+      "video_time": 141.38,
+      "side": "team",
+      "slot": 1,
+      "card": "skeleton-dragons",
+      "incoming": "skeletons"
+    },
+    {
+      "video_time": 142.14,
+      "side": "opponent",
+      "slot": 2,
+      "card": "dart-goblin",
+      "incoming": "clone"
+    },
+    {
+      "video_time": 145.73,
+      "side": "team",
+      "slot": 2,
+      "card": "the-log",
+      "incoming": "golem"
+    },
+    {
+      "video_time": 146.4,
+      "side": "opponent",
+      "slot": 0,
+      "card": "goblin-gang",
+      "incoming": "golden-knight"
+    },
+    {
+      "video_time": 149.43,
+      "side": "team",
+      "slot": 3,
+      "card": "night-witch",
+      "incoming": "valkyrie"
+    },
+    {
+      "video_time": 151.7,
+      "side": "opponent",
+      "slot": 0,
+      "card": "golden-knight",
+      "incoming": "goblin-demolisher"
+    },
+    {
+      "video_time": 159.19,
+      "side": "opponent",
+      "slot": 0,
+      "card": "goblin-demolisher",
+      "incoming": "goblin-cage"
+    },
+    {
+      "video_time": 160.89,
+      "side": "team",
+      "slot": 2,
+      "card": "golem",
+      "incoming": "electro-dragon"
+    },
+    {
+      "video_time": 167.81,
+      "side": "opponent",
+      "slot": 3,
+      "card": "suspicious-bush",
+      "incoming": "dart-goblin"
+    },
+    {
+      "video_time": 169.8,
+      "side": "team",
+      "slot": 2,
+      "card": "electro-dragon",
+      "incoming": "skeleton-dragons"
+    },
+    {
+      "video_time": 170.08,
+      "side": "opponent",
+      "slot": 2,
+      "card": "clone",
+      "incoming": "goblin-gang"
+    },
+    {
+      "video_time": 175.01,
+      "side": "team",
+      "slot": 3,
+      "card": "valkyrie",
+      "incoming": "the-log"
+    },
+    {
+      "video_time": 180.12,
+      "side": "opponent",
+      "slot": 3,
+      "card": "dart-goblin",
+      "incoming": "golden-knight"
+    },
+    {
+      "video_time": 182.77,
+      "side": "opponent",
+      "slot": 0,
+      "card": "goblin-cage",
+      "incoming": "goblin-demolisher"
+    },
+    {
+      "video_time": 182.96,
+      "side": "team",
+      "slot": 3,
+      "card": "the-log",
+      "incoming": "night-witch"
+    },
+    {
+      "video_time": 183.53,
+      "side": "opponent",
+      "slot": 3,
+      "card": "golden-knight",
+      "incoming": "suspicious-bush"
+    },
+    {
+      "video_time": 184.2,
+      "side": "team",
+      "slot": 2,
+      "card": "skeleton-dragons",
+      "incoming": "golem"
+    }
+  ]
+}
