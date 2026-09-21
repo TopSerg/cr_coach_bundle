@@ -107,7 +107,7 @@ new_troop_tuple = """                    t.target_lowest_hp,
                     t.retarget_each_tick,
                     // Flying swarms keep their initial tower pull until the
                     // first release; ground troops use troop priority at once.
-                    !entity.is_flying() || t.has_fired_first,
+                    !entity.is_flying() || t.has_fired_first || same_group_has_fired,
                     // Fix #13: deprioritize buff key (Ram Rider "BolaSnare").
 """
 replace_once(COMBAT, old_troop_tuple, new_troop_tuple, "flying first-target grace")
@@ -132,6 +132,35 @@ new_building_tuple = old_building_tuple.replace(
     1,
 )
 replace_once(COMBAT, old_building_tuple, new_building_tuple, "building target priority default")
+
+old_group_marker = """        let my_id = entity.id;
+        let my_team = entity.team;
+"""
+new_group_marker = """        // A flying swarm member can inherit the wave's target
+        // reacquisition after another same-card member has released once.
+        // This prevents the second Bat from completing a stale tower windup
+        // after the first Bat has already switched the engagement to a troop.
+        let same_group_has_fired = if entity.is_flying() {
+            state.entities.iter().any(|other| {
+                if other.id == entity.id
+                    || !other.alive
+                    || other.team != entity.team
+                    || other.card_key != entity.card_key
+                {
+                    return false;
+                }
+                match &other.kind {
+                    EntityKind::Troop(other_t) => other_t.has_fired_first,
+                    _ => false,
+                }
+            })
+        } else {
+            false
+        };
+        let my_id = entity.id;
+        let my_team = entity.team;
+"""
+replace_once(COMBAT, old_group_marker, new_group_marker, "flying swarm target inheritance")
 
 old_targeting = """        // ── Building pull: building-only troops always retarget to nearest ──
         let force_retarget = (only_buildings && current_valid && old_target.is_some())
