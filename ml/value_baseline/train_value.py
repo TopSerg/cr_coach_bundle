@@ -114,6 +114,137 @@ def to_device(batch, device):
     return tuple(x.to(device) if torch.is_tensor(x) else x for x in batch)
 
 
+class DensePrefixDataset(torch.utils.data.Dataset):
+    """One sample after every card placement, starting once the history has >= min_events events."""
+    def __init__(self, battles, vocab, costs, encode_prefix, augment_swap=False,
+                 min_events=8, max_seq_length=180, seed=42):
+        self.sequences = []
+        self.card_ids = []
+        self.team_decks = []
+        self.opponent_decks = []
+        self.globals = []
+        self.labels = []
+        self.lengths = []
+        self.meta = []
+        rng = np.random.default_rng(seed)
+
+        for battle in battles:
+            for idx, event in enumerate(battle.events, start=1):
+                if idx < min_events or idx > max_seq_length:
+                    continue
+                if event.get("event_type") != "card_play":
+                    continue
+                encoded = encode_prefix(battle, idx, vocab, costs, swap_sides=False)
+                if encoded is None:
+                    continue
+                cont, cards, team_deck, opponent_deck, global_feat, label = encoded
+                self.sequences.append(cont)
+                self.card_ids.append(cards)
+                self.team_decks.append(team_deck)
+                self.opponent_decks.append(opponent_deck)
+                self.globals.append(global_feat)
+                self.labels.append(label)
+                self.lengths.append(cont.size(0))
+                self.meta.append({
+                    "battle_id": battle.battle_id,
+                    "end_index": idx,
+                    "seconds": float(event["seconds"]),
+                    "card": event["card"],
+                    "side": event["side"],
+                })
+
+                if augment_swap and float(rng.random()) < 0.7:
+                    swapped = encode_prefix(battle, idx, vocab, costs, swap_sides=True)
+                    if swapped is not None:
+                        cont_s, cards_s, team_s, opp_s, global_s, label_s = swapped
+                        self.sequences.append(cont_s)
+                        self.card_ids.append(cards_s)
+                        self.team_decks.append(team_s)
+                        self.opponent_decks.append(opp_s)
+                        self.globals.append(global_s)
+                        self.labels.append(label_s)
+                        self.lengths.append(cont_s.size(0))
+                        self.meta.append({
+                            "battle_id": battle.battle_id,
+                            "end_index": idx,
+                            "seconds": float(event["seconds"]),
+                            "card": event["card"],
+                            "side": "team" if event["side"] == "opponent" else "opponent",
+                            "swapped": True,
+                        })
+
+    def __len__(self):
+        return len(self.labels)
+
+    def __getitem__(self, index):
+        return (
+            self.sequences[index],
+            self.card_ids[index],
+            self.team_decks[index],
+            self.opponent_decks[index],
+            self.globals[index],
+            self.labels[index],
+            self.lengths[index],
+        )
+
+
+def create_dense_dataloaders(train_b, val_b, test_b, vocab, costs, encode_prefix,
+                             collate_fn, batch_size, min_events, seed):
+    train_ds = DensePrefixDataset(
+        train_b, vocab, costs, encode_prefix, augment_swap=True,
+        min_events=min_events, seed=seed,
+    )
+    val_ds = DensePrefixDataset(
+        val_b, vocab, costs, encode_prefix, augment_swap=False,
+        min_events=min_events, seed=seed,
+    )
+    test_ds = DensePrefixDataset(
+        test_b, vocab, costs, encode_prefix, augment_swap=False,
+        min_events=min_events, seed=seed,
+    )
+    return (
+        DataLoader(train_ds, batch_size=batch_size, shuffle=True, collate_fn=collate_fn),
+        DataLoader(val_ds, batch_size=batch_size, shuffle=False, collate_fn=collate_fn),
+        DataLoader(test_ds, batch_size=batch_size, shuffle=False, collate_fn=collate_fn),
+    )
+
+
+@torch.no_grad()
+def build_prediction_traces(model, battles, vocab, costs, encode_prefix, collate_fn,
+                            device, limit=5, min_events=8):
+    model.eval()
+    traces = []
+    for battle in battles[:limit]:
+        points = []
+        for idx, event in enumerate(battle.events, start=1):
+            if idx < min_events or event.get("event_type") != "card_play":
+                continue
+            encoded = encode_prefix(battle, idx, vocab, costs, swap_sides=False)
+            if encoded is None:
+                continue
+            cont, cards, team, opp, glob, label = encoded
+            batch = collate_fn([(cont, cards, team, opp, glob, label, cont.size(0))])
+            cont_b, cards_b, team_b, opp_b, glob_b, _, lengths_b = to_device(batch, device)
+            logits = model(cont_b, cards_b, team_b, opp_b, glob_b, lengths_b)
+            p = float(logits.softmax(-1)[0, 1].cpu().item())
+            points.append({
+                "placement_number": len(points) + 1,
+                "event_index": idx,
+                "seconds": float(event["seconds"]),
+                "side": event["side"],
+                "card": event["card"],
+                "x": int(event["x"]),
+                "y": int(event["y"]),
+                "p_team_win": p,
+            })
+        traces.append({
+            "battle_id": battle.battle_id,
+            "team_wins": battle.team_wins,
+            "points": points,
+        })
+    return traces
+
+
 @torch.no_grad()
 def evaluate(model, loader, device) -> dict[str, float]:
     model.eval()
@@ -141,7 +272,7 @@ def run(args) -> None:
         raise FileNotFoundError(f"Pinned cochon source not found: {src}")
     sys.path.insert(0, str(src))
     from cr_replay_pipeline.winner_dataset import (
-        CONTINUOUS_DIM, GLOBAL_DIM, WinnerSequenceDataset, build_vocab,
+        CONTINUOUS_DIM, GLOBAL_DIM, WinnerSequenceDataset, _encode_prefix, build_vocab,
         collate_winner_batch, collect_battles, create_dataloaders,
         load_card_costs, split_battles, summarize_split,
     )
@@ -159,10 +290,16 @@ def run(args) -> None:
     train_b, val_b, test_b = split_battles(battles, seed=args.seed)
     vocab = build_vocab(train_b)
     costs = load_card_costs(data_dir / "card_costs.json")
-    train_dl, val_dl, test_dl = create_dataloaders(
-        train_b, val_b, test_b, vocab, costs,
-        batch_size=args.batch_size, sample_ratios=args.prefix_ratios,
-    )
+    if args.dense_prefixes:
+        train_dl, val_dl, test_dl = create_dense_dataloaders(
+            train_b, val_b, test_b, vocab, costs, _encode_prefix,
+            collate_winner_batch, args.batch_size, args.dense_min_events, args.seed,
+        )
+    else:
+        train_dl, val_dl, test_dl = create_dataloaders(
+            train_b, val_b, test_b, vocab, costs,
+            batch_size=args.batch_size, sample_ratios=args.prefix_ratios,
+        )
     device = torch.device(args.device or ("cuda" if torch.cuda.is_available() else "cpu"))
     model = ValueTransformer(vocab.vocab_size, CONTINUOUS_DIM, GLOBAL_DIM,
                              args.d_model, args.layers, args.heads, args.dropout).to(device)
@@ -202,8 +339,15 @@ def run(args) -> None:
                         collate_fn=collate_winner_batch)
         by_prefix[str(ratio)] = evaluate(model, dl, device)
 
+    traces = build_prediction_traces(
+        model, test_b, vocab, costs, _encode_prefix, collate_winner_batch,
+        device, limit=args.trace_matches, min_events=args.dense_min_events,
+    ) if args.dense_prefixes else []
+
     config = {
         "dataset_repo": DATASET_REPO, "prefix_ratios": args.prefix_ratios,
+        "dense_prefixes": args.dense_prefixes,
+        "dense_min_events": args.dense_min_events,
         "d_model": args.d_model, "layers": args.layers, "heads": args.heads,
         "dropout": args.dropout, "min_card_plays": args.min_card_plays, "seed": args.seed,
     }
@@ -218,6 +362,10 @@ def run(args) -> None:
         "test": test, "test_by_prefix_ratio": by_prefix, "history": history, "config": config,
     }
     (out / "report.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
+    if traces:
+        (out / "prediction_traces.json").write_text(
+            json.dumps(traces, indent=2), encoding="utf-8"
+        )
     (out / "vocab.json").write_text(json.dumps(vocab.to_dict(), indent=2), encoding="utf-8")
     torch.save({
         "model_state_dict": model.state_dict(), "vocab": vocab.to_dict(),
@@ -228,6 +376,8 @@ def run(args) -> None:
         "# CR Coach Value baseline", "", f"- usable battles: {len(battles)}",
         f"- device: {device}", f"- best validation AUC: {best_auc:.4f}",
         f"- test AUC: {test['auc']:.4f}", f"- test accuracy: {test['accuracy']:.4f}",
+        f"- training samples: {len(train_dl.dataset)}",
+        f"- prefix mode: {'every card placement' if args.dense_prefixes else 'fixed ratios'}",
         "", "## Test by observed replay fraction", "",
         "| Prefix | AUC | Accuracy | N |", "|---:|---:|---:|---:|",
     ]
@@ -256,6 +406,12 @@ def parser() -> argparse.ArgumentParser:
     p.add_argument("--learning-rate", type=float, default=3e-4)
     p.add_argument("--min-card-plays", type=int, default=8)
     p.add_argument("--prefix-ratios", type=parse_ratios, default=DEFAULT_PREFIXES)
+    p.add_argument("--dense-prefixes", action="store_true",
+                   help="Create one sample after every card_play event")
+    p.add_argument("--dense-min-events", type=int, default=8,
+                   help="Earliest event index eligible for a dense prefix")
+    p.add_argument("--trace-matches", type=int, default=5,
+                   help="Number of test matches to save per-placement P(win) traces for")
     p.add_argument("--seed", type=int, default=42)
     p.add_argument("--device")
     p.add_argument("--cpu-threads", type=int, default=4)
