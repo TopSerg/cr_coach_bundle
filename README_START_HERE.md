@@ -13,6 +13,14 @@
 7. `RoyaleAPI/cr-api-data` и `smlbiobot/cr-csv` — статические и reverse-engineered game data.
 8. Старые private-server реализации — только для протокола/форматов/археологии.
 
+## Спецификация механик и physical fidelity gate
+
+Перед изменением ядра прочитать и использовать как основное ТЗ:
+
+- [docs/CORE_MECHANICS_VALIDATION_SPEC_RU.md](docs/CORE_MECHANICS_VALIDATION_SPEC_RU.md) — архитектура общих механик, M01–M39 physical tests, формат real-game references, FIRST_DIVERGENCE и критерии VERIFIED.
+
+Правило разработки: исправлять первый divergence общей механики и не компенсировать его card-specific константами или подгонкой конечного HP.
+
 ## Что делать первым
 
 ### 1. Подтянуть upstream
