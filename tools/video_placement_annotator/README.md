@@ -159,3 +159,36 @@ remain reviewable.
     python -m unittest -v test_fingerprints.py
 
 CI runs the same tests on every feature-branch push.
+## Timer-synchronized tick + x + y
+
+`refine_placements.py` converts recovered hand replacements into simulator
+placements using the replay itself as the clock source.
+
+The timing pass scans the timer ROI sequentially and records the exact video
+frame where each displayed integer second changes. Time inside that real timer
+second is interpolated between neighboring boundaries, so screen-recorder
+drift does not accumulate. A placement can therefore be reported as
+`2:30.55` even when the MP4 clock is slightly faster/slower than game time.
+
+For a complete replay ending at 0:00:
+
+    python tools/video_placement_annotator/refine_placements.py replay.mp4 \
+      outputs/replay_hands.json \
+      --out outputs/replay_placements.json
+
+The output `tick` is battle elapsed time at 20 TPS
+(`tick = round((180 - remaining_seconds) * 20)`) and every event also keeps
+the human-readable `annotation.game_clock`.
+
+Coordinate refinement uses different visual signals:
+
+- troop/building: first frame of the arena deployment-clock marker;
+- Clone: first complete red target ring, with circle hit-area metadata;
+- Goblin Curse: first stable green hit-area;
+- The Log: first robust moving brown hit region; its initial bounding rectangle
+  is stored in `annotation.hit_area`;
+- Fireball: first robust orange/yellow impact region.
+
+The deployment-clock templates are stored as compact compressed grayscale
+fingerprints in Python source, so runtime does not depend on extra binary asset
+files.
