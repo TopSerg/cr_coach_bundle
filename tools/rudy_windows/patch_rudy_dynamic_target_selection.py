@@ -38,6 +38,17 @@ def replace_once(path: Path, old: str, new: str, label: str) -> None:
     print(f"patched {label}")
 
 
+old_signature = """    target_lowest_hp: bool,
+    // Fix #13: deprioritize/ignore targets with specific buff (Ram Rider bola).
+"""
+new_signature = """    target_lowest_hp: bool,
+    // Ground troops prefer visible enemy troops immediately. Flying troops
+    // enable that preference after their first attack release.
+    prefer_troops: bool,
+    // Fix #13: deprioritize/ignore targets with specific buff (Ram Rider bola).
+"""
+replace_once(COMBAT, old_signature, new_signature, "target priority argument")
+
 old_find_target = """    let mut best_id: Option<EntityId> = None;
     let mut best_dist: i64 = i64::MAX;
     let mut best_hp: i32 = i32::MAX;
@@ -46,9 +57,9 @@ old_find_target = """    let mut best_id: Option<EntityId> = None;
 new_find_target = """    let mut best_id: Option<EntityId> = None;
     let mut best_dist: i64 = i64::MAX;
     let mut best_hp: i32 = i32::MAX;
-    // Ordinary troops have a higher target class than crown towers.  Keep this
-    // separate from distance so a visible enemy troop can pull a unit off a
-    // tower even when the tower centre is marginally nearer.
+    // Ground troops use troop-over-tower priority immediately. Flying troops
+    // keep their initial tower target until their first release, then use the
+    // same priority on subsequent reacquisition.
     let mut best_is_troop = false;
     // Fix #13: fallback target for deprioritized enemies (only used if no better target)
 """
@@ -65,8 +76,13 @@ old_standard_target = """            } else {
 new_standard_target = """            } else {
                 // Standard CR target priority: visible enemy troops outrank
                 // crown towers; distance breaks ties within one target class.
-                let prefer_troop = snap.is_troop && !best_is_troop;
-                if prefer_troop || (snap.is_troop == best_is_troop && dist < best_dist) {
+                let better_target = if prefer_troops {
+                    let prefer_troop = snap.is_troop && !best_is_troop;
+                    prefer_troop || (snap.is_troop == best_is_troop && dist < best_dist)
+                } else {
+                    dist < best_dist
+                };
+                if better_target {
                     best_dist = dist;
                     best_id = Some(snap.id);
                     best_is_troop = snap.is_troop;
@@ -74,6 +90,27 @@ new_standard_target = """            } else {
             }
 """
 replace_once(COMBAT, old_standard_target, new_standard_target, "troop-over-tower target priority")
+
+old_targeting_params = """        let (sight_sq, min_range_sq, atk_ground, atk_air, only_buildings, only_troops, only_towers,
+             only_king_tower, lowest_hp, retarget_every_tick, deprio_buff) =
+"""
+new_targeting_params = """        let (sight_sq, min_range_sq, atk_ground, atk_air, only_buildings, only_troops, only_towers,
+             only_king_tower, lowest_hp, retarget_every_tick, prefer_troops, deprio_buff) =
+"""
+replace_once(COMBAT, old_targeting_params, new_targeting_params, "target priority tuple")
+
+old_troop_tuple = """                    t.target_lowest_hp,
+                    t.retarget_each_tick,
+                    // Fix #13: deprioritize buff key (Ram Rider "BolaSnare").
+"""
+new_troop_tuple = """                    t.target_lowest_hp,
+                    t.retarget_each_tick,
+                    // Flying swarms keep their initial tower pull until the
+                    // first release; ground troops use troop priority at once.
+                    !entity.is_flying() || t.has_fired_first,
+                    // Fix #13: deprioritize buff key (Ram Rider "BolaSnare").
+"""
+replace_once(COMBAT, old_troop_tuple, new_troop_tuple, "flying first-target grace")
 
 old_targeting = """        // ── Building pull: building-only troops always retarget to nearest ──
         let force_retarget = (only_buildings && current_valid && old_target.is_some())
@@ -87,7 +124,7 @@ old_targeting = """        // ── Building pull: building-only troops always 
         let deprio_ref = deprio_buff.as_deref();
         let new_target = find_target(
             my_id, my_team, my_x, my_y, sight_sq, min_range_sq, atk_ground, atk_air, only_buildings,
-            only_troops, only_towers, only_king_tower, lowest_hp, deprio_ref, &snapshots, &has_buff_fn,
+            only_troops, only_towers, only_king_tower, lowest_hp, prefer_troops, deprio_ref, &snapshots, &has_buff_fn,
         );
 """
 new_targeting = """        // ── Building pull: building-only troops always retarget to nearest ──
