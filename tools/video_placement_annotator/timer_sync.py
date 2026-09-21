@@ -256,6 +256,7 @@ class GameTimerSync:
         self.regular_offset = regular_offset
         self.overtime_offset = overtime_offset
         self.fps = fps
+        self.has_overtime = any(b.phase == "overtime" for b in ordered)
         self._frames = np.asarray([b.frame_index for b in ordered], dtype=np.float64)
         self._elapsed = np.asarray([b.battle_elapsed_seconds for b in ordered], dtype=np.float64)
 
@@ -443,6 +444,8 @@ class GameTimerSync:
         elapsed = self.elapsed_at_frame(frame_index)
         if elapsed < self.regular_duration_seconds:
             return float(self.regular_duration_seconds - elapsed)
+        if not self.has_overtime:
+            return 0.0
         return float(
             max(
                 0.0,
@@ -460,7 +463,12 @@ class GameTimerSync:
 
     def reading_at_frame(self, frame_index: int | float) -> TimerReading:
         elapsed = self.elapsed_at_frame(frame_index)
-        phase = "regular" if elapsed < self.regular_duration_seconds else "overtime"
+        if elapsed < self.regular_duration_seconds:
+            phase = "regular"
+        elif self.has_overtime:
+            phase = "overtime"
+        else:
+            phase = "ended"
         remaining = self.remaining_at_frame(frame_index)
         tick = int(round(elapsed * self.ticks_per_second))
         return TimerReading(
@@ -480,6 +488,7 @@ class GameTimerSync:
             "overtime_duration_seconds": self.overtime_duration_seconds,
             "regular_offset": self.regular_offset,
             "overtime_offset": self.overtime_offset,
+            "has_overtime": self.has_overtime,
             "battle_start_video_time": self.battle_start_video_time,
             "boundary_count": len(self.boundaries),
             "first_boundary": self.boundaries[0].__dict__,
