@@ -4,6 +4,7 @@ from collections import Counter, defaultdict
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Sequence
+import itertools
 import math
 
 import cv2
@@ -171,7 +172,7 @@ def decode_joint_fixed_slots(
         raise ValueError("joint fixed-slot decoder requires an eight-card deck")
 
     states = np.asarray(
-        list(__import__("itertools").permutations(range(card_count), 4)),
+        list(itertools.permutations(range(card_count), 4)),
         dtype=np.int8,
     )
     state_index = {tuple(map(int, row)): i for i, row in enumerate(states)}
