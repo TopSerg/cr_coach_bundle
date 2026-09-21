@@ -46,7 +46,7 @@ jobs:
           python -m pip install -r ml/value_baseline/requirements-actions.txt
 
       - name: Compile dense trainer
-        run: python -m py_compile ml/value_baseline/train_value.py
+        run: python -m py_compile ml/value_baseline/train_value_tokenwise.py
 
       - name: Train after every card placement
         env:
@@ -78,7 +78,7 @@ jobs:
         with:
           name: value-dense-pilot-${{ github.run_number }}
           path: |
-            outputs/value_dense_pilot/value_transformer.pt
+            outputs/value_dense_pilot/value_transformer_tokenwise.pt
             outputs/value_dense_pilot/report.json
             outputs/value_dense_pilot/vocab.json
             outputs/value_dense_pilot/SUMMARY.md
