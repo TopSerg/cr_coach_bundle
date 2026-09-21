@@ -248,7 +248,12 @@ class FingerprintDatabase:
 
 
 class CardFingerprintMatcher:
-    """Runtime matcher: loads only compact fingerprints, not card PNGs."""
+    """Runtime matcher: loads only compact fingerprints, not card PNGs.
+
+    `allowed` can be replaced at runtime once the eight-card deck has been
+    discovered. That turns a 130-card nearest-neighbour problem into an
+    eight-card one without rebuilding any fingerprints.
+    """
 
     def __init__(
         self,
@@ -258,17 +263,33 @@ class CardFingerprintMatcher:
         self.db = database if isinstance(database, FingerprintDatabase) else FingerprintDatabase.load(database)
         self.allowed = tuple(normalize_card_key(x) for x in allowed) if allowed else None
 
+    def set_allowed(self, allowed: Iterable[str] | None) -> None:
+        self.allowed = tuple(normalize_card_key(x) for x in allowed) if allowed else None
+
+    def elixir_for(self, card: str) -> int | None:
+        rec = self.db.records.get(normalize_card_key(card))
+        return None if rec is None else rec.elixir
+
+    def rank(
+        self,
+        crop: np.ndarray,
+        observed_elixir: int | None = None,
+        *,
+        limit: int = 5,
+    ) -> list[MatchCandidate]:
+        return self.db.rank(
+            crop,
+            allowed=self.allowed,
+            observed_elixir=observed_elixir,
+            limit=limit,
+        )
+
     def match(
         self,
         crop: np.ndarray,
         observed_elixir: int | None = None,
     ) -> tuple[str, float, float]:
-        ranked = self.db.rank(
-            crop,
-            allowed=self.allowed,
-            observed_elixir=observed_elixir,
-            limit=2,
-        )
+        ranked = self.rank(crop, observed_elixir, limit=2)
         best = ranked[0]
         second = ranked[1].score if len(ranked) > 1 else 0.0
         margin = max(0.0, best.score - second)
