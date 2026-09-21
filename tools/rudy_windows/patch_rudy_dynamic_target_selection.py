@@ -133,8 +133,7 @@ new_building_tuple = old_building_tuple.replace(
 )
 replace_once(COMBAT, old_building_tuple, new_building_tuple, "building target priority default")
 
-old_group_marker = """        let my_id = entity.id;
-        let my_team = entity.team;
+old_group_marker = """        // Fix #12+13: Extract targeting params including king_tower and deprioritize buff.
 """
 new_group_marker = """        // A flying swarm member can inherit the wave's target
         // reacquisition after another same-card member has released once.
@@ -157,8 +156,8 @@ new_group_marker = """        // A flying swarm member can inherit the wave's ta
         } else {
             false
         };
-        let my_id = entity.id;
-        let my_team = entity.team;
+
+        // Fix #12+13: Extract targeting params including king_tower and deprioritize buff.
 """
 replace_once(COMBAT, old_group_marker, new_group_marker, "flying swarm target inheritance")
 
