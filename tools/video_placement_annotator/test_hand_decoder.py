@@ -7,7 +7,7 @@ import numpy as np
 
 from core import HandObservation, StableHandTracker
 from elixir_badges import ElixirBadgeBank
-from hand_decoder import DeckEvidence, decode_slot_viterbi, absorb_short_runs
+from hand_decoder import DeckEvidence, decode_joint_fixed_slots, decode_slot_viterbi, absorb_short_runs
 from fingerprints import MatchCandidate
 
 
@@ -65,6 +65,20 @@ class FixedSlotTests(unittest.TestCase):
         lock = ev.maybe_lock()
         self.assertIsNotNone(lock)
         self.assertEqual(set(lock.cards), set(cards))
+
+    def test_joint_decoder_never_duplicates_a_deck_card(self):
+        scores = np.full((4, 4, 8), 0.1, dtype=np.float32)
+        # Tempt two slots to choose card 0 at the same time.
+        scores[:, 0, 0] = .95
+        scores[:, 1, 0] = .94
+        scores[:, 1, 1] = .90
+        scores[:, 2, 2] = .93
+        scores[:, 3, 3] = .92
+        path = decode_joint_fixed_slots(scores, transition_penalty=.5)
+        for row in path:
+            self.assertEqual(len(set(map(int, row))), 4)
+        self.assertEqual(int(path[-1, 0]), 0)
+        self.assertEqual(int(path[-1, 1]), 1)
 
     def test_slot_viterbi_suppresses_one_frame_glitch(self):
         scores = np.array([
