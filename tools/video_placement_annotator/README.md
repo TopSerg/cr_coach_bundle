@@ -72,10 +72,47 @@ For the supplied replay format:
 - top four cards = `opponent`;
 - bottom four cards = `team`.
 
-After a play Clash Royale shifts the visible hand, so fixed slot-to-slot
-comparison is wrong. `StableHandTracker` compares the *multiset* of two stable
-four-card states. Exactly one card disappears and one card enters; the
-disappearing card is the played card.
+The replay HUD keeps the four hand positions fixed. When a card is played, the
+new card replaces it in **the same slot**. This is more useful than multiset
+tracking: the outgoing card is the played card and the incoming card is the
+replacement in that exact slot.
+
+`StableHandTracker` and `FixedSlotVideoDecoder` therefore debounce persistent
+one-slot replacements. Multi-slot jumps are treated as UI/classification noise.
+
+## Elixir-cost recognition
+
+`elixir_badges.py` adds a self-calibrating OpenCV-only cost recognizer. A
+high-confidence artwork match labels one magenta cost badge; later frames find
+that same badge by multi-scale template matching. No OCR engine is required.
+
+The cost is used as an additional fingerprint constraint. For example, a
+five-elixir visual candidate is penalized when the replay badge clearly shows
+four.
+
+## Deck narrowing
+
+`DeckEvidence` accumulates repeated card observations. Once eight unique cards
+have enough support, the matcher locks to that deck and every following lookup
+compares against only those eight fingerprints. You can also supply both decks
+explicitly when validating a known replay.
+
+### Decode both hands
+
+    python tools/video_placement_annotator/decode_hands.py replay.mp4 \
+      --start 15 \
+      --out outputs/replay_hands.json
+
+Or with known decks:
+
+    python tools/video_placement_annotator/decode_hands.py replay.mp4 \
+      --start 15 \
+      --team-deck "skeleton-dragons skeletons electro-dragon night-witch the-log valkyrie golem fireball" \
+      --opponent-deck "goblin-gang clone dart-goblin goblin-cage goblin-curse goblin-demolisher golden-knight suspicious-bush" \
+      --out outputs/replay_hands.json
+
+The result contains timestamp, side, fixed slot, outgoing card and incoming
+card for every detected hand replacement.
 
 ## Placement coordinate
 
