@@ -315,45 +315,45 @@ def _new_color_components(
     return out
 
 
-def _red_ring_fit(frame: np.ndarray, candidate: tuple[float, float, float]) -> tuple[float, float, float, float] | None:
-    cx0, cy0, radius0 = candidate
+def _red_mask(frame: np.ndarray) -> np.ndarray:
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-    red = (
-        (((hsv[:, :, 0] <= 8) | (hsv[:, :, 0] >= 170)))
+    return (
+        ((((hsv[:, :, 0] <= 8) | (hsv[:, :, 0] >= 170)))
         & (hsv[:, :, 1] > 100)
-        & (hsv[:, :, 2] > 100)
+        & (hsv[:, :, 2] > 100)).astype(np.uint8) * 255
     )
-    yy, xx = np.nonzero(red)
-    distance = np.sqrt((xx - cx0) ** 2 + (yy - cy0) ** 2)
-    selected = (
-        (np.abs(distance - radius0) <= 10)
-        & (yy > frame.shape[0] * 0.24)
-        & (yy < frame.shape[0] * 0.87)
-    )
-    if int(selected.sum()) < 150:
-        return None
-    angles = np.arctan2(yy[selected] - cy0, xx[selected] - cx0)
-    bins = np.histogram(
-        angles, bins=36, range=(-math.pi, math.pi)
-    )[0]
-    coverage = float(np.mean(bins > 2))
-    return float(cx0), float(cy0), float(radius0), coverage
 
 
 def _first_clone_ring(
     frames: Sequence[tuple[int, float, np.ndarray]],
+    approx_time: float,
 ) -> tuple[int, float, float, float, float, float] | None:
+    """Find the first *new* large red target ring.
+
+    Static red health bars/tower UI produce many Hough circles. Subtracting a
+    pre-cast red mask first makes the detector respond only to the Clone target
+    ring that appears in the arena.
+    """
+    pre = [
+        frame
+        for _, t, frame in frames
+        if approx_time - 0.95 <= t <= approx_time - 0.75
+    ]
+    if not pre:
+        return None
+    baseline = np.median(np.stack(pre), axis=0).astype(np.uint8)
+    baseline_red = _red_mask(baseline) > 0
+
     for frame_index, t, frame in frames:
-        if t < frames[0][1] + 0.15:
+        if t < approx_time - 0.70:
             continue
-        hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
-        red = (
-            ((((hsv[:, :, 0] <= 8) | (hsv[:, :, 0] >= 170)))
-            & (hsv[:, :, 1] > 100)
-            & (hsv[:, :, 2] > 100)).astype(np.uint8) * 255
-        )
+        current = _red_mask(frame) > 0
+        red = ((current & ~baseline_red).astype(np.uint8) * 255)
         red[: round(frame.shape[0] * 0.24)] = 0
         red[round(frame.shape[0] * 0.87) :] = 0
+        red = cv2.morphologyEx(
+            red, cv2.MORPH_CLOSE, np.ones((5, 5), np.uint8)
+        )
         blurred = cv2.GaussianBlur(red, (9, 9), 2)
         circles = cv2.HoughCircles(
             blurred,
@@ -361,25 +361,38 @@ def _first_clone_ring(
             dp=1.2,
             minDist=45,
             param1=100,
-            param2=20,
+            param2=15,
             minRadius=55,
             maxRadius=140,
         )
         if circles is None:
             continue
+
+        yy, xx = np.nonzero(red)
         scored = []
         for x, y, radius in circles[0]:
-            fit = _red_ring_fit(
-                frame, (float(x), float(y), float(radius))
-            )
-            if fit is None:
+            distance = np.sqrt((xx - x) ** 2 + (yy - y) ** 2)
+            selected = np.abs(distance - radius) <= 10
+            if int(selected.sum()) < 80:
                 continue
-            cx, cy, rr, coverage = fit
-            if coverage >= 0.70:
-                scored.append((coverage, cx, cy, rr))
+            angles = np.arctan2(yy[selected] - y, xx[selected] - x)
+            bins = np.histogram(
+                angles, bins=36, range=(-math.pi, math.pi)
+            )[0]
+            coverage = float(np.mean(bins > 1))
+            if coverage >= 0.60:
+                scored.append(
+                    (
+                        coverage,
+                        int(selected.sum()),
+                        float(x),
+                        float(y),
+                        float(radius),
+                    )
+                )
         if scored:
-            coverage, cx, cy, rr = max(scored)
-            return frame_index, t, cx, cy, rr, coverage
+            coverage, _, x, y, radius = max(scored)
+            return frame_index, t, x, y, radius, coverage
     return None
 
 
@@ -395,7 +408,7 @@ def locate_spell_precise(
     h, w = frames[0][2].shape[:2]
 
     if card == "clone":
-        ring = _first_clone_ring(frames)
+        ring = _first_clone_ring(frames, approx_time)
         if ring is None:
             return None
         frame_index, t, x, y, radius, coverage = ring
