@@ -38,6 +38,43 @@ def replace_once(path: Path, old: str, new: str, label: str) -> None:
     print(f"patched {label}")
 
 
+old_find_target = """    let mut best_id: Option<EntityId> = None;
+    let mut best_dist: i64 = i64::MAX;
+    let mut best_hp: i32 = i32::MAX;
+    // Fix #13: fallback target for deprioritized enemies (only used if no better target)
+"""
+new_find_target = """    let mut best_id: Option<EntityId> = None;
+    let mut best_dist: i64 = i64::MAX;
+    let mut best_hp: i32 = i32::MAX;
+    // Ordinary troops have a higher target class than crown towers.  Keep this
+    // separate from distance so a visible enemy troop can pull a unit off a
+    // tower even when the tower centre is marginally nearer.
+    let mut best_is_troop = false;
+    // Fix #13: fallback target for deprioritized enemies (only used if no better target)
+"""
+replace_once(COMBAT, old_find_target, new_find_target, "troop target class state")
+
+old_standard_target = """            } else {
+                // Standard: nearest target
+                if dist < best_dist {
+                    best_dist = dist;
+                    best_id = Some(snap.id);
+                }
+            }
+"""
+new_standard_target = """            } else {
+                // Standard CR target priority: visible enemy troops outrank
+                // crown towers; distance breaks ties within one target class.
+                let prefer_troop = snap.is_troop && !best_is_troop;
+                if prefer_troop || (snap.is_troop == best_is_troop && dist < best_dist) {
+                    best_dist = dist;
+                    best_id = Some(snap.id);
+                    best_is_troop = snap.is_troop;
+                }
+            }
+"""
+replace_once(COMBAT, old_standard_target, new_standard_target, "troop-over-tower target priority")
+
 old_targeting = """        // ── Building pull: building-only troops always retarget to nearest ──
         let force_retarget = (only_buildings && current_valid && old_target.is_some())
             || retarget_every_tick;
@@ -57,19 +94,19 @@ new_targeting = """        // ── Building pull: building-only troops always 
         let force_retarget = (only_buildings && current_valid && old_target.is_some())
             || retarget_every_tick;
 
-        // Ordinary troops can reacquire a closer enemy troop while currently
+        // Ordinary troops can reacquire a visible enemy troop while currently
         // attacking a crown tower.  The old leash-only rule kept Dark Witch on
         // the tower after Goblin Demolisher entered sight, which also prevented
         // the real troop-vs-troop sequence from unfolding.  Keep the rule
-        // narrow: only a tower target may be replaced, and only by a strictly
-        // closer troop. Building-only troops and all other building pulls retain
+        // narrow: only a tower target may be replaced, and only by a visible
+        // troop. Building-only troops and all other building pulls retain
         // their existing target semantics.
         let deprio_ref = deprio_buff.as_deref();
         let candidate_target = find_target(
             my_id, my_team, my_x, my_y, sight_sq, min_range_sq, atk_ground, atk_air, only_buildings,
             only_troops, only_towers, only_king_tower, lowest_hp, deprio_ref, &snapshots, &has_buff_fn,
         );
-        let switch_to_closer_troop = if current_valid && !force_retarget {
+        let switch_to_visible_troop = if current_valid && !force_retarget {
             match (old_target, candidate_target) {
                 (Some(old_id), Some(candidate_id))
                     if is_tower_id(old_id) && candidate_id != old_id =>
@@ -78,12 +115,7 @@ new_targeting = """        // ── Building pull: building-only troops always 
                     let candidate_snap = snapshots.iter().find(|s| s.id == candidate_id);
                     match (current_snap, candidate_snap) {
                         (Some(current), Some(candidate)) if candidate.is_troop => {
-                            let current_dx = (my_x - current.x) as i64;
-                            let current_dy = (my_y - current.y) as i64;
-                            let candidate_dx = (my_x - candidate.x) as i64;
-                            let candidate_dy = (my_y - candidate.y) as i64;
-                            candidate_dx * candidate_dx + candidate_dy * candidate_dy
-                                < current_dx * current_dx + current_dy * current_dy
+                            true
                         }
                         _ => false,
                     }
@@ -94,7 +126,7 @@ new_targeting = """        // ── Building pull: building-only troops always 
             false
         };
 
-        if current_valid && !force_retarget && !switch_to_closer_troop {
+        if current_valid && !force_retarget && !switch_to_visible_troop {
             continue;
         }
 
