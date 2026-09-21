@@ -5,8 +5,8 @@
   "mode": "placements",
   "coordinate_system": "world_cells",
   "level": 11,
-  "end_tick": 1300,
-  "notes": "Video-derived replay. Time origin 18.00s. Added verified plays through Goblin Cage: Golem ~65.40s (10->2 elixir), Dart Goblin ~67.50s (10->7; hand slot cycles), Goblin Cage ~76.00s (10->6 and cage deploys center-top). Placement cells after opening are video-grid estimates pending sub-tile calibration.",
+  "end_tick": 1700,
+  "notes": "Video-derived replay. Time origin 18.00s. Verified through ~94.25s: second Goblin Demolisher 79.75s (7->3), Fireball 87.65s (5->1; impact ~88.3s), Goblin Curse 92.00s (4->2 and green zone appears), Dart Goblin 94.25s (3->0). Coordinates after the opening are video-grid estimates pending sub-tile calibration.",
   "events": [
     {
       "tick": 0,
@@ -97,6 +97,34 @@
       "card": "goblin-cage",
       "x": 9,
       "y": 10
+    },
+    {
+      "tick": 1235,
+      "side": "opponent",
+      "card": "goblin-demolisher",
+      "x": 13,
+      "y": 3
+    },
+    {
+      "tick": 1393,
+      "side": "team",
+      "card": "fireball",
+      "x": 13,
+      "y": 15
+    },
+    {
+      "tick": 1480,
+      "side": "opponent",
+      "card": "goblin-curse",
+      "x": 13,
+      "y": 15
+    },
+    {
+      "tick": 1525,
+      "side": "opponent",
+      "card": "dart-goblin",
+      "x": 14,
+      "y": 13
     }
   ]
 }
