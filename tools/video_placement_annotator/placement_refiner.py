@@ -11,7 +11,7 @@ import numpy as np
 from core import LayoutConfig, pixel_to_cell
 
 
-SPELL_CARDS = {"the-log", "fireball", "goblin-curse", "clone"}
+LINE_SPELLS = {"the-log", "barbarian-barrel"}
 
 
 @dataclass(frozen=True)
@@ -110,7 +110,7 @@ def _cluster_clock_hits(
     return clusters
 
 
-def locate_deployment_clock_precise(
+def _locate_deployment_clock_template(
     video_path: str | Path,
     approx_time: float,
     cfg: LayoutConfig,
@@ -189,6 +189,191 @@ def locate_deployment_clock_precise(
         hit_area=None,
     )
 
+
+
+def _shape_clock_hits(frame: np.ndarray) -> list[tuple[float, float, float, float]]:
+    """Find circular stopwatch-like markers independent of one UI skin."""
+    h, w = frame.shape[:2]
+    y0 = round(h * 0.20)
+    y1 = round(h * 0.89)
+    roi = frame[y0:y1]
+    gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (5, 5), 1.2)
+    circles = cv2.HoughCircles(
+        gray,
+        cv2.HOUGH_GRADIENT,
+        dp=1.2,
+        minDist=max(16, round(w * 0.025)),
+        param1=120,
+        param2=22,
+        minRadius=max(7, round(w * 0.010)),
+        maxRadius=max(24, round(w * 0.050)),
+    )
+    if circles is None:
+        return []
+
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    yy, xx = np.ogrid[:h, :w]
+    hue = hsv[:, :, 0]
+    sat = hsv[:, :, 1]
+    val = hsv[:, :, 2]
+    colored = (
+        (
+            (hue <= 12)
+            | (hue >= 168)
+            | ((hue >= 15) & (hue <= 45))
+        )
+        & (sat > 85)
+        & (val > 80)
+    )
+    white = (sat < 65) & (val > 165)
+
+    out = []
+    for x, y, radius in circles[0]:
+        x = float(x)
+        y = float(y + y0)
+        radius = float(radius)
+        distance = np.sqrt((xx - x) ** 2 + (yy - y) ** 2)
+        annulus = (distance >= radius * 0.68) & (distance <= radius * 1.32)
+        if not np.any(annulus):
+            continue
+        color_score = float(np.mean((colored | white)[annulus]))
+        if color_score < 0.20:
+            continue
+        out.append((color_score, x, y, radius))
+    out.sort(reverse=True)
+    return out
+
+
+def _locate_deployment_clock_shape(
+    video_path: str | Path,
+    approx_time: float,
+    cfg: LayoutConfig,
+    side: str,
+    *,
+    lookback_s: float = 0.80,
+    lookahead_s: float = 0.35,
+) -> PlacementObservation | None:
+    cap = cv2.VideoCapture(str(video_path))
+    if not cap.isOpened():
+        raise OSError(f"cannot open {video_path}")
+    fps = float(cap.get(cv2.CAP_PROP_FPS) or 30.0)
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT) or 0)
+    start = max(0, round((approx_time - lookback_s) * fps))
+    end = min(max(0, frame_count - 1), round((approx_time + lookahead_s) * fps))
+    cap.set(cv2.CAP_PROP_POS_FRAMES, start)
+
+    baseline: list[tuple[float, float, float]] = []
+    rows: list[tuple[int, float, float, float, float, float]] = []
+    shape = None
+    stride = max(1, round(fps / 18.0))
+    for frame_index in range(start, end + 1):
+        ok, frame = cap.read()
+        if not ok:
+            break
+        if (frame_index - start) % stride:
+            continue
+        shape = frame.shape[:2]
+        now = frame_index / fps
+        hits = _shape_clock_hits(frame)
+        if now < approx_time - 0.42:
+            baseline.extend((x, y, r) for score, x, y, r in hits if score >= 0.28)
+        else:
+            for score, x, y, radius in hits:
+                if any(
+                    math.hypot(x - bx, y - by) <= max(18.0, radius * 1.15)
+                    for bx, by, _ in baseline
+                ):
+                    continue
+                rows.append((frame_index, now, score, x, y, radius))
+    cap.release()
+    if shape is None or not rows:
+        return None
+
+    tolerance = max(16.0, shape[1] * 0.032)
+    clusters: list[dict] = []
+    for row in rows:
+        frame_index, now, score, x, y, radius = row
+        cluster = next(
+            (
+                item for item in clusters
+                if math.hypot(x - item["x"], y - item["y"]) <= tolerance
+            ),
+            None,
+        )
+        if cluster is None:
+            cluster = {"x": x, "y": y, "rows": []}
+            clusters.append(cluster)
+        cluster["rows"].append(row)
+        cluster["x"] = float(np.mean([r[3] for r in cluster["rows"]]))
+        cluster["y"] = float(np.mean([r[4] for r in cluster["rows"]]))
+
+    h, w = shape
+    candidates = []
+    for cluster in clusters:
+        crow = cluster["rows"]
+        if len(crow) < 2:
+            continue
+        first = min(crow, key=lambda row: row[0])
+        peak = max(row[2] for row in crow)
+        delta = first[1] - approx_time
+        if not (-0.45 <= delta <= 0.18):
+            continue
+        proximity = math.exp(-((delta + 0.12) / 0.25) ** 2)
+        persistence = min(1.0, len(crow) / 5.0)
+        score = 0.58 * peak + 0.27 * persistence + 0.15 * proximity
+        candidates.append((score, peak, first, cluster["x"], cluster["y"]))
+    if not candidates:
+        return None
+
+    score, peak, first, x, y = max(candidates, key=lambda item: item[0])
+    cell_x, cell_y, _ = pixel_to_cell(x, y, w, h, cfg)
+    return PlacementObservation(
+        frame_index=int(first[0]),
+        video_time=float(first[1]),
+        x=cell_x,
+        y=cell_y,
+        confidence=float(min(1.0, score)),
+        locator="deployment_clock_shape",
+        pixel=(float(x), float(y)),
+        hit_area=None,
+    )
+
+
+def locate_deployment_clock_precise(
+    video_path: str | Path,
+    approx_time: float,
+    cfg: LayoutConfig,
+    side: str,
+    *,
+    lookback_s: float = 0.80,
+    lookahead_s: float = 0.35,
+) -> PlacementObservation | None:
+    template = _locate_deployment_clock_template(
+        video_path,
+        approx_time,
+        cfg,
+        side,
+        lookback_s=lookback_s,
+        lookahead_s=lookahead_s,
+    )
+    shape = _locate_deployment_clock_shape(
+        video_path,
+        approx_time,
+        cfg,
+        side,
+        lookback_s=lookback_s,
+        lookahead_s=lookahead_s,
+    )
+    if template is None:
+        return shape
+    if shape is None:
+        return template
+    # Exact-template match wins when strong; otherwise prefer the UI-agnostic
+    # persistent circular marker.
+    if template.confidence >= 0.72:
+        return template
+    return shape if shape.confidence > template.confidence else template
 
 def _read_event_frames(
     video_path: str | Path,
