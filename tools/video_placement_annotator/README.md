@@ -38,7 +38,8 @@ Only needed when a new card/art is introduced:
     python tools/video_placement_annotator/build_fingerprints.py \
       path/to/cards-150 \
       --stats tools/cr_hog_fidelity_test/current_card_stats_2026_09.json \
-      --out tools/video_placement_annotator/card_fingerprints.json
+      --out tools/video_placement_annotator/card_fingerprints.json \\
+      --only-stats-cards
 
 The builder prints the nearest pairs of *different* cards. If two cards are too
 similar, it exits non-zero instead of silently pretending the fingerprint is
