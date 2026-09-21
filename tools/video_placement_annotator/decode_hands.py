@@ -5,7 +5,9 @@ import argparse
 import json
 from pathlib import Path
 
-from core import LayoutConfig, default_layout
+import cv2
+
+from core import LayoutConfig, crop_rect, default_layout
 from cycle_tracker import (
     infer_cycle_path,
     infer_initial_hand,
@@ -13,6 +15,7 @@ from cycle_tracker import (
 )
 from fingerprints import CardFingerprintMatcher, FingerprintDatabase, normalize_card_key
 from hand_decoder import FixedSlotVideoDecoder
+from timer_sync import GameTimerSync
 
 
 def parse_deck(value: str | None) -> list[str] | None:
@@ -28,6 +31,52 @@ def _labels(deck: tuple[str, ...], indices) -> list[str]:
     return [deck[int(x)] for x in indices]
 
 
+def _detect_hand_start(
+    video: str,
+    cfg: LayoutConfig,
+    db: FingerprintDatabase,
+    battle_start: float,
+) -> float:
+    """Find first frame where both four-card hands are actually visible."""
+    cap = cv2.VideoCapture(video)
+    if not cap.isOpened():
+        return max(0.0, battle_start)
+    fps = float(cap.get(cv2.CAP_PROP_FPS) or 30.0)
+    start_frame = max(0, round(battle_start * fps))
+    end_frame = start_frame + round(6.0 * fps)
+    stride = max(1, round(fps / 5.0))
+    cap.set(cv2.CAP_PROP_POS_FRAMES, start_frame)
+    matcher = CardFingerprintMatcher(db)
+    stable = 0
+    first_good = None
+    frame_index = start_frame
+    slots = [*cfg.top_slots, *cfg.bottom_slots]
+    while frame_index <= end_frame:
+        ok, frame = cap.read()
+        if not ok:
+            break
+        if (frame_index - start_frame) % stride == 0:
+            confidences = [
+                matcher.match(crop_rect(frame, rect))[1]
+                for rect in slots
+            ]
+            top_good = sum(x >= 0.43 for x in confidences[:4])
+            bottom_good = sum(x >= 0.43 for x in confidences[4:])
+            if top_good >= 3 and bottom_good >= 3:
+                if stable == 0:
+                    first_good = frame_index / fps
+                stable += 1
+                if stable >= 2:
+                    cap.release()
+                    return float(first_good)
+            else:
+                stable = 0
+                first_good = None
+        frame_index += 1
+    cap.release()
+    return max(0.0, battle_start)
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(
         description="Recover both players' card plays from a dual-hand replay MP4."
@@ -40,7 +89,12 @@ def main() -> int:
     ap.add_argument("--config", help="Optional replay layout JSON")
     ap.add_argument("--team-deck", help="Comma/space separated 8-card deck; omit for auto")
     ap.add_argument("--opponent-deck", help="Comma/space separated 8-card deck; omit for auto")
-    ap.add_argument("--start", type=float, default=0.0)
+    ap.add_argument(
+        "--start",
+        type=float,
+        default=None,
+        help="Video time to start decoding. Default: auto-detect from battle timer + visible hands.",
+    )
     ap.add_argument("--end", type=float)
     ap.add_argument("--sample-fps", type=float, default=4.0)
     ap.add_argument("--smooth-window", type=int, default=5)
@@ -70,6 +124,14 @@ def main() -> int:
     cfg = LayoutConfig.load(args.config) if args.config else default_layout()
     db = FingerprintDatabase.load(args.fingerprints)
 
+    if args.start is None:
+        timer_sync = GameTimerSync.detect(args.video)
+        battle_start = timer_sync.battle_start_video_time
+        decode_start = _detect_hand_start(args.video, cfg, db, battle_start)
+    else:
+        battle_start = None
+        decode_start = float(args.start)
+
     team = FixedSlotVideoDecoder(
         CardFingerprintMatcher(db, team_deck),
         cfg.bottom_slots,
@@ -86,7 +148,7 @@ def main() -> int:
     # Fingerprints + elixir badges establish the card evidence and, when decks
     # were omitted, discover/lock the eight-card candidate set first.
     tt, ts, _ = team.collect_scores(
-        args.video, start=args.start, end=args.end, sample_fps=args.sample_fps
+        args.video, start=decode_start, end=args.end, sample_fps=args.sample_fps
     )
     ot, os, _ = opponent.collect_scores(
         args.video, start=args.start, end=args.end, sample_fps=args.sample_fps
@@ -151,7 +213,7 @@ def main() -> int:
             deck=team_cards,
             initial_hand=team_initial,
             initial_queue=team_queue,
-            start=args.start,
+            start=decode_start,
             end=args.end,
             sample_fps=args.orb_fps,
         )
@@ -189,6 +251,8 @@ def main() -> int:
         "video": Path(args.video).name,
         "decoder": decoder_name,
         "sample_fps": args.sample_fps,
+        "battle_start_video_time": battle_start,
+        "decode_start_video_time": decode_start,
         "orb_fps": None if args.no_orb_refine else args.orb_fps,
         "team_deck": list(team.deck or ()),
         "opponent_deck": list(opponent.deck or ()),
