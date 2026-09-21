@@ -11,12 +11,12 @@ import cr_engine
 
 
 TEAM_DECK = [
-    "golem", "baby-dragon", "skeleton-dragons", "fireball",
+    "golem", "electro-dragon", "skeleton-dragons", "fireball",
     "the-log", "night-witch", "valkyrie", "skeletons",
 ]
 OPPONENT_DECK = [
-    "dart-goblin", "goblin-curse", "giant", "goblins",
-    "goblin-demolisher", "goblin-drill", "suspicious-bush", "clone",
+    "clone", "dart-goblin", "goblin-cage", "goblin-curse",
+    "goblin-gang", "goblin-demolisher", "suspicious-bush", "golden-knight",
 ]
 
 
@@ -45,10 +45,62 @@ def smoke_cards(data: Any) -> list[dict[str, Any]]:
     return rows
 
 
+def goblin_gang_count_probe(data: Any) -> dict[str, Any]:
+    match = cr_engine.new_match(data, TEAM_DECK, OPPONENT_DECK)
+    before = {int(item["id"]) for item in entities(match)}
+    match.play_observed_card(2, "goblin-gang", 0, 5_000, 11)
+    created = [
+        item for item in entities(match)
+        if int(item["id"]) not in before and item["team"] == 2
+    ]
+    breakdown: dict[str, int] = {}
+    for item in created:
+        key = str(item["card_key"]).lower()
+        if key in {"goblin", "speargoblin", "spear-goblin"}:
+            breakdown[key] = breakdown.get(key, 0) + 1
+    total = sum(breakdown.values())
+    melee = breakdown.get("goblin", 0)
+    spear = breakdown.get("speargoblin", 0) + breakdown.get("spear-goblin", 0)
+    if total != 6 or melee != 3 or spear != 3:
+        raise AssertionError(
+            f"Goblin Gang composition {breakdown}, expected 3 Goblins + 3 Spear Goblins"
+        )
+    return {"total": total, "breakdown": breakdown}
+
+
+def goblin_demolisher_morph_probe(data: Any) -> dict[str, Any]:
+    match = cr_engine.new_match(data, TEAM_DECK, OPPONENT_DECK)
+    source_id = int(match.seed_troop_state(
+        2, "goblin-demolisher", 0, 2_000, 11, 49, True
+    ))
+    match.step()
+    rows = entities(match)
+    source = next((e for e in rows if int(e["id"]) == source_id), None)
+    morphed = [
+        e for e in rows
+        if e["team"] == 2
+        and str(e["card_key"]).lower() == "goblin-demolisher-kamikaze"
+        and e.get("alive", True)
+    ]
+    if source is not None and source.get("alive", True):
+        raise AssertionError("Goblin Demolisher stayed in ranged form below 50% HP")
+    if len(morphed) != 1:
+        raise AssertionError(
+            f"Goblin Demolisher created {len(morphed)} kamikaze forms, expected 1"
+        )
+    return {
+        "source_id": source_id,
+        "morphed_id": int(morphed[0]["id"]),
+        "morphed_hp": int(morphed[0]["hp"]),
+        "card_key": str(morphed[0]["card_key"]),
+    }
+
+
 def night_witch_bats(data: Any) -> dict[str, Any]:
     match = cr_engine.new_match(data, TEAM_DECK, OPPONENT_DECK)
     match.spawn_troop(1, "night-witch", 0, -4_000, 11)
-    for _ in range(45):
+    # 1.0s deploy + calibrated 2.0s initial Bat timer.
+    for _ in range(70):
         match.step()
     bats = [e for e in entities(match) if e["card_key"].lower() == "bat" and e["team"] == 1]
     if len(bats) < 2:
@@ -133,10 +185,11 @@ def main() -> None:
         "status": "PASS",
         "decks": {"team": TEAM_DECK, "opponent": OPPONENT_DECK},
         "card_smoke": smoke_cards(data),
+        "goblin_gang": goblin_gang_count_probe(data),
+        "goblin_demolisher": goblin_demolisher_morph_probe(data),
         "night_witch": night_witch_bats(data),
         "golem": golem_split(data),
         "clone": clone_probe(data),
-        "goblin_drill": goblin_drill_probe(data),
         "goblin_curse": curse_probe(data),
     }
     out = Path(args.out)

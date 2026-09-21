@@ -50,6 +50,10 @@ jobs:
           python tools/rudy_windows/patch_rudy_rolling_bridge_spawn.py
           python tools/rudy_windows/patch_rudy_electro_spirit_chain.py
           python tools/rudy_windows/patch_rudy_zero_damage_buff_scaling.py
+          python tools/rudy_windows/patch_rudy_current_multi_unit_formations.py
+          python tools/rudy_windows/patch_rudy_hp_threshold_morph.py
+          python tools/rudy_windows/patch_rudy_dynamic_target_selection.py
+          python tools/rudy_windows/patch_rudy_tower_target_lock.py
 
       - name: Build and install patched Rudy
         working-directory: third_party/clash-royale-suite/cr-rudy-sim/simulator/engine
@@ -85,6 +89,12 @@ jobs:
             --data-dir outputs/rudy_tournament11_data \
             --catalog tools/cr_hog_fidelity_test/current_card_stats_2026_09.json \
             --out outputs/rudy_current_cards/summary.json
+
+      - name: Replay opening segment from supplied Golem demo
+        run: |
+          python tools/cr_hog_fidelity_test/run_golem_demo_first_segment.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --out outputs/golem_demo_opening
 
       - name: Verify Firecracker fan and Magic Archer piercing
         run: |
@@ -195,6 +205,7 @@ jobs:
             outputs/rudy_pathing_legacy
             outputs/rudy_postfix
             outputs/rudy_current_cards
+            outputs/golem_demo_opening
             outputs/rudy_tournament11_data/CURRENT_CARD_STATS_MANIFEST.json
             outputs/rudy_tournament11_data/_tournament11_manifest.json
           if-no-files-found: warn

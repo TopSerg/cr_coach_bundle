@@ -58,6 +58,19 @@ def patch(data_dir: Path) -> dict:
     spells = load(root / "cards_stats_spell.json")
     buffs = load(root / "cards_stats_character_buff.json")
 
+    # Video calibration from XRecorder_20260920_02(2).mp4:
+    # Night Witch is played at 19.05s and the first Bat wave becomes visible
+    # at ~21.95-22.00s. Rudy's spawn_start_time begins after the 1.0s deploy,
+    # so a 2.0s initial spawn timer reproduces the ~3.0s placement-to-wave delay.
+    for index, record in enumerate(characters):
+        if record.get("key") == "night-witch" or record.get("name") == "DarkWitch":
+            patched = copy.deepcopy(record)
+            patched["spawn_start_time"] = 2000
+            characters[index] = patched
+            break
+    else:
+        raise RuntimeError("Night Witch character row not found for spawn timing calibration")
+
     # Card registry entries are used for hand/deck validation and elixir cost.
     dart_card = one(cards, "key", "dart-goblin")
     drill_card = one(cards, "key", "goblin-drill")
@@ -84,26 +97,40 @@ def patch(data_dir: Path) -> dict:
     for card in (demolisher_card, bush_card, curse_card):
         upsert(cards, "key", card["key"], card)
 
-    # Goblin Demolisher: ranged ground splash plus the observed death blast.
+    # Goblin Demolisher — sourced from current game-data.
+    # Normal form: speed=60, 1.2s hit speed, 0.7s first hit, 5-tile ranged splash.
+    # At <=50% HP it transforms into a speed=120 building-targeting kamikaze.
     dart = one(characters, "name", "BlowdartGoblin")
     demolisher = copy.deepcopy(dart)
     demolisher.update(
         name="GoblinDemolisher", name_en="Goblin Demolisher", key="goblin-demolisher",
         sc_key="GoblinDemolisher", elixir=4, type="Troop", id=26000095,
         summon_character="GoblinDemolisher", hitpoints=1300, damage=0,
-        hit_speed=1100, load_time=500, range=5000, attacks_ground=True,
+        hit_speed=1200, load_time=700, range=5000, attacks_ground=True,
         attacks_air=False, area_damage_radius=1500, target_only_buildings=False,
-        collision_radius=400, mass=1, speed=120, projectile="GoblinDemolisherProjectile",
-        death_damage=404, death_damage_radius=2500, death_push_back=0,
+        collision_radius=600, mass=1, speed=60, projectile="GoblinDemolisherProjectile",
+        death_damage=404, death_damage_radius=2500, death_push_back=2000,
         death_spawn_character=None, death_spawn_count=0,
+        morph_character="goblin-demolisher-kamikaze", morph_at_hp_percent=50,
+        morph_time=0, heal_on_morph=False,
         hitpoints_per_level=levels(1300), damage_per_level=levels(186),
     )
     upsert(characters, "key", "goblin-demolisher", demolisher)
 
+    kamikaze = copy.deepcopy(demolisher)
+    kamikaze.update(
+        name="GoblinDemolisherKamikaze", name_en="Goblin Demolisher Kamikaze",
+        key="goblin-demolisher-kamikaze", sc_key="GoblinDemolisherKamikaze",
+        speed=120, hit_speed=1200, load_time=1000, range=500,
+        target_only_buildings=True, projectile=None, kamikaze=True,
+        morph_character=None, morph_at_hp_percent=0,
+    )
+    upsert(characters, "key", "goblin-demolisher-kamikaze", kamikaze)
+
     dart_projectile = one(projectiles, "name", "BlowdartGoblinProjectile")
     demolisher_projectile = copy.deepcopy(dart_projectile)
     demolisher_projectile.update(
-        name="GoblinDemolisherProjectile", speed=8000, homing=True, damage=186,
+        name="GoblinDemolisherProjectile", speed=400, homing=True, damage=186,
         radius=1500, aoe_to_ground=True, aoe_to_air=False,
         damage_per_level=levels(186), dps=0, dps_per_level=levels(0),
     )
@@ -165,7 +192,8 @@ def patch(data_dir: Path) -> dict:
     return {
         "cards": ["goblin-demolisher", "suspicious-bush", "goblin-curse"],
         "mechanics": {
-            "goblin-demolisher": "ranged ground splash + death blast; charge threshold pending calibration",
+            "night-witch": "first Bat wave: 1.0s deploy + 2.0s initial spawn timer ~= 3.0s from placement",
+            "goblin-demolisher": "current game-data: ranged splash; <=50% HP morphs to speed-120 building-targeting kamikaze + death blast",
             "suspicious-bush": "stealth building-targeting kamikaze + two Goblins",
             "goblin-curse": "6s DOT/slow zone + Goblin on cursed-unit death",
         },

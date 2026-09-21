@@ -33,13 +33,16 @@ PAD_CARDS = (
 )
 CARD_ALIASES = {"log": "the-log"}
 TOWER_MAX_HP = {"king-tower": 4824, "princess-tower": 3052}
+# Exact world-space tower positions derived from Rudy game_state.rs:
+# engine (0,-13000) -> world (9000,29000), etc.  Keep sentinel IDs aligned
+# with Rudy's own P{1,2}_PRINCESS_{LEFT,RIGHT}_ID constants.
 TOWER_SPECS = (
-    (0xFFFF_FF01, 0, "king-tower", "king", 9_000, 28_500),
-    (0xFFFF_FF02, 0, "princess-tower", "left", 3_500, 25_500),
-    (0xFFFF_FF03, 0, "princess-tower", "right", 14_500, 25_500),
-    (0xFFFF_FF04, 1, "king-tower", "king", 9_000, 3_500),
-    (0xFFFF_FF05, 1, "princess-tower", "left", 14_500, 6_500),
-    (0xFFFF_FF06, 1, "princess-tower", "right", 3_500, 6_500),
+    (0xFFFF_FF01, 0, "king-tower", "king", 9_000, 29_000),
+    (0xFFFF_FF02, 0, "princess-tower", "left", 3_900, 26_200),
+    (0xFFFF_FF03, 0, "princess-tower", "right", 14_100, 26_200),
+    (0xFFFF_FF04, 1, "king-tower", "king", 9_000, 3_000),
+    (0xFFFF_FF05, 1, "princess-tower", "left", 3_900, 5_800),
+    (0xFFFF_FF06, 1, "princess-tower", "right", 14_100, 5_800),
 )
 
 
@@ -302,12 +305,23 @@ def run_rudy_replay(spec: Any, out_dir: str | Path, *, data_dir: str | Path, sam
                 except Exception:
                     failed_index = event_index
                     raise
+                event_type = _get(event, "event_type", "card_play")
+                event_card = (
+                    _get(event, "card")
+                    if event_type == "card_play"
+                    else _get(event, "ability_card")
+                )
                 generated.append(
                     {
                         "tick": tick,
                         "state_tick": tick + 1,
-                        "kind": "card_played" if _get(event, "event_type") == "card_play" else "ability_activated",
-                        "data": {"side": _get(event, "side"), "player": 0 if _get(event, "side") == "team" else 1, "card_id": _get(event, "card", _get(event, "ability_card")), "uid": uid},
+                        "kind": "card_played" if event_type == "card_play" else "ability_activated",
+                        "data": {
+                            "side": _get(event, "side"),
+                            "player": 0 if _get(event, "side") == "team" else 1,
+                            "card_id": event_card,
+                            "uid": uid,
+                        },
                     }
                 )
                 event_index += 1

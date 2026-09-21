@@ -157,6 +157,33 @@ def main() -> None:
     require(three.get("melee_range_tiles")==1.6,"Three Musketeers melee range != 1.6 tiles",failures)
     require(three.get("melee_hit_speed")==1.3,"Three Musketeers melee hit speed != 1.3s",failures)
 
+    # Public troop count is gameplay data too.  Direct card-key rows in the
+    # pinned Rudy snapshot used to bypass its fallback multi-unit table.
+    skeletons=char("skeletons","Skeletons")
+    require(skeletons is not None,"Skeletons runtime record missing",failures)
+    if skeletons:
+        require(int(skeletons.get("summon_number") or 0)==3,
+                "Skeletons summon count != 3",failures)
+        require(str(skeletons.get("summon_character") or "").lower()=="skeleton",
+                "Skeletons summon unit is not Skeleton",failures)
+    goblins=char("goblins","Goblins")
+    require(goblins is not None,"Goblins runtime record missing",failures)
+    if goblins:
+        require(int(goblins.get("summon_number") or 0)==4,
+                "Goblins summon count != current public value 4",failures)
+
+    goblin_gang=char("goblin-gang","Goblin Gang")
+    require(goblin_gang is not None,"Goblin Gang runtime record missing",failures)
+    if goblin_gang:
+        require(int(goblin_gang.get("summon_number") or 0)==3,
+                "Goblin Gang melee count != 3",failures)
+        require(str(goblin_gang.get("summon_character") or "").lower()=="goblin",
+                "Goblin Gang primary unit is not Goblin",failures)
+        require(int(goblin_gang.get("summon_character_second_count") or 0)==3,
+                "Goblin Gang spear count != 3",failures)
+        require(str(goblin_gang.get("summon_character_second") or "").lower() in {"speargoblin","spear-goblin"},
+                "Goblin Gang secondary unit is not Spear Goblin",failures)
+
     # Screenshot/public-stat anchor: Electro Spirit.
     es=char("electro-spirit","Electro Spirit")
     require(es is not None,"Electro Spirit runtime record missing",failures)
@@ -169,6 +196,21 @@ def main() -> None:
         if p:
             require(int(p.get("chained_hit_count",0))==9,"Electro Spirit chain count != 9",failures)
             require(int(p.get("chained_hit_radius",0))==3000,"Electro Spirit chain range != 3 tiles (Aug 26 current patch)",failures)
+
+    electro_dragon=char("electro-dragon","Electro Dragon")
+    require(electro_dragon is not None,"Electro Dragon runtime record missing",failures)
+    if electro_dragon:
+        require(lv11(electro_dragon,"hitpoints_per_level","hitpoints")==1049,
+                "Electro Dragon HP != current Level-11 value 1049",failures)
+        require(int(electro_dragon.get("hit_speed",0))==2100,
+                "Electro Dragon hit speed != current 2.1s",failures)
+        ed_projectile=find(projectiles,str(electro_dragon.get("projectile") or ""))
+        require(ed_projectile is not None,"Electro Dragon projectile missing",failures)
+        if ed_projectile:
+            require(lv11(ed_projectile,"damage_per_level","damage")==192,
+                    "Electro Dragon damage != current Level-11 value 192",failures)
+            require(int(ed_projectile.get("speed",0))==2000,
+                    "Electro Dragon projectile speed != current game-data 2000",failures)
 
     checks=[
         ("fire-spirit","Fire Spirit","damage_per_level","damage",215),

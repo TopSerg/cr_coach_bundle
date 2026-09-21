@@ -226,14 +226,27 @@ def find_spell_projectile(
     projectiles: list[dict[str, Any]],
     registry: dict[str, Any],
 ) -> dict[str, Any] | None:
-    """Mirror Rudy's spell-projectile lookup for Fireball/Log/Arrows/etc."""
+    """Mirror Rudy's spell-projectile lookup for Fireball/Log/Arrows/etc.
+
+    Some spells have a zero-damage wrapper plus a separate payload record.
+    The runtime loader selects the highest-scoring candidate (for example,
+    ``LogProjectileRolling`` for The Log), so the overlay must patch that same
+    record or the replay keeps stale level/tower-damage values.
+    """
     sk = str(registry.get("sc_key") or "")
     if not sk:
         return None
-    for candidate in (f"{sk}Spell", f"{sk}Projectile", f"{sk}ProjectileRolling", sk):
-        found = find_one(projectiles, candidate)
-        if found is not None:
-            return found
+    candidates = (f"{sk}Spell", f"{sk}Projectile", f"{sk}ProjectileRolling", sk)
+    found_candidates = [
+        found for candidate in candidates
+        if (found := find_one(projectiles, candidate)) is not None
+    ]
+    if found_candidates:
+        return max(
+            found_candidates,
+            key=lambda record: int(record.get("damage") or 0)
+            + int(record.get("spawn_character_count") or 0) * 100,
+        )
 
     wanted = norm(sk)
     candidates = [
@@ -350,6 +363,36 @@ SPECIAL_DAMAGE_KEYS = {
     "spirit_empress", "void", "vines",
 }
 
+# Homogeneous multi-unit cards.  The pinned Rudy loader has fallback counts,
+# but a direct card-key row in characters.json can bypass those fallbacks.
+# Keep the public card count authoritative in the generated Tournament-11 data.
+HOMOGENEOUS_MULTI_UNITS = {
+    "archers": "archer",
+    "barbarians": "barbarian",
+    "bats": "bat",
+    "elite_barbarians": "angrybarbarian",
+    "goblins": "goblin",
+    "guards": "skeletonwarrior",
+    "minion_horde": "minion",
+    "minions": "minion",
+    "royal_hogs": "royalhog",
+    "royal_recruits": "recruit",
+    "skeleton_army": "skeleton",
+    "skeleton_dragons": "skeletondragon",
+    "skeletons": "skeleton",
+    "spear_goblins": "speargoblin",
+    "three_musketeers": "musketeer",
+    "wall_breakers": "wallbreaker",
+    "zappies": "minizapmachine",
+}
+
+MIXED_MULTI_UNITS = {
+    # Current Goblin Gang: 3 melee Goblins + 3 Spear Goblins.
+    "goblin_gang": ("goblin", 3, "speargoblin", 3),
+    # Rascals: one Boy + two Girls.
+    "rascals": ("rascalboy", 1, "rascalgirl", 2),
+}
+
 
 def main() -> None:
     ap = argparse.ArgumentParser()
@@ -432,6 +475,24 @@ def main() -> None:
             changed = patch_projectile_spell(record, stat_for_runtime)
         else:
             changed = patch_character(record, stat_for_runtime, generated=generated)
+
+        if pool_name == "character" and key in HOMOGENEOUS_MULTI_UNITS:
+            public_count = int(stat.get("count") or 1)
+            if public_count > 1:
+                record["summon_number"] = public_count
+                record["summon_character"] = HOMOGENEOUS_MULTI_UNITS[key]
+                changed.extend(["summon_number", "summon_character"])
+
+        if pool_name == "character" and key in MIXED_MULTI_UNITS:
+            first_unit, first_count, second_unit, second_count = MIXED_MULTI_UNITS[key]
+            record["summon_number"] = first_count
+            record["summon_character"] = first_unit
+            record["summon_character_second"] = second_unit
+            record["summon_character_second_count"] = second_count
+            changed.extend([
+                "summon_number", "summon_character",
+                "summon_character_second", "summon_character_second_count",
+            ])
 
         # Synchronize a simple ranged attack projectile when the record exposes
         # one. This is safe for ordinary one-projectile attackers and is skipped
