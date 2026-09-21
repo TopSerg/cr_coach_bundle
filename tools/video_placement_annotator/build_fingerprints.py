@@ -5,7 +5,7 @@ import argparse
 from pathlib import Path
 import sys
 
-from fingerprints import build_database, normalize_card_key
+from fingerprints import build_database, load_elixir_map, normalize_card_key
 
 
 def _read_allowed(values: list[str], deck_file: str | None) -> list[str] | None:
@@ -33,6 +33,11 @@ def main() -> int:
     ap.add_argument("--card", action="append", default=[], help="Only include this card (repeatable)")
     ap.add_argument("--deck-file", help="Optional newline/comma-separated allow-list")
     ap.add_argument(
+        "--only-stats-cards",
+        action="store_true",
+        help="Ignore legacy/event assets that are not present in --stats",
+    )
+    ap.add_argument(
         "--source-label",
         default="RoyaleAPI/cr-api-assets cards-150",
         help="Provenance string stored in the fingerprint DB",
@@ -48,6 +53,14 @@ def main() -> int:
 
     allowed = _read_allowed(args.card, args.deck_file)
     stats = args.stats if args.stats and Path(args.stats).exists() else None
+    if args.only_stats_cards:
+        if stats is None:
+            ap.error("--only-stats-cards requires an existing --stats file")
+        current = set(load_elixir_map(stats))
+        if allowed is None:
+            allowed = sorted(current)
+        else:
+            allowed = [x for x in allowed if x in current]
     db = build_database(
         args.images_dir,
         stats_json=stats,
