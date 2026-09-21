@@ -1,0 +1,616 @@
+{
+  "schema_version": 1,
+  "battle_id": "xrecorder_20260920_auto_timer_synced_probe",
+  "ticks_per_second": 20,
+  "mode": "placements",
+  "coordinate_system": "world_cells",
+  "level": 11,
+  "end_tick": 3600,
+  "timer_sync": {
+    "method": "displayed-second boundary interpolation",
+    "detected_boundaries": 178,
+    "last_boundary_remaining_seconds": 1,
+    "note": "tick is battle elapsed time from the real in-game countdown, not raw MP4 time"
+  },
+  "notes": "Compact audit trace generated from the full replay. Full spell hit-area metadata is emitted by refine_placements.py.",
+  "events": [
+    {
+      "tick": 171,
+      "side": "opponent",
+      "card": "dart-goblin",
+      "x": 14,
+      "y": 14,
+      "annotation": {
+        "game_clock": "2:51.44",
+        "video_frame": 954,
+        "locator": "deployment_clock",
+        "placement_confidence": 1
+      }
+    },
+    {
+      "tick": 193,
+      "side": "team",
+      "card": "night-witch",
+      "x": 9,
+      "y": 30,
+      "annotation": {
+        "game_clock": "2:50.36",
+        "video_frame": 1015,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.72
+      }
+    },
+    {
+      "tick": 220,
+      "side": "team",
+      "card": "skeletons",
+      "x": 15,
+      "y": 17,
+      "annotation": {
+        "game_clock": "2:48.98",
+        "video_frame": 1089,
+        "locator": "deployment_clock",
+        "placement_confidence": 1
+      }
+    },
+    {
+      "tick": 362,
+      "side": "opponent",
+      "card": "goblin-gang",
+      "x": 11,
+      "y": 1,
+      "annotation": {
+        "game_clock": "2:41.90",
+        "video_frame": 1464,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.6909
+      }
+    },
+    {
+      "tick": 426,
+      "side": "team",
+      "card": "the-log",
+      "x": 14,
+      "y": 16,
+      "annotation": {
+        "game_clock": "2:38.68",
+        "video_frame": 1634,
+        "locator": "spell_hit_area",
+        "placement_confidence": 0.7551
+      }
+    },
+    {
+      "tick": 509,
+      "side": "opponent",
+      "card": "goblin-demolisher",
+      "x": 9,
+      "y": 9,
+      "annotation": {
+        "game_clock": "2:34.57",
+        "video_frame": 1851,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8491
+      }
+    },
+    {
+      "tick": 582,
+      "side": "team",
+      "card": "electro-dragon",
+      "x": 9,
+      "y": 17,
+      "annotation": {
+        "game_clock": "2:30.92",
+        "video_frame": 2044,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8074
+      }
+    },
+    {
+      "tick": 651,
+      "side": "opponent",
+      "card": "suspicious-bush",
+      "x": 3,
+      "y": 14,
+      "annotation": {
+        "game_clock": "2:27.46",
+        "video_frame": 2228,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.9148
+      }
+    },
+    {
+      "tick": 714,
+      "side": "opponent",
+      "card": "golden-knight",
+      "x": 3,
+      "y": 14,
+      "annotation": {
+        "game_clock": "2:24.28",
+        "video_frame": 2393,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8153
+      }
+    },
+    {
+      "tick": 787,
+      "side": "team",
+      "card": "valkyrie",
+      "x": 3,
+      "y": 23,
+      "annotation": {
+        "game_clock": "2:20.64",
+        "video_frame": 2588,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.6733
+      }
+    },
+    {
+      "tick": 1121,
+      "side": "team",
+      "card": "golem",
+      "x": 9,
+      "y": 30,
+      "annotation": {
+        "game_clock": "2:03.96",
+        "video_frame": 3460,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.7007
+      }
+    },
+    {
+      "tick": 1162,
+      "side": "opponent",
+      "card": "dart-goblin",
+      "x": 3,
+      "y": 14,
+      "annotation": {
+        "game_clock": "2:01.89",
+        "video_frame": 3571,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.9464
+      }
+    },
+    {
+      "tick": 1331,
+      "side": "opponent",
+      "card": "goblin-cage",
+      "x": 9,
+      "y": 9,
+      "annotation": {
+        "game_clock": "1:53.45",
+        "video_frame": 4018,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8063
+      }
+    },
+    {
+      "tick": 1405,
+      "side": "opponent",
+      "card": "goblin-demolisher",
+      "x": 11,
+      "y": 2,
+      "annotation": {
+        "game_clock": "1:49.75",
+        "video_frame": 4209,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.7944
+      }
+    },
+    {
+      "tick": 1522,
+      "side": "team",
+      "card": "night-witch",
+      "x": 16,
+      "y": 19,
+      "annotation": {
+        "game_clock": "1:43.92",
+        "video_frame": 4513,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.7738
+      }
+    },
+    {
+      "tick": 1565,
+      "side": "team",
+      "card": "skeleton-dragons",
+      "x": 10,
+      "y": 17,
+      "annotation": {
+        "game_clock": "1:41.75",
+        "video_frame": 4628,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8306
+      }
+    },
+    {
+      "tick": 1621,
+      "side": "opponent",
+      "card": "goblin-gang",
+      "x": 13,
+      "y": 12,
+      "annotation": {
+        "game_clock": "1:38.95",
+        "video_frame": 4783,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8137
+      }
+    },
+    {
+      "tick": 1648,
+      "side": "opponent",
+      "card": "goblin-curse",
+      "x": 14,
+      "y": 14,
+      "annotation": {
+        "game_clock": "1:37.61",
+        "video_frame": 4856,
+        "locator": "spell_hit_area",
+        "placement_confidence": 0.7248
+      }
+    },
+    {
+      "tick": 1697,
+      "side": "opponent",
+      "card": "dart-goblin",
+      "x": 12,
+      "y": 5,
+      "annotation": {
+        "game_clock": "1:35.13",
+        "video_frame": 4989,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8794
+      }
+    },
+    {
+      "tick": 1926,
+      "side": "opponent",
+      "card": "suspicious-bush",
+      "x": 14,
+      "y": 14,
+      "annotation": {
+        "game_clock": "1:23.70",
+        "video_frame": 5598,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.9299
+      }
+    },
+    {
+      "tick": 1944,
+      "side": "team",
+      "card": "the-log",
+      "x": 14,
+      "y": 16,
+      "annotation": {
+        "game_clock": "1:22.81",
+        "video_frame": 5647,
+        "locator": "spell_hit_area",
+        "placement_confidence": 0.9518
+      }
+    },
+    {
+      "tick": 1964,
+      "side": "opponent",
+      "card": "clone",
+      "x": 14,
+      "y": 16,
+      "annotation": {
+        "game_clock": "1:21.82",
+        "video_frame": 5700,
+        "locator": "spell_target_ring",
+        "placement_confidence": 0.8611
+      }
+    },
+    {
+      "tick": 2082,
+      "side": "team",
+      "card": "skeletons",
+      "x": 11,
+      "y": 17,
+      "annotation": {
+        "game_clock": "1:15.92",
+        "video_frame": 6013,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.9148
+      }
+    },
+    {
+      "tick": 2191,
+      "side": "team",
+      "card": "golem",
+      "x": 9,
+      "y": 30,
+      "annotation": {
+        "game_clock": "1:10.46",
+        "video_frame": 6291,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.6945
+      }
+    },
+    {
+      "tick": 2337,
+      "side": "opponent",
+      "card": "golden-knight",
+      "x": 14,
+      "y": 14,
+      "annotation": {
+        "game_clock": "1:03.16",
+        "video_frame": 6676,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8288
+      }
+    },
+    {
+      "tick": 2401,
+      "side": "team",
+      "card": "valkyrie",
+      "x": 11,
+      "y": 17,
+      "annotation": {
+        "game_clock": "0:59.94",
+        "video_frame": 6844,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.7436
+      }
+    },
+    {
+      "tick": 2517,
+      "side": "opponent",
+      "card": "goblin-demolisher",
+      "x": 11,
+      "y": 6,
+      "annotation": {
+        "game_clock": "0:54.16",
+        "video_frame": 7145,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8498
+      }
+    },
+    {
+      "tick": 2585,
+      "side": "team",
+      "card": "electro-dragon",
+      "x": 16,
+      "y": 18,
+      "annotation": {
+        "game_clock": "0:50.75",
+        "video_frame": 7322,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8173
+      }
+    },
+    {
+      "tick": 2623,
+      "side": "opponent",
+      "card": "goblin-cage",
+      "x": 9,
+      "y": 13,
+      "annotation": {
+        "game_clock": "0:48.83",
+        "video_frame": 7422,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8082
+      }
+    },
+    {
+      "tick": 2637,
+      "side": "team",
+      "card": "skeleton-dragons",
+      "x": 10,
+      "y": 17,
+      "annotation": {
+        "game_clock": "0:48.17",
+        "video_frame": 7454,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8443
+      }
+    },
+    {
+      "tick": 2652,
+      "side": "opponent",
+      "card": "dart-goblin",
+      "x": 17,
+      "y": 5,
+      "annotation": {
+        "game_clock": "0:47.39",
+        "video_frame": 7496,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8616
+      }
+    },
+    {
+      "tick": 2711,
+      "side": "team",
+      "card": "the-log",
+      "x": 10,
+      "y": 13,
+      "annotation": {
+        "game_clock": "0:44.46",
+        "video_frame": 7656,
+        "locator": "spell_hit_area",
+        "placement_confidence": 0.4922
+      }
+    },
+    {
+      "tick": 2733,
+      "side": "opponent",
+      "card": "goblin-gang",
+      "x": 13,
+      "y": 14,
+      "annotation": {
+        "game_clock": "0:43.34",
+        "video_frame": 7717,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8272
+      }
+    },
+    {
+      "tick": 2796,
+      "side": "team",
+      "card": "night-witch",
+      "x": 14,
+      "y": 17,
+      "annotation": {
+        "game_clock": "0:40.20",
+        "video_frame": 7877,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.7672
+      }
+    },
+    {
+      "tick": 2844,
+      "side": "opponent",
+      "card": "golden-knight",
+      "x": 16,
+      "y": 8,
+      "annotation": {
+        "game_clock": "0:37.82",
+        "video_frame": 7997,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.7021
+      }
+    },
+    {
+      "tick": 2992,
+      "side": "opponent",
+      "card": "goblin-demolisher",
+      "x": 11,
+      "y": 4,
+      "annotation": {
+        "game_clock": "0:30.42",
+        "video_frame": 8394,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8377
+      }
+    },
+    {
+      "tick": 3025,
+      "side": "team",
+      "card": "golem",
+      "x": 9,
+      "y": 30,
+      "annotation": {
+        "game_clock": "0:28.75",
+        "video_frame": 8485,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.6876
+      }
+    },
+    {
+      "tick": 3165,
+      "side": "opponent",
+      "card": "suspicious-bush",
+      "x": 14,
+      "y": 14,
+      "annotation": {
+        "game_clock": "0:21.73",
+        "video_frame": 8849,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.9309
+      }
+    },
+    {
+      "tick": 3206,
+      "side": "team",
+      "card": "electro-dragon",
+      "x": 16,
+      "y": 22,
+      "annotation": {
+        "game_clock": "0:19.69",
+        "video_frame": 8956,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.7936
+      }
+    },
+    {
+      "tick": 3211,
+      "side": "opponent",
+      "card": "clone",
+      "x": 14,
+      "y": 17,
+      "annotation": {
+        "game_clock": "0:19.47",
+        "video_frame": 8967,
+        "locator": "spell_target_ring",
+        "placement_confidence": 0.7222
+      }
+    },
+    {
+      "tick": 3312,
+      "side": "team",
+      "card": "valkyrie",
+      "x": 14,
+      "y": 22,
+      "annotation": {
+        "game_clock": "0:14.42",
+        "video_frame": 9230,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.7528
+      }
+    },
+    {
+      "tick": 3414,
+      "side": "opponent",
+      "card": "dart-goblin",
+      "x": 14,
+      "y": 5,
+      "annotation": {
+        "game_clock": "0:09.31",
+        "video_frame": 9497,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8615
+      }
+    },
+    {
+      "tick": 3465,
+      "side": "team",
+      "card": "the-log",
+      "x": 8,
+      "y": 17,
+      "annotation": {
+        "game_clock": "0:06.74",
+        "video_frame": 9634,
+        "locator": "spell_hit_area",
+        "placement_confidence": 0.3056
+      }
+    },
+    {
+      "tick": 3467,
+      "side": "opponent",
+      "card": "goblin-cage",
+      "x": 13,
+      "y": 13,
+      "annotation": {
+        "game_clock": "0:06.66",
+        "video_frame": 9638,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.8432
+      }
+    },
+    {
+      "tick": 3482,
+      "side": "opponent",
+      "card": "golden-knight",
+      "x": 17,
+      "y": 12,
+      "annotation": {
+        "game_clock": "0:05.92",
+        "video_frame": 9677,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.6789
+      }
+    },
+    {
+      "tick": 3495,
+      "side": "team",
+      "card": "skeleton-dragons",
+      "x": 13,
+      "y": 11,
+      "annotation": {
+        "game_clock": "0:05.26",
+        "video_frame": 9712,
+        "locator": "deployment_clock",
+        "placement_confidence": 0.7744
+      }
+    }
+  ]
+}
