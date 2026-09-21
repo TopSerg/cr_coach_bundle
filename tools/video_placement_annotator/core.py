@@ -135,13 +135,15 @@ class HandTransition:
     confidence: float
     before: tuple[str,...]
     after: tuple[str,...]
+    slot: int | None = None
 
 class StableHandTracker:
-    """Turn noisy per-frame classifications into one-card hand transitions.
+    """Turn noisy classifications into fixed-slot card replacements.
 
-    Clash Royale shifts the hand after a play, so comparing fixed slot N is
-    wrong. We compare the *multiset* of two stable four-card states. Exactly one
-    disappearing card is the played card.
+    In the supplied Clash Royale replay HUD, the four hand cards do *not* shift
+    left/right after a play. The played slot is replaced by the next card. A
+    persistent one-slot change therefore directly identifies both the outgoing
+    (played) card and the incoming card.
     """
     def __init__(self, side:str, stable_samples:int=3, threshold:float=.43):
         self.side=side; self.n=stable_samples; self.threshold=threshold
@@ -162,20 +164,25 @@ class StableHandTracker:
         new=self.hist[-1][1]
         if self.stable is None:
             self.stable=new; self.unstable_since=None; return None
-        if Counter(new.ordered)==Counter(self.stable.ordered):
+        changed=[i for i,(a,b) in enumerate(zip(self.stable.ordered,new.ordered)) if a!=b]
+        if not changed:
             self.stable=new; self.unstable_since=None; return None
-        gone=counter_subtract(self.stable.ordered,new.ordered)
-        incoming=counter_subtract(new.ordered,self.stable.ordered)
-        old=self.stable; self.stable=new
-        if len(gone)!=1 or len(incoming)!=1:
-            self.unstable_since=None; return None
+        old=self.stable
+        if len(changed)!=1:
+            # Multi-slot differences are almost always an animation /
+            # classification glitch. Do not advance the stable hand on them.
+            if self.unstable_since is None: self.unstable_since=self.hist[0][0]
+            return None
+        slot=changed[0]
+        self.stable=new
         t0=self.unstable_since if self.unstable_since is not None else self.hist[0][0]
-        # First stable post-transition is late; midpoint with transition start is
-        # a much closer estimate of the actual release/deploy time.
         te=(t0+self.hist[0][0])/2
         self.unstable_since=None
-        conf=min(old.confidence,new.confidence)
-        return HandTransition(self.side,te,gone[0],incoming[0],conf,old.ordered,new.ordered)
+        conf=min(old.per_slot[slot],new.per_slot[slot])
+        return HandTransition(
+            self.side,te,old.ordered[slot],new.ordered[slot],conf,
+            old.ordered,new.ordered,slot=slot
+        )
 
 
 def pixel_to_cell(x:float,y:float,w:int,h:int,cfg:LayoutConfig) -> tuple[int,int,float]:
