@@ -57,6 +57,7 @@ jobs:
           python tools/rudy_windows/patch_rudy_zero_damage_buff_scaling.py
           python tools/rudy_windows/patch_rudy_current_multi_unit_formations.py
           python tools/rudy_windows/patch_rudy_hp_threshold_morph.py
+          python tools/rudy_windows/patch_rudy_dynamic_target_selection.py
 
       - name: Install maturin
         run: python -m pip install --upgrade pip maturin
