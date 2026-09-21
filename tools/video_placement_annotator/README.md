@@ -97,6 +97,32 @@ have enough support, the matcher locks to that deck and every following lookup
 compares against only those eight fingerprints. You can also supply both decks
 explicitly when validating a known replay.
 
+## Exact deck cycle + ORB play confirmation
+
+Once the four initial hand cards are known, only **24** orders remain for the
+four hidden cards. `cycle_tracker.infer_cycle_path()` evaluates those orders
+while enforcing the actual Clash Royale cycle:
+
+    [hand0 hand1 hand2 hand3] [next q1 q2 q3]
+                 play slot 2
+    [hand0 hand1 next  hand3] [q1 q2 q3 played]
+
+So visual noise can no longer invent an arbitrary incoming card. The incoming
+card is dictated by the queue.
+
+The second problem is timing. Selecting or dragging a card changes its border,
+scale and position before the card is actually played. `OrbReplayTemplateBank`
+learns the card as it is rendered in this exact replay and keeps matching the
+art through that selection animation. A play is confirmed only when the old
+art disappears and the **expected next card** appears in the same fixed slot.
+
+This split is deliberate:
+
+- fingerprint + elixir => card identity and the eight-card deck;
+- full-cycle Viterbi => hidden queue order;
+- replay-native ORB => real replacement time, not selection time;
+- deployment clock => final placement cell/time refinement.
+
 ### Decode both hands
 
     python tools/video_placement_annotator/decode_hands.py replay.mp4 \
@@ -111,8 +137,11 @@ Or with known decks:
       --opponent-deck "goblin-gang clone dart-goblin goblin-cage goblin-curse goblin-demolisher golden-knight suspicious-bush" \
       --out outputs/replay_hands.json
 
-The result contains timestamp, side, fixed slot, outgoing card and incoming
-card for every detected hand replacement.
+The default decoder now returns the cycle-consistent result. The JSON includes
+the inferred initial hand and hidden queue plus timestamp, confirmation time,
+side, fixed slot, outgoing card and incoming card for every real replacement.
+
+Use `--no-orb-refine` only for debugging the older visual-only decoder.
 
 ## Placement coordinate
 
