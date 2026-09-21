@@ -110,7 +110,11 @@ def main():
     demolisher_created=bool(demolisher_by_tick.get("336"))
 
     video_tower_anchors={
-        520:2936,   # source video 44.00s
+        300:3052,   # source video 33.00s
+        320:3017,   # 34.00s
+        400:3017,   # 38.00s
+        420:2936,   # 39.00s
+        520:2936,   # 44.00s
         720:2936,   # 54.00s
         740:2744,   # 55.00s
         780:2552,   # 57.00s
