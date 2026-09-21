@@ -17,7 +17,7 @@ class TimerSyncTests(unittest.TestCase):
                 TimerBoundary(205, 4.0, 168.0, 12.0, "regular", .2, .9),
             ],
             ticks_per_second=20,
-            battle_duration_seconds=180.0,
+            regular_duration_seconds=180.0,
         )
         reading = sync.reading_at_frame(126.5)
         self.assertAlmostEqual(reading.remaining_seconds, 169.5, places=5)
@@ -32,7 +32,7 @@ class TimerSyncTests(unittest.TestCase):
                 TimerBoundary(154, 3.0, 1.0, 179.0, "regular", .2, .9),
             ],
             ticks_per_second=20,
-            battle_duration_seconds=180.0,
+            regular_duration_seconds=180.0,
         )
         self.assertAlmostEqual(sync.remaining_at_frame(208), 0.0, places=5)
 
