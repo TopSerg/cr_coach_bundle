@@ -110,12 +110,33 @@ def main():
     demolisher_created=bool(demolisher_by_tick.get("336"))
 
     video_tower_anchors={
-        1440:2360,  # source video 90.00s
+        520:2936,   # source video 44.00s
+        720:2936,   # 54.00s
+        740:2744,   # 55.00s
+        780:2552,   # 57.00s
+        820:2360,   # 59.00s
+        970:2360,   # 66.50s
+        1235:2360,  # 79.75s
+        1370:2360,  # 86.50s
+        1440:2360,  # 90.00s
         1520:2209,  # 94.00s
         1620:2058,  # 99.00s
         1680:1860,  # 102.00s
     }
     tower_hp_checks={}
+    tower_uid=0xFFFF_FF05
+    tower_damage_events=[
+        {
+            "tick":int(row.get("tick",0)),
+            "state_tick":int(row.get("state_tick",0)),
+            "source_card":(row.get("data") or {}).get("source_card_id"),
+            "damage":(row.get("data") or {}).get("damage"),
+            "hp_after":(row.get("data") or {}).get("hp_after"),
+        }
+        for row in generated
+        if row.get("kind") in {"damage_applied","damage_observed"}
+        and int((row.get("data") or {}).get("target_uid") or -1)==tower_uid
+    ]
     for snapshot in snaps:
         tick=int(snapshot["tick"])
         if tick not in video_tower_anchors:
@@ -215,6 +236,7 @@ def main():
             "video_tower_hp_anchors":{
                 "tower":"opponent screen-right princess tower",
                 "checks":tower_hp_checks,
+                "damage_events":tower_damage_events,
                 "gating":False,
             },
             "extended_opening_plays":{
