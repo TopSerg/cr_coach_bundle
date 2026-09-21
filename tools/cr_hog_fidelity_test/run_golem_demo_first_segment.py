@@ -8,7 +8,7 @@ sys.path.insert(0,str(ROOT/"starter"))
 from cr_coach.replay.io import load_replay
 from cr_coach.runtime.rudy_runner import run_rudy_replay
 
-CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260,335,336,345,355,365,385,405,409,410,420,440,460,479,480,500,520,541,542,560,574,575,580,600,618,619,630,650,700,740,760,900,948,949,960,980,990,991,1000,1040,1100,1160,1161,1180,1220,1235,1236,1260,1300,1393,1394,1440,1480,1481,1520,1525,1526,1620,1680,1700}
+CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260,335,336,345,355,365,385,405,409,410,420,440,460,479,480,500,520,541,542,560,574,575,580,600,618,619,630,650,700,740,760,900,948,949,960,980,990,991,1000,1040,1100,1160,1161,1180,1220,1235,1236,1260,1300,1393,1394,1440,1480,1481,1520,1525,1526,1620,1680,1700,2180,2268,2350,2460,2500,2640,2680,2720,2760,2800,2840,2880,2920,3000,3240,3300,3310,3400,3479}
 
 def compact(snapshot):
     rows=[]
@@ -126,6 +126,12 @@ def main():
         1520:2209,  # 94.00s
         1620:2058,  # 99.00s
         1680:1860,  # 102.00s
+        2440:1825,  # source video 140.00s
+        2640:1790,  # 150.00s
+        2680:1598,  # 152.00s
+        2720:1296,  # 154.00s
+        2760:480,   # 156.00s
+        2800:171,   # 158.00s, before destruction
     }
     tower_hp_checks={}
     tower_uid=0xFFFF_FF06
@@ -160,6 +166,56 @@ def main():
             "error":None if tower is None else int(tower["hp"])-video_tower_anchors[tick],
         }
 
+    king_tower_anchors={
+        2840:4824,  # source video 160.00s
+        2880:4673,  # 162.00s
+        2920:4574,  # 164.00s
+        3000:4574,  # 168.00s
+        3240:4574,  # 180.00s
+        3400:4574,  # 188.00s
+    }
+    king_hp_checks={}
+    for snapshot in snaps:
+        tick=int(snapshot["tick"])
+        if tick not in king_tower_anchors:
+            continue
+        tower=next(
+            (
+                entity for entity in snapshot.get("entities",[])
+                if entity.get("kind")=="tower"
+                and int(entity.get("uid",-1))==0xFFFF_FF04
+            ),
+            None,
+        )
+        king_hp_checks[str(tick)]={
+            "video_hp":king_tower_anchors[tick],
+            "sim_hp":None if tower is None else int(tower["hp"]),
+            "error":None if tower is None else int(tower["hp"])-king_tower_anchors[tick],
+        }
+
+    anchor_rows=[]
+    for tick, expected in sorted(video_tower_anchors.items()):
+        row=tower_hp_checks.get(str(tick),{})
+        anchor_rows.append({
+            "tick":tick,
+            "source_video_s":18.0 + tick/20.0,
+            "tower":"opponent screen-right princess tower",
+            "real_hp":expected,
+            "sim_hp":row.get("sim_hp"),
+            "matches":row.get("sim_hp")==expected,
+        })
+    for tick, expected in sorted(king_tower_anchors.items()):
+        row=king_hp_checks.get(str(tick),{})
+        anchor_rows.append({
+            "tick":tick,
+            "source_video_s":18.0 + tick/20.0,
+            "tower":"opponent king tower",
+            "real_hp":expected,
+            "sim_hp":row.get("sim_hp"),
+            "matches":row.get("sim_hp")==expected,
+        })
+    first_divergence=next((row for row in anchor_rows if not row["matches"]),None)
+
     golden_knight_ability_events=[
         row for row in generated
         if row.get("kind")=="ability_activated"
@@ -174,11 +230,23 @@ def main():
         "golem":948,
         "dart-goblin":990,
         "goblin-cage":1160,
+        "golden-knight-2":2180,
+        "goblin-demolisher-2":2350,
+        "goblin-cage-2":2460,
+        "suspicious-bush-2":2500,
+        "golden-knight-3":3310,
+    }
+    card_keys={
+        "golden-knight-2":"golden-knight",
+        "goblin-demolisher-2":"goblin-demolisher",
+        "goblin-cage-2":"goblin-cage",
+        "suspicious-bush-2":"suspicious-bush",
+        "golden-knight-3":"golden-knight",
     }
     created_cards={}
     for card,play_tick in expected_new_cards.items():
         seen=[]
-        compact_card=card.replace("-","")
+        compact_card=card_keys.get(card,card).replace("-","")
         for snapshot in snaps:
             tick=int(snapshot["tick"])
             if tick < play_tick or tick > play_tick+3:
@@ -243,6 +311,13 @@ def main():
                 "damage_events":tower_damage_events,
                 "gating":False,
             },
+            "video_king_tower_hp_anchors":{
+                "tower":"opponent king tower",
+                "checks":king_hp_checks,
+                "first_divergence":first_divergence,
+                "gating":False,
+            },
+            "first_divergence":first_divergence,
             "extended_opening_plays":{
                 "expected":{
                     "electro-dragon":{"tick":409,"video_time_s":38.45,"cell":[9,18]},
@@ -253,6 +328,13 @@ def main():
                     "golem":{"tick":948,"video_time_s":65.40,"cell":[9,30]},
                     "dart-goblin-2":{"tick":990,"video_time_s":67.50,"cell":[4,14]},
                     "goblin-cage":{"tick":1160,"video_time_s":76.00,"cell":[9,10]},
+                    "golden-knight-2":{"tick":2180,"video_time_s":127.00,"cell":[14,13]},
+                    "golden-knight-ability-2":{"tick":2268,"video_time_s":131.40},
+                    "goblin-demolisher-2":{"tick":2350,"video_time_s":135.50,"cell":[13,8]},
+                    "goblin-cage-2":{"tick":2460,"video_time_s":141.00,"cell":[9,10]},
+                    "suspicious-bush-2":{"tick":2500,"video_time_s":143.00,"cell":[14,7]},
+                    "the-log":{"tick":3300,"video_time_s":183.00,"cell":[14,17]},
+                    "golden-knight-3":{"tick":3310,"video_time_s":183.50,"cell":[14,13]},
                 },
                 "created":created_cards,
                 "ability_events":golden_knight_ability_events,

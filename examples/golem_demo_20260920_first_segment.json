@@ -5,8 +5,8 @@
   "mode": "placements",
   "coordinate_system": "world_cells",
   "level": 11,
-  "end_tick": 2200,
-  "notes": "Video-derived replay. Time origin 18.00s. Verified further: Suspicious Bush ~105.70s (4->2 and deploys right lane), Clone ~108.50s (3->0 with clone visual on right-lane fight), Golem ~118.90s (10->2, deploy clock behind blue king). Coordinates after opening are video-grid estimates pending sub-tile calibration.",
+  "end_tick": 3480,
+  "notes": "Video-derived replay. Time origin 18.00s. Verified through the end of the supplied 191.89s video: Suspicious Bush ~105.70s (4->2 and deploys right lane), Clone ~108.50s (3->0 with clone visual on right-lane fight), Golem ~118.90s (10->2, deploy clock behind blue king), Golden Knight ~127.00s with ability ~131.50s, Goblin Demolisher ~135.50s, Goblin Cage ~141.00s, Suspicious Bush ~143.00s, The Log ~183.00s and final Golden Knight ~183.50s. Coordinates after the opening remain video-grid estimates pending sub-tile calibration.",
   "events": [
     {
       "tick": 0,
@@ -146,6 +146,54 @@
       "card": "golem",
       "x": 9,
       "y": 30
+    },
+    {
+      "tick": 2180,
+      "side": "opponent",
+      "card": "golden-knight",
+      "x": 14,
+      "y": 13
+    },
+    {
+      "tick": 2268,
+      "side": "opponent",
+      "event_type": "ability_activation",
+      "ability_card": "golden-knight"
+    },
+    {
+      "tick": 2350,
+      "side": "opponent",
+      "card": "goblin-demolisher",
+      "x": 13,
+      "y": 8
+    },
+    {
+      "tick": 2460,
+      "side": "opponent",
+      "card": "goblin-cage",
+      "x": 9,
+      "y": 10
+    },
+    {
+      "tick": 2500,
+      "side": "opponent",
+      "card": "suspicious-bush",
+      "x": 14,
+      "y": 7
+    },
+    {
+      "tick": 3300,
+      "side": "team",
+      "card": "the-log",
+      "x": 14,
+      "y": 17
+    },
+    {
+      "tick": 3310,
+      "side": "opponent",
+      "card": "golden-knight",
+      "x": 14,
+      "y": 13
     }
   ]
 }
