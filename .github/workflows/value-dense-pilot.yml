@@ -1,0 +1,87 @@
+name: CR Coach Value dense pilot
+
+on:
+  push:
+    branches:
+      - "ml/value-dense-prefix-pilot"
+    paths:
+      - "ml/value_baseline/**"
+      - ".github/workflows/value-dense-pilot.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: value-dense-pilot-${{ github.sha }}
+  cancel-in-progress: false
+
+jobs:
+  train-dense-value:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      PYTHONUNBUFFERED: "1"
+      COCHON_SHA: eec3887c94faecb7e9108f5d53d24a86b6bf08d5
+    steps:
+      - name: Checkout CR Coach
+        uses: actions/checkout@v4
+
+      - name: Checkout replay pipeline (pinned)
+        uses: actions/checkout@v4
+        with:
+          repository: cochon123/clash-royale-ai
+          ref: ${{ env.COCHON_SHA }}
+          path: .deps/clash-royale-ai
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CPU dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.3,<3"
+          python -m pip install -r ml/value_baseline/requirements-actions.txt
+
+      - name: Compile dense trainer
+        run: python -m py_compile ml/value_baseline/train_value.py
+
+      - name: Train after every card placement
+        env:
+          COCHON_SRC: .deps/clash-royale-ai/src
+        run: |
+          python ml/value_baseline/train_value.py \
+            --max-files 150 \
+            --epochs 8 \
+            --batch-size 64 \
+            --d-model 96 \
+            --layers 2 \
+            --min-card-plays 8 \
+            --dense-prefixes \
+            --dense-min-events 8 \
+            --trace-matches 5 \
+            --output-dir outputs/value_dense_pilot
+
+      - name: Print summary
+        if: always()
+        run: |
+          if [[ -f outputs/value_dense_pilot/SUMMARY.md ]]; then
+            cat outputs/value_dense_pilot/SUMMARY.md
+            cat outputs/value_dense_pilot/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload dense pilot artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: value-dense-pilot-${{ github.run_number }}
+          path: |
+            outputs/value_dense_pilot/value_transformer.pt
+            outputs/value_dense_pilot/report.json
+            outputs/value_dense_pilot/vocab.json
+            outputs/value_dense_pilot/SUMMARY.md
+            outputs/value_dense_pilot/prediction_traces.json
+          if-no-files-found: warn
+          retention-days: 14
