@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter, deque
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Iterable, Protocol, Sequence
 import json, math
 
 import cv2
@@ -64,6 +64,11 @@ def _prep(img: np.ndarray, size=(64,72)) -> tuple[np.ndarray,np.ndarray]:
     edge=cv2.Canny(gray,60,150)
     return gray,edge
 
+class CardMatcher(Protocol):
+    def match(self, crop: np.ndarray, observed_elixir: int | None = None) -> tuple[str,float,float]:
+        ...
+
+
 class CardTemplateMatcher:
     def __init__(self, template_dir: str|Path, allowed: Iterable[str]|None=None):
         allowed=set(allowed or [])
@@ -77,7 +82,7 @@ class CardTemplateMatcher:
         if not self.templates:
             raise ValueError(f'no card templates loaded from {template_dir}')
 
-    def match(self, crop: np.ndarray) -> tuple[str,float,float]:
+    def match(self, crop: np.ndarray, observed_elixir: int | None = None) -> tuple[str,float,float]:
         g,e=_prep(crop)
         scores=[]
         for key,(tg,te) in self.templates.items():
@@ -106,7 +111,7 @@ class HandObservation:
     per_slot: tuple[float,...]
 
 
-def classify_hand(frame: np.ndarray, slots: Sequence[RectN], matcher: CardTemplateMatcher) -> HandObservation:
+def classify_hand(frame: np.ndarray, slots: Sequence[RectN], matcher: CardMatcher) -> HandObservation:
     keys=[]; cs=[]
     for r in slots:
         k,c,_=matcher.match(crop_rect(frame,r)); keys.append(k); cs.append(c)
