@@ -124,7 +124,7 @@ old_targeting = """        // ── Building pull: building-only troops always 
         let deprio_ref = deprio_buff.as_deref();
         let new_target = find_target(
             my_id, my_team, my_x, my_y, sight_sq, min_range_sq, atk_ground, atk_air, only_buildings,
-            only_troops, only_towers, only_king_tower, lowest_hp, prefer_troops, deprio_ref, &snapshots, &has_buff_fn,
+            only_troops, only_towers, only_king_tower, lowest_hp, deprio_ref, &snapshots, &has_buff_fn,
         );
 """
 new_targeting = """        // ── Building pull: building-only troops always retarget to nearest ──
@@ -141,7 +141,7 @@ new_targeting = """        // ── Building pull: building-only troops always 
         let deprio_ref = deprio_buff.as_deref();
         let candidate_target = find_target(
             my_id, my_team, my_x, my_y, sight_sq, min_range_sq, atk_ground, atk_air, only_buildings,
-            only_troops, only_towers, only_king_tower, lowest_hp, deprio_ref, &snapshots, &has_buff_fn,
+            only_troops, only_towers, only_king_tower, lowest_hp, prefer_troops, deprio_ref, &snapshots, &has_buff_fn,
         );
         let switch_to_visible_troop = if current_valid && !force_retarget {
             match (old_target, candidate_target) {
