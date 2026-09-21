@@ -89,8 +89,8 @@ jobs:
             batch=128
             min_plays=12
           else
-            default_files=800
-            default_epochs=3
+            default_files=5000
+            default_epochs=6
             d_model=96
             layers=2
             batch=64
