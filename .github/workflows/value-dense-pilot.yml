@@ -1,4 +1,4 @@
-name: CR Coach Value tokenwise pilot
+name: CR Coach Value tokenwise 4500
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: value-tokenwise-pilot-${{ github.sha }}
+  group: value-tokenwise-4500-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
@@ -53,7 +53,7 @@ jobs:
           COCHON_SRC: .deps/clash-royale-ai/src
         run: |
           python ml/value_baseline/train_value_tokenwise.py \
-            --max-files 150 \
+            --max-files 4500 \
             --epochs 8 \
             --batch-size 16 \
             --d-model 96 \
@@ -61,7 +61,7 @@ jobs:
             --min-card-plays 8 \
             --min-events 8 \
             --trace-matches 5 \
-            --output-dir outputs/value_tokenwise_pilot
+            --output-dir outputs/value_tokenwise_4500
 
       - name: Print summary
         if: always()
