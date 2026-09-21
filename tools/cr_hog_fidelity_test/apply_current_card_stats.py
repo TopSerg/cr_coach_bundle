@@ -226,14 +226,27 @@ def find_spell_projectile(
     projectiles: list[dict[str, Any]],
     registry: dict[str, Any],
 ) -> dict[str, Any] | None:
-    """Mirror Rudy's spell-projectile lookup for Fireball/Log/Arrows/etc."""
+    """Mirror Rudy's spell-projectile lookup for Fireball/Log/Arrows/etc.
+
+    Some spells have a zero-damage wrapper plus a separate payload record.
+    The runtime loader selects the highest-scoring candidate (for example,
+    ``LogProjectileRolling`` for The Log), so the overlay must patch that same
+    record or the replay keeps stale level/tower-damage values.
+    """
     sk = str(registry.get("sc_key") or "")
     if not sk:
         return None
-    for candidate in (f"{sk}Spell", f"{sk}Projectile", f"{sk}ProjectileRolling", sk):
-        found = find_one(projectiles, candidate)
-        if found is not None:
-            return found
+    candidates = (f"{sk}Spell", f"{sk}Projectile", f"{sk}ProjectileRolling", sk)
+    found_candidates = [
+        found for candidate in candidates
+        if (found := find_one(projectiles, candidate)) is not None
+    ]
+    if found_candidates:
+        return max(
+            found_candidates,
+            key=lambda record: int(record.get("damage") or 0)
+            + int(record.get("spawn_character_count") or 0) * 100,
+        )
 
     wanted = norm(sk)
     candidates = [
