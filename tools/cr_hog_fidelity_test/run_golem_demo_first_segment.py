@@ -8,7 +8,7 @@ sys.path.insert(0,str(ROOT/"starter"))
 from cr_coach.replay.io import load_replay
 from cr_coach.runtime.rudy_runner import run_rudy_replay
 
-CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260,335,336,345,355,365,385,405,409,410,420,440,460,479,480,500,520,541,542,560,574,575,580,600,618,619,630,650,700,740,760,900,948,949,960,980,990,991,1000,1040,1100,1160,1161,1180,1220,1260,1300}
+CHECK_TICKS={0,21,48,49,50,55,60,78,80,85,100,120,140,160,180,189,190,200,220,240,260,335,336,345,355,365,385,405,409,410,420,440,460,479,480,500,520,541,542,560,574,575,580,600,618,619,630,650,700,740,760,900,948,949,960,980,990,991,1000,1040,1100,1160,1161,1180,1220,1235,1236,1260,1300,1393,1394,1440,1480,1481,1520,1525,1526,1620,1680,1700}
 
 def compact(snapshot):
     rows=[]
@@ -109,6 +109,32 @@ def main():
         demolisher_by_tick[str(tick)]=rows
     demolisher_created=bool(demolisher_by_tick.get("336"))
 
+    video_tower_anchors={
+        1440:2360,  # source video 90.00s
+        1520:2209,  # 94.00s
+        1620:2058,  # 99.00s
+        1680:1860,  # 102.00s
+    }
+    tower_hp_checks={}
+    for snapshot in snaps:
+        tick=int(snapshot["tick"])
+        if tick not in video_tower_anchors:
+            continue
+        tower=next(
+            (
+                entity for entity in snapshot.get("entities",[])
+                if entity.get("kind")=="tower"
+                and int(entity.get("owner",-1))==1
+                and int(entity.get("x_mtile",-1))==14500
+            ),
+            None,
+        )
+        tower_hp_checks[str(tick)]={
+            "video_hp":video_tower_anchors[tick],
+            "sim_hp":None if tower is None else int(tower["hp"]),
+            "error":None if tower is None else int(tower["hp"])-video_tower_anchors[tick],
+        }
+
     golden_knight_ability_events=[
         row for row in generated
         if row.get("kind")=="ability_activated"
@@ -185,6 +211,11 @@ def main():
                 "states_by_tick":demolisher_by_tick,
                 "passed":demolisher_created,
                 "gating":True,
+            },
+            "video_tower_hp_anchors":{
+                "tower":"opponent screen-right princess tower",
+                "checks":tower_hp_checks,
+                "gating":False,
             },
             "extended_opening_plays":{
                 "expected":{
