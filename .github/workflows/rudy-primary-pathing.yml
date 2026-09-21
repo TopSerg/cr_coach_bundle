@@ -53,6 +53,7 @@ jobs:
           python tools/rudy_windows/patch_rudy_current_multi_unit_formations.py
           python tools/rudy_windows/patch_rudy_hp_threshold_morph.py
           python tools/rudy_windows/patch_rudy_dynamic_target_selection.py
+          python tools/rudy_windows/patch_rudy_tower_target_lock.py
 
       - name: Build and install patched Rudy
         working-directory: third_party/clash-royale-suite/cr-rudy-sim/simulator/engine
