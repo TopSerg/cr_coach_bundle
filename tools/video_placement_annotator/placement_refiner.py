@@ -435,7 +435,7 @@ def _new_color_components(
                 & (baseline_hsv[:, :, 1] > 80)
                 & (baseline_hsv[:, :, 2] > 70)
             )
-        elif kind == "the-log":
+        elif kind in LINE_SPELLS:
             current = (
                 (hsv[:, :, 0] >= 5)
                 & (hsv[:, :, 0] <= 30)
@@ -501,6 +501,71 @@ def _new_color_components(
             out.append((frame_index, t, components))
     return out
 
+
+
+def _generic_effect_components(
+    frames: Sequence[tuple[int, float, np.ndarray]],
+    approx_time: float,
+) -> list[tuple[int, float, list[tuple[float, float, float, int, int]]]]:
+    """Fallback for spells whose visual effect is not color-specific."""
+    pre = [
+        frame
+        for _, t, frame in frames
+        if approx_time - 0.95 <= t <= approx_time - 0.72
+    ]
+    if not pre:
+        return []
+    baseline = np.median(np.stack(pre), axis=0).astype(np.uint8)
+    base_gray = cv2.cvtColor(baseline, cv2.COLOR_BGR2GRAY)
+    h, w = base_gray.shape
+    out = []
+    for frame_index, t, frame in frames:
+        if t < approx_time - 0.58:
+            continue
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        diff = cv2.absdiff(gray, base_gray)
+        diff[: round(h * 0.24)] = 0
+        diff[round(h * 0.87) :] = 0
+        # Ignore tiny battle motion; spells create a dense local region.
+        smooth = cv2.GaussianBlur(diff, (0, 0), sigmaX=5.0, sigmaY=5.0)
+        mask = (smooth >= 22).astype(np.uint8) * 255
+        mask = cv2.morphologyEx(
+            mask, cv2.MORPH_OPEN, np.ones((3, 3), np.uint8)
+        )
+        mask = cv2.morphologyEx(
+            mask, cv2.MORPH_CLOSE, np.ones((11, 11), np.uint8)
+        )
+        contours, _ = cv2.findContours(
+            mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+        )
+        components = []
+        for contour in contours:
+            area = float(cv2.contourArea(contour))
+            if area < 120:
+                continue
+            x, y, width, height = cv2.boundingRect(contour)
+            # Very tall/thin regions are usually a moving troop/projectile.
+            aspect = max(width, height) / max(1.0, min(width, height))
+            if aspect > 7.0:
+                continue
+            moments = cv2.moments(contour)
+            cx = (
+                moments["m10"] / moments["m00"]
+                if moments["m00"]
+                else x + width / 2
+            )
+            cy = (
+                moments["m01"] / moments["m00"]
+                if moments["m00"]
+                else y + height / 2
+            )
+            components.append(
+                (area, float(cx), float(cy), int(width), int(height))
+            )
+        if components:
+            components.sort(reverse=True)
+            out.append((frame_index, t, components))
+    return out
 
 def _red_mask(frame: np.ndarray) -> np.ndarray:
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
@@ -588,6 +653,7 @@ def locate_spell_precise(
     approx_time: float,
     cfg: LayoutConfig,
     card: str,
+    card_stats: dict | None = None,
 ) -> PlacementObservation | None:
     _, frames = _read_event_frames(video_path, approx_time)
     if not frames:
@@ -622,6 +688,7 @@ def locate_spell_precise(
     elif card == "fireball":
         area_threshold = 1800.0
 
+    locator = "spell_hit_area"
     selected = None
     for frame_index, t, items in components:
         candidate = next(
@@ -631,13 +698,25 @@ def locate_spell_precise(
         if candidate is not None:
             selected = (frame_index, t, candidate)
             break
+
+    if selected is None:
+        locator = "spell_effect_change"
+        generic = _generic_effect_components(frames, approx_time)
+        for frame_index, t, items in generic:
+            candidate = next(
+                (item for item in items if item[0] >= 500.0),
+                None,
+            )
+            if candidate is not None:
+                selected = (frame_index, t, candidate)
+                break
     if selected is None:
         return None
 
     frame_index, t, item = selected
     area, x, y, width, height = item
     cell_x, cell_y, _ = pixel_to_cell(x, y, w, h, cfg)
-    if card == "the-log":
+    if card in LINE_SPELLS:
         hit_area = {
             "shape": "line_rect",
             "initial_center_px": [x, y],
@@ -648,22 +727,37 @@ def locate_spell_precise(
                 y + height / 2,
             ],
         }
-        confidence = min(1.0, area / 5000.0)
+        confidence = min(0.92, area / 5000.0)
     else:
-        radius = (width + height) / 4.0
+        radius_tiles = None
+        if card_stats is not None and card_stats.get("radius_tiles") is not None:
+            radius_tiles = float(card_stats["radius_tiles"])
+        if radius_tiles is not None:
+            px_per_tile = (
+                cfg.grid_step_norm[0] * w
+                + cfg.grid_step_norm[1] * h
+            ) / 2.0
+            radius = radius_tiles * px_per_tile
+        else:
+            radius = (width + height) / 4.0
         hit_area = {
             "shape": "circle",
             "center_px": [x, y],
             "radius_px": radius,
         }
-        confidence = min(1.0, area / 5000.0)
+        if radius_tiles is not None:
+            hit_area["radius_tiles"] = radius_tiles
+        confidence = min(
+            0.92 if locator == "spell_hit_area" else 0.68,
+            area / 5000.0,
+        )
     return PlacementObservation(
         frame_index=frame_index,
         video_time=t,
         x=cell_x,
         y=cell_y,
         confidence=float(confidence),
-        locator="spell_hit_area",
+        locator=locator,
         pixel=(x, y),
         hit_area=hit_area,
     )
@@ -675,10 +769,13 @@ def refine_placement(
     cfg: LayoutConfig,
     side: str,
     card: str,
+    *,
+    card_kind: str | None = None,
+    card_stats: dict | None = None,
 ) -> PlacementObservation | None:
-    if card in SPELL_CARDS:
+    if card_kind == "spell":
         return locate_spell_precise(
-            video_path, approx_time, cfg, card
+            video_path, approx_time, cfg, card, card_stats
         )
     return locate_deployment_clock_precise(
         video_path, approx_time, cfg, side
