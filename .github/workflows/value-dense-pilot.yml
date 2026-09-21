@@ -1,4 +1,4 @@
-name: CR Coach Value dense pilot
+name: CR Coach Value tokenwise pilot
 
 on:
   push:
@@ -12,11 +12,11 @@ permissions:
   contents: read
 
 concurrency:
-  group: value-dense-pilot-${{ github.sha }}
+  group: value-tokenwise-pilot-${{ github.sha }}
   cancel-in-progress: false
 
 jobs:
-  train-dense-value:
+  train-tokenwise-value:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     env:
@@ -45,43 +45,42 @@ jobs:
           python -m pip install --index-url https://download.pytorch.org/whl/cpu "torch>=2.3,<3"
           python -m pip install -r ml/value_baseline/requirements-actions.txt
 
-      - name: Compile dense trainer
+      - name: Compile tokenwise trainer
         run: python -m py_compile ml/value_baseline/train_value_tokenwise.py
 
-      - name: Train after every card placement
+      - name: Train tokenwise Value model
         env:
           COCHON_SRC: .deps/clash-royale-ai/src
         run: |
-          python ml/value_baseline/train_value.py \
+          python ml/value_baseline/train_value_tokenwise.py \
             --max-files 150 \
             --epochs 8 \
-            --batch-size 64 \
+            --batch-size 16 \
             --d-model 96 \
             --layers 2 \
             --min-card-plays 8 \
-            --dense-prefixes \
-            --dense-min-events 8 \
+            --min-events 8 \
             --trace-matches 5 \
-            --output-dir outputs/value_dense_pilot
+            --output-dir outputs/value_tokenwise_pilot
 
       - name: Print summary
         if: always()
         run: |
-          if [[ -f outputs/value_dense_pilot/SUMMARY.md ]]; then
-            cat outputs/value_dense_pilot/SUMMARY.md
-            cat outputs/value_dense_pilot/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
+          if [[ -f outputs/value_tokenwise_pilot/SUMMARY.md ]]; then
+            cat outputs/value_tokenwise_pilot/SUMMARY.md
+            cat outputs/value_tokenwise_pilot/SUMMARY.md >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Upload dense pilot artifact
+      - name: Upload tokenwise pilot artifact
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: value-dense-pilot-${{ github.run_number }}
+          name: value-tokenwise-pilot-${{ github.run_number }}
           path: |
-            outputs/value_dense_pilot/value_transformer_tokenwise.pt
-            outputs/value_dense_pilot/report.json
-            outputs/value_dense_pilot/vocab.json
-            outputs/value_dense_pilot/SUMMARY.md
-            outputs/value_dense_pilot/prediction_traces.json
+            outputs/value_tokenwise_pilot/value_transformer_tokenwise.pt
+            outputs/value_tokenwise_pilot/report.json
+            outputs/value_tokenwise_pilot/vocab.json
+            outputs/value_tokenwise_pilot/SUMMARY.md
+            outputs/value_tokenwise_pilot/prediction_traces.json
           if-no-files-found: warn
           retention-days: 14
