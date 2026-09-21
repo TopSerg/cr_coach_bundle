@@ -46,6 +46,7 @@ jobs:
             --stats tools/cr_hog_fidelity_test/current_card_stats_2026_09.json \
             --out tools/video_placement_annotator/card_fingerprints.json \
             --source-label "RoyaleAPI/cr-api-assets@${ASSET_SHA} cards-150" \
+            --only-stats-cards \
             --collision-threshold 0.995 \
             --show-nearest 30
 
