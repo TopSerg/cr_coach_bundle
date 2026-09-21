@@ -124,7 +124,7 @@ def main():
         1680:1860,  # 102.00s
     }
     tower_hp_checks={}
-    tower_uid=0xFFFF_FF05
+    tower_uid=0xFFFF_FF06
     tower_damage_events=[
         {
             "tick":int(row.get("tick",0)),
@@ -146,7 +146,7 @@ def main():
                 entity for entity in snapshot.get("entities",[])
                 if entity.get("kind")=="tower"
                 and int(entity.get("owner",-1))==1
-                and int(entity.get("x_mtile",-1))==14500
+                and int(entity.get("x_mtile",-1))==14100
             ),
             None,
         )
