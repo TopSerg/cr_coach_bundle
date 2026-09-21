@@ -205,7 +205,7 @@ def _shape_clock_hits(frame: np.ndarray) -> list[tuple[float, float, float, floa
         dp=1.2,
         minDist=max(16, round(w * 0.025)),
         param1=120,
-        param2=22,
+        param2=18,
         minRadius=max(7, round(w * 0.010)),
         maxRadius=max(24, round(w * 0.050)),
     )
