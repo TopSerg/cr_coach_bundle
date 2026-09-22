@@ -150,18 +150,19 @@ def _snapshot(match: Any, *, relative_tick: int, mode: str, raw_entities: Iterab
     source_entities = match.get_entities() if raw_entities is None else raw_entities
     for raw_value in source_entities:
         raw = dict(raw_value)
+        p1_trace = "uid" in raw and "card_id" in raw
         x, y = _world_xy(raw)
         item = {
-            "uid": int(raw["id"]),
-            "owner": int(raw["team"]) - 1,
-            "card_id": str(raw.get("card_key", "unknown")),
+            "uid": int(raw["uid"] if p1_trace else raw["id"]),
+            "owner": int(raw["team"]) if p1_trace else int(raw["team"]) - 1,
+            "card_id": str(raw.get("card_id") if p1_trace else raw.get("card_key", "unknown")),
             "kind": str(raw.get("kind", "entity")),
             "alive": bool(raw.get("alive", True)),
             "hp": int(raw.get("hp", 0)),
             "max_hp": int(raw.get("max_hp", 0)),
             "x_mtile": x,
             "y_mtile": y,
-            "target_uid": raw.get("target_id"),
+            "target_uid": raw.get("target_uid") if p1_trace else raw.get("target_id"),
             "deploy_remaining_us": max(0, int(raw.get("deploy_timer", 0))) * 50_000,
             "attack_phase": raw.get("attack_phase"),
             "vx": raw.get("vx"),
