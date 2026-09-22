@@ -16,7 +16,7 @@ Each entity row contains at least:
 
 `vx/vy` are computed inside Rust from authoritative pre/post GameState positions for that engine tick. They are in Rudy internal units per second.
 
-`current_waypoint` is currently `null`: Rudy recomputes bridge routing and does not persist a waypoint as authoritative state. P-1 deliberately does not invent it in Python.
+`path_target` and `current_waypoint` are exported from a read-only Rust debug helper that calls Rudy's existing routing helpers. The helper does not mutate movement or change pathfinding semantics; it reports the final movement target and the bridge waypoint selected by the current pathfinder.
 
 ## Event trace
 
