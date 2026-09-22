@@ -16,7 +16,7 @@ from .viewer import write_viewer
 
 
 TPS = 20
-RUNTIME_VERSION = "cr-coach-rudy-replay-v1"
+RUNTIME_VERSION = "cr-coach-rudy-replay-v2-p1"
 RUDY_UPSTREAM = "050275d70b84614953877e8075dc4b8ba907c67f"
 PHYSICS_PROFILE = "rudy-hog-cannon-princess-core-v1"
 RULESET_ID = "tournament-11-overlay-v1"
@@ -144,10 +144,11 @@ def _tower_entities(match: Any) -> list[dict[str, Any]]:
     return entities
 
 
-def _snapshot(match: Any, *, relative_tick: int, mode: str) -> dict[str, Any]:
+def _snapshot(match: Any, *, relative_tick: int, mode: str, raw_entities: Iterable[Mapping[str, Any]] | None = None) -> dict[str, Any]:
     entities: list[dict[str, Any]] = _tower_entities(match)
     projectiles: list[dict[str, Any]] = []
-    for raw_value in match.get_entities():
+    source_entities = match.get_entities() if raw_entities is None else raw_entities
+    for raw_value in source_entities:
         raw = dict(raw_value)
         x, y = _world_xy(raw)
         item = {
@@ -163,6 +164,20 @@ def _snapshot(match: Any, *, relative_tick: int, mode: str) -> dict[str, Any]:
             "target_uid": raw.get("target_id"),
             "deploy_remaining_us": max(0, int(raw.get("deploy_timer", 0))) * 50_000,
             "attack_phase": raw.get("attack_phase"),
+            "vx": raw.get("vx"),
+            "vy": raw.get("vy"),
+            "shield_hp": int(raw.get("shield_hp", 0)),
+            "movement_state": raw.get("movement_state"),
+            "target_locked": raw.get("target_locked"),
+            "combat_phase": raw.get("combat_phase", raw.get("attack_phase")),
+            "windup_remaining": raw.get("windup_remaining"),
+            "cooldown_remaining": raw.get("cooldown_remaining", raw.get("attack_cooldown")),
+            "load_progress": raw.get("load_progress"),
+            "active_statuses": raw.get("active_statuses"),
+            "charge_state": raw.get("charge_state"),
+            "path_target": raw.get("path_target"),
+            "current_waypoint": raw.get("current_waypoint"),
+            "active_projectiles": raw.get("active_projectiles"),
         }
         if item["kind"] == "projectile":
             item["source_uid"] = raw.get("projectile_source_id")
@@ -312,9 +327,30 @@ def run_rudy_replay(spec: Any, out_dir: str | Path, *, data_dir: str | Path, sam
                 )
                 event_index += 1
             previous = _snapshot(match, relative_tick=tick, mode=mode)
-            match.step()
-            current = _snapshot(match, relative_tick=tick + 1, mode=mode)
-            generated.extend(_changes(previous, current))
+            step_trace = getattr(match, "step_trace", None)
+            if step_trace is not None:
+                rust_trace = dict(step_trace())
+                current = _snapshot(
+                    match,
+                    relative_tick=tick + 1,
+                    mode=mode,
+                    raw_entities=list(rust_trace.get("entities", ())),
+                )
+                for event in rust_trace.get("events", ()):
+                    row = dict(event)
+                    generated.append(
+                        {
+                            "tick": int(row.get("tick", tick + 1)),
+                            "state_tick": int(row.get("tick", tick + 1)),
+                            "kind": str(row.get("type", "UNKNOWN")),
+                            "type": str(row.get("type", "UNKNOWN")),
+                            "data": {key: value for key, value in row.items() if key not in {"tick", "type"}},
+                        }
+                    )
+            else:
+                match.step()
+                current = _snapshot(match, relative_tick=tick + 1, mode=mode)
+                generated.extend(_changes(previous, current))
             if (tick + 1) % sample_ticks == 0 or tick + 1 == end_tick or not match.is_running:
                 snapshots.append(current)
             if not match.is_running:
@@ -334,7 +370,8 @@ def run_rudy_replay(spec: Any, out_dir: str | Path, *, data_dir: str | Path, sam
     used_cards = sorted({_card_id(str(_get(event, "card")), available) for event in replay_events if _get(event, "event_type") == "card_play"})
     core_validated = set(used_cards).issubset({"hog-rider", "cannon"})
     report = {
-        "schema_version": 1,
+        "schema_version": 2,
+        "trace_authority": "rust" if hasattr(match, "step_trace") else "python_compat",
         "battle_id": _get(spec, "battle_id", "replay"),
         "status": status,
         "error": error,
