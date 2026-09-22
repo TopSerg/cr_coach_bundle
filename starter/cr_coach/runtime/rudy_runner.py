@@ -336,14 +336,32 @@ def run_rudy_replay(spec: Any, out_dir: str | Path, *, data_dir: str | Path, sam
                     mode=mode,
                     raw_entities=list(rust_trace.get("entities", ())),
                 )
+                legacy_kind = {
+                    "DAMAGE": "damage_applied",
+                    "DEATH": "entity_died",
+                    "SPAWN": "entity_created",
+                    "TARGET_ACQUIRED": "target_changed",
+                    "TARGET_DROPPED": "target_changed",
+                    "TARGET_CHANGED": "target_changed",
+                    "ATTACK_WINDUP_STARTED": "attack_windup_started",
+                    "MELEE_HIT": "melee_hit",
+                    "PROJECTILE_SPAWN": "projectile_spawned",
+                    "PROJECTILE_HIT": "projectile_hit",
+                    "STUN_APPLIED": "stun_applied",
+                    "STUN_EXPIRED": "stun_expired",
+                    "CHARGE_STARTED": "charge_started",
+                    "CHARGE_RESET": "charge_reset",
+                    "PATH_REBUILT": "path_rebuilt",
+                }
                 for event in rust_trace.get("events", ()):
                     row = dict(event)
+                    event_type = str(row.get("type", "UNKNOWN"))
                     generated.append(
                         {
                             "tick": int(row.get("tick", tick + 1)),
                             "state_tick": int(row.get("tick", tick + 1)),
-                            "kind": str(row.get("type", "UNKNOWN")),
-                            "type": str(row.get("type", "UNKNOWN")),
+                            "kind": legacy_kind.get(event_type, event_type.lower()),
+                            "type": event_type,
                             "data": {key: value for key, value in row.items() if key not in {"tick", "type"}},
                         }
                     )
