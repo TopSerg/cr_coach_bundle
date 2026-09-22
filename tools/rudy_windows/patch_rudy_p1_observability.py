@@ -282,7 +282,60 @@ method = r'''    /// P-1 authoritative observability step.
                 event_rows.append(event)?;
             }
 
+            // Knockback is represented authoritatively in pinned Rudy by the
+            // short-lived knockback_stun buff added at the exact displacement
+            // site.  Export its lifetime transition instead of guessing from
+            // position deltas in Python.
+            let old_knockback = old.buffs.iter().any(|buff| {
+                buff.key == "knockback_stun" && !buff.is_expired()
+            });
+            let new_knockback = e.buffs.iter().any(|buff| {
+                buff.key == "knockback_stun" && !buff.is_expired()
+            });
+            if old_knockback != new_knockback {
+                let event = PyDict::new_bound(py);
+                event.set_item("tick", self.state.tick)?;
+                event.set_item("uid", e.id.0)?;
+                event.set_item(
+                    "type",
+                    if new_knockback { "KNOCKBACK_STARTED" } else { "KNOCKBACK_ENDED" },
+                )?;
+                event_rows.append(event)?;
+            }
+
             if let (EntityKind::Troop(old_t), EntityKind::Troop(new_t)) = (&old.kind, &e.kind) {
+                // River jumpers in pinned Rudy do not have a separate animation
+                // state; their authoritative mechanic is "can cross the river
+                // directly".  Emit jump boundary events at the exact engine tick
+                // where their authoritative position enters/leaves the river band.
+                if new_t.can_jump_river {
+                    let old_in_river = old.y > game_state::RIVER_Y_MIN
+                        && old.y < game_state::RIVER_Y_MAX;
+                    let new_in_river = e.y > game_state::RIVER_Y_MIN
+                        && e.y < game_state::RIVER_Y_MAX;
+                    let crossed_whole_band = match e.team {
+                        Team::Player1 => old.y <= game_state::RIVER_Y_MIN
+                            && e.y >= game_state::RIVER_Y_MAX,
+                        Team::Player2 => old.y >= game_state::RIVER_Y_MAX
+                            && e.y <= game_state::RIVER_Y_MIN,
+                    };
+
+                    if (!old_in_river && new_in_river) || crossed_whole_band {
+                        let event = PyDict::new_bound(py);
+                        event.set_item("tick", self.state.tick)?;
+                        event.set_item("uid", e.id.0)?;
+                        event.set_item("type", "JUMP_STARTED")?;
+                        event_rows.append(event)?;
+                    }
+                    if (old_in_river && !new_in_river) || crossed_whole_band {
+                        let event = PyDict::new_bound(py);
+                        event.set_item("tick", self.state.tick)?;
+                        event.set_item("uid", e.id.0)?;
+                        event.set_item("type", "JUMP_LANDED")?;
+                        event_rows.append(event)?;
+                    }
+                }
+
                 if old_t.attack_phase != entities::AttackPhase::Windup
                     && new_t.attack_phase == entities::AttackPhase::Windup
                 {

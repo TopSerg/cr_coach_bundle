@@ -32,7 +32,7 @@ def main() -> int:
 
     all_events = []
     last = None
-    for _ in range(80):
+    for _ in range(160):
         last = dict(match.step_trace())
         entities = [dict(row) for row in last["entities"]]
         all_events.extend(dict(row) for row in last["events"])
@@ -41,13 +41,42 @@ def main() -> int:
             missing = REQUIRED_FIELDS - set(hog_rows[0])
             if missing:
                 raise SystemExit(f"P-1 FAIL: missing trace fields: {sorted(missing)}")
-        if any(event.get("type") in {"TARGET_ACQUIRED","ATTACK_WINDUP_STARTED","MELEE_HIT"} for event in all_events):
+        kinds = {event.get("type") for event in all_events}
+        if {"TARGET_ACQUIRED", "JUMP_STARTED", "JUMP_LANDED"}.issubset(kinds):
             break
 
     if last is None:
         raise SystemExit("P-1 FAIL: no trace produced")
-    if not any(event.get("type") == "TARGET_ACQUIRED" for event in all_events):
+    event_types = {event.get("type") for event in all_events}
+    if "TARGET_ACQUIRED" not in event_types:
         raise SystemExit("P-1 FAIL: no Rust-side TARGET_ACQUIRED observed")
+    if "JUMP_STARTED" not in event_types or "JUMP_LANDED" not in event_types:
+        raise SystemExit(f"P-1 FAIL: Hog river jump boundary events missing: {sorted(event_types)}")
+
+    # Knockback is authoritative through Rudy's knockback_stun runtime buff.
+    # Fireball a live Knight and require both start and expiry transitions.
+    kb_deck = ["fireball","hog-rider","cannon","knight","archers","giant","valkyrie","musketeer"]
+    kb_match = cr_engine.new_match(data, kb_deck, kb_deck)
+    kb_match.set_elixir(1, 10)
+    victim = kb_match.spawn_troop(2, "knight", 0, 0, 11, False)
+    kb_match.play_card(1, 0, 0, 0, 11)
+
+    knockback_events = []
+    for _ in range(180):
+        trace = dict(kb_match.step_trace())
+        knockback_events.extend(
+            dict(event)
+            for event in trace["events"]
+            if dict(event).get("uid") == victim
+        )
+        kb_types = {event.get("type") for event in knockback_events}
+        if {"KNOCKBACK_STARTED", "KNOCKBACK_ENDED"}.issubset(kb_types):
+            break
+
+    kb_types = {event.get("type") for event in knockback_events}
+    if "KNOCKBACK_STARTED" not in kb_types or "KNOCKBACK_ENDED" not in kb_types:
+        raise SystemExit(f"P-1 FAIL: knockback lifecycle events missing: {sorted(kb_types)}")
+    all_events.extend(knockback_events)
 
     # Verify FIRST_DIVERGENCE + last_exact_tick independently of game fidelity.
     snapshots = [

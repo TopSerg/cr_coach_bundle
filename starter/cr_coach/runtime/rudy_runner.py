@@ -353,6 +353,10 @@ def run_rudy_replay(spec: Any, out_dir: str | Path, *, data_dir: str | Path, sam
                     "CHARGE_STARTED": "charge_started",
                     "CHARGE_RESET": "charge_reset",
                     "PATH_REBUILT": "path_rebuilt",
+                    "JUMP_STARTED": "jump_started",
+                    "JUMP_LANDED": "jump_landed",
+                    "KNOCKBACK_STARTED": "knockback_started",
+                    "KNOCKBACK_ENDED": "knockback_ended",
                 }
                 for event in rust_trace.get("events", ()):
                     row = dict(event)
