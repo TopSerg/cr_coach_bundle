@@ -51,6 +51,7 @@ jobs:
           python tools/rudy_windows/patch_rudy_building_hp_decay.py
           python tools/rudy_windows/patch_rudy_troop_speed.py
           python tools/rudy_windows/patch_rudy_attack_timing.py
+          python tools/rudy_windows/patch_rudy_p1_observability.py
 
       - name: Install maturin
         run: python -m pip install --upgrade pip maturin
@@ -71,6 +72,17 @@ jobs:
         run: |
           python tools/cr_hog_fidelity_test/build_tournament_data.py --source-data-dir third_party/clash-royale-suite/cr-rudy-sim/simulator/data --profile tools/cr_hog_fidelity_test/tournament11_profile.json --out-dir outputs/rudy_tournament11_data
           python tools/cr_hog_fidelity_test/patch_tournament_ranged_projectiles.py --data-dir outputs/rudy_tournament11_data --building-name Cannon --projectile-name TowerCannonball --level 11 --damage 202
+
+      - name: P-1 authoritative observability smoke
+        shell: pwsh
+        run: |
+          python tools/p1_observability_smoke.py
+
+      - name: Run P-1 Python validator tests
+        shell: pwsh
+        run: |
+          python -m pip install pytest
+          python -m pytest starter/tests/test_unified_validation.py starter/tests/test_rudy_runtime.py -q
 
       - name: Run Solo Hog Princess guard
         shell: pwsh
