@@ -276,10 +276,52 @@ method = r'''    /// P-1 authoritative observability step.
             }
 
             if old.hp > e.hp {
+                // Resolve the source inside Rust when the authoritative transition
+                // makes it unambiguous: direct melee release or a projectile that
+                // disappeared on this target during the same engine tick.
+                let mut source_uid: Option<u32> = None;
+                let mut source_card_id: Option<String> = None;
+
+                for source_after in &self.state.entities {
+                    if let Some(source_before) = before.entities.iter().find(|candidate| candidate.id == source_after.id) {
+                        if let (EntityKind::Troop(old_t), EntityKind::Troop(new_t)) = (&source_before.kind, &source_after.kind) {
+                            if !new_t.is_ranged
+                                && old_t.attack_phase == entities::AttackPhase::Windup
+                                && new_t.attack_phase == entities::AttackPhase::Backswing
+                                && source_before.target == Some(e.id)
+                            {
+                                source_uid = Some(source_after.id.0);
+                                source_card_id = Some(source_after.card_key.clone());
+                            }
+                        }
+                    }
+                }
+
+                if source_uid.is_none() {
+                    for projectile_before in &before.entities {
+                        if let EntityKind::Projectile(projectile) = &projectile_before.kind {
+                            let disappeared = !self.state.entities.iter().any(|candidate| candidate.id == projectile_before.id);
+                            if disappeared && projectile.target_id == e.id {
+                                source_uid = Some(projectile.source_id.0);
+                                source_card_id = before
+                                    .entities
+                                    .iter()
+                                    .find(|candidate| candidate.id == projectile.source_id)
+                                    .map(|candidate| candidate.card_key.clone());
+                                break;
+                            }
+                        }
+                    }
+                }
+
                 let event = PyDict::new_bound(py);
                 event.set_item("tick", self.state.tick)?;
                 event.set_item("uid", e.id.0)?;
                 event.set_item("type", "DAMAGE")?;
+                event.set_item("target_uid", e.id.0)?;
+                event.set_item("target_card_id", &e.card_key)?;
+                event.set_item("source_uid", source_uid)?;
+                event.set_item("source_card_id", source_card_id)?;
                 event.set_item("damage", old.hp - e.hp)?;
                 event.set_item("hp_after", e.hp)?;
                 event_rows.append(event)?;
@@ -324,6 +366,7 @@ method = r'''    /// P-1 authoritative observability step.
                 event.set_item("uid", old.id.0)?;
                 event.set_item("type", "DEATH")?;
                 event.set_item("card_id", &old.card_key)?;
+                event.set_item("player", if old.team == Team::Player1 { 0 } else { 1 })?;
                 event_rows.append(event)?;
             }
         }
