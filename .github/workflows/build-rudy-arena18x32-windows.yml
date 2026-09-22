@@ -13,6 +13,10 @@ on:
       - "tools/cr_hog_fidelity_test/**"
       - "physical_tests/references/d03_hog_cannon_01_secondary.json"
       - "physical_tests/references/d02_hog_cannon_01_crossdemo.json"
+      - "starter/cr_coach/runtime/rudy_runner.py"
+      - "starter/cr_coach/validation/unified.py"
+      - "starter/tests/test_unified_validation.py"
+      - "tools/p1_observability_smoke.py"
 
 permissions:
   contents: read
