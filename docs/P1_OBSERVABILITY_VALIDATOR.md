@@ -34,11 +34,15 @@ Rust emits tick-precise state transition events where authoritative runtime stat
 - `PROJECTILE_HIT`
 - `STUN_APPLIED`
 - `STUN_EXPIRED`
+- `JUMP_STARTED`
+- `JUMP_LANDED`
+- `KNOCKBACK_STARTED`
+- `KNOCKBACK_ENDED`
 - `DAMAGE`
 - `DEATH`
 - `SPAWN`
 
-`JUMP_STARTED/JUMP_LANDED` and `KNOCKBACK_STARTED/KNOCKBACK_ENDED` are reserved by the P-1 schema but are not fabricated yet because pinned Rudy does not currently store a persistent authoritative river-jump/knockback state. Those events must be wired when those mechanics gain explicit runtime states in P1/P2.
+`JUMP_STARTED/JUMP_LANDED` are emitted in Rust on authoritative river-band entry/exit for troops whose Rudy runtime flag `can_jump_river` is active. `KNOCKBACK_STARTED/KNOCKBACK_ENDED` are emitted from the authoritative lifetime transition of Rudy's `knockback_stun` runtime buff, which is applied at the same engine site as the displacement. No Python-side event reconstruction is used for these events.
 
 ## Unified validator
 
