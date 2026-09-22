@@ -26,6 +26,49 @@ ROOT = (
     / "src"
 )
 LIB = ROOT / "lib.rs"
+COMBAT = ROOT / "combat.rs"
+
+combat_text = COMBAT.read_text(encoding="utf-8")
+if "pub fn debug_path_state(" not in combat_text:
+    marker = """/// Run movement for all troops.
+pub fn tick_movement(state: &mut GameState) {
+"""
+    if combat_text.count(marker) != 1:
+        raise RuntimeError("P-1 observability patch: tick_movement marker not found exactly once")
+    helper = r"""/// Read-only P-1 path observability helper.
+///
+/// Returns (final movement target, current bridge waypoint). It calls the same
+/// existing routing helpers used by movement and never mutates GameState.
+pub fn debug_path_state(state: &GameState, entity: &Entity) -> ((i32, i32), Option<(i32, i32)>) {
+    let target_pos = entity
+        .target
+        .and_then(|target_id| {
+            state.entities.iter()
+                .find(|candidate| candidate.id == target_id)
+                .map(|target| (target.x, target.y))
+        })
+        .unwrap_or_else(|| default_target_for_troop(state, entity.team, entity.x));
+
+    let can_skip_river = entity.is_flying() || match &entity.kind {
+        EntityKind::Troop(t) => t.can_jump_river,
+        _ => false,
+    };
+    let waypoint = if !can_skip_river
+        && needs_river_crossing(entity.y, target_pos.1, entity.team)
+        && !is_on_bridge(entity.x)
+    {
+        Some(next_waypoint_for_crossing(
+            entity.x, entity.y, target_pos.0, target_pos.1, entity.team,
+        ))
+    } else {
+        None
+    };
+    (target_pos, waypoint)
+}
+
+"""
+    combat_text = combat_text.replace(marker, helper + marker, 1)
+    COMBAT.write_text(combat_text, encoding="utf-8")
 
 text = LIB.read_text(encoding="utf-8")
 if "fn step_trace(&mut self, py: Python<'_>)" in text:
@@ -73,13 +116,12 @@ method = r'''    /// P-1 authoritative observability step.
                 })
                 .collect();
 
-            let path_target = e.target.and_then(|target_id| {
-                self.state
-                    .entities
-                    .iter()
-                    .find(|candidate| candidate.id == target_id)
-                    .map(|target| (target.x, target.y))
-            });
+            let (path_target, current_waypoint) = if matches!(&e.kind, EntityKind::Troop(_)) {
+                let (target, waypoint) = combat::debug_path_state(&self.state, e);
+                (Some(target), waypoint)
+            } else {
+                (None, None)
+            };
 
             let mut movement_state = if e.deploy_timer > 0 {
                 "deploying"
@@ -170,9 +212,7 @@ method = r'''    /// P-1 authoritative observability step.
             row.set_item("active_statuses", active_statuses)?;
             row.set_item("charge_state", charge_state)?;
             row.set_item("path_target", path_target)?;
-            // Rudy currently recomputes bridge routing and does not persist a waypoint.
-            // Null is authoritative here; do not invent one in Python.
-            row.set_item("current_waypoint", py.None())?;
+            row.set_item("current_waypoint", current_waypoint)?;
             row.set_item("active_projectiles", active_projectiles)?;
             row.set_item(
                 "kind",
