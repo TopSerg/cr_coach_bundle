@@ -1,0 +1,113 @@
+name: External engine fidelity probe
+
+on:
+  push:
+    branches:
+      - probe/external-engine-fidelity-20260922
+    paths:
+      - tools/external_engine_benchmark/**
+      - .github/workflows/external-engine-fidelity.yml
+      - physical_tests/references/**
+
+permissions:
+  contents: read
+
+jobs:
+  hasty:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout CR Coach
+        uses: actions/checkout@v4
+
+      - name: Checkout Hasty-CR
+        uses: actions/checkout@v4
+        with:
+          repository: hastylmao/Hasty-CR
+          ref: 913608b4dc7772008402493b27dc29020fe51718
+          path: third_party/Hasty-CR
+
+      - name: Checkout historical decoded CR data
+        uses: actions/checkout@v4
+        with:
+          repository: smlbiobot/cr-csv
+          ref: 899e45efc765fbf3902927bb2e37dc04a78f7823
+          path: third_party/cr-csv
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Prepare Hasty data and install
+        run: |
+          mkdir -p third_party/Hasty-CR/tmp/gamedata
+          cp -a third_party/cr-csv/assets/csv_logic third_party/Hasty-CR/tmp/gamedata/csv_logic
+          python -m pip install --upgrade pip
+          python -m pip install -e third_party/Hasty-CR
+
+      - name: Run raw Hasty benchmark
+        run: |
+          python tools/external_engine_benchmark/benchmark.py \
+            --engine hasty --mode raw \
+            --out outputs/external_engines/hasty_raw.json
+
+      - name: Run stat-normalized Hasty benchmark
+        if: always()
+        run: |
+          python tools/external_engine_benchmark/benchmark.py \
+            --engine hasty --mode normalized \
+            --out outputs/external_engines/hasty_normalized.json
+
+      - name: Upload Hasty results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: external-engine-hasty
+          path: outputs/external_engines/
+          if-no-files-found: warn
+
+  crforge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout CR Coach
+        uses: actions/checkout@v4
+
+      - name: Checkout CRForge
+        uses: actions/checkout@v4
+        with:
+          repository: voonhous/crforge
+          ref: b41cf9b6276945152ec4c869ce56f98a5fa3f513
+          path: third_party/crforge
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Python bridge dependencies
+        run: python -m pip install numpy jpype1
+
+      - name: Build CRForge bridge
+        working-directory: third_party/crforge
+        run: |
+          chmod +x gradlew
+          ./gradlew :gym-bridge:installDist -q
+
+      - name: Run CRForge benchmark
+        run: |
+          python tools/external_engine_benchmark/benchmark.py \
+            --engine crforge \
+            --out outputs/external_engines/crforge.json
+
+      - name: Upload CRForge results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: external-engine-crforge
+          path: outputs/external_engines/
+          if-no-files-found: warn
