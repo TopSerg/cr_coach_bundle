@@ -36,13 +36,21 @@ old = """            if is_building_deploy {
 new = """            if is_building_deploy {
                 let tile = game_state::TILE_SIZE;
                 if tile > 0 {
-                    // The 18x32 arena origin lies on a grid intersection, not at a
-                    // tile centre. Therefore legal tile centres are offset by
-                    // TILE_SIZE/2 on both axes: ..., -1500, -500, 500, 1500, ...
-                    // Use Euclidean division so negative coordinates are symmetric.
-                    let half = tile / 2;
-                    cx = cx.div_euclid(tile) * tile + half;
-                    cy = cy.div_euclid(tile) * tile + half;
+                    // Odd footprints have a centre tile; even footprints have
+                    // their geometric centre at an intersection of four tiles.
+                    // Placement footprint is independent of collision radius.
+                    let even_footprint = card_key == "tesla" || card_key == "goblin-drill";
+                    if even_footprint {
+                        let half = tile / 2;
+                        cx = cx.div_euclid(tile) * tile + if cx.rem_euclid(tile) >= half { tile } else { 0 };
+                        cy = cy.div_euclid(tile) * tile + if cy.rem_euclid(tile) >= half { tile } else { 0 };
+                    } else {
+                        // The 18x32 arena origin lies on a grid intersection, so
+                        // odd-footprint centres are half a tile from the origin.
+                        let half = tile / 2;
+                        cx = cx.div_euclid(tile) * tile + half;
+                        cy = cy.div_euclid(tile) * tile + half;
+                    }
                 }
             }"""
 
@@ -51,4 +59,4 @@ count = text.count(old)
 if count != 1:
     raise RuntimeError(f"building grid snap: expected exactly one match in {LIB}, found {count}")
 LIB.write_text(text.replace(old, new, 1), encoding="utf-8")
-print("patched building grid: half-tile centres for 18x32 arena")
+print("patched building grid: footprint-aware lattice for 18x32 arena")

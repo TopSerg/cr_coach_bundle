@@ -7,6 +7,7 @@ on:
       - ".github/workflows/build-rudy-arena18x32-windows.yml"
       - "tools/rudy_windows/**"
       - "tools/p1_observability_smoke.py"
+      - "tools/p0_core_gates.py"
       - "starter/cr_coach/validation/**"
       - "starter/tests/test_unified_validation.py"
       - "starter/cr_coach/runtime/rudy_runner.py"
@@ -56,6 +57,7 @@ jobs:
           python tools/rudy_windows/patch_rudy_troop_speed.py
           python tools/rudy_windows/patch_rudy_attack_timing.py
           python tools/rudy_windows/patch_rudy_p1_observability.py
+          python tools/rudy_windows/patch_rudy_p0_core_observability.py
 
       - name: Install maturin
         run: python -m pip install --upgrade pip maturin
@@ -87,6 +89,13 @@ jobs:
         run: |
           python -m pip install pytest
           python -m pytest starter/tests/test_unified_validation.py starter/tests/test_rudy_runtime.py -q
+
+      - name: Run strict P0 core M-gates
+        id: p0_gates
+        continue-on-error: true
+        shell: pwsh
+        run: |
+          python tools/p0_core_gates.py --data-dir outputs/rudy_tournament11_data --out-dir outputs/p0_core
 
       - name: Run Solo Hog Princess guard
         shell: pwsh
@@ -128,6 +137,7 @@ jobs:
         run: Get-ChildItem third_party/clash-royale-suite/cr-rudy-sim/simulator/engine/target/wheels/*.whl
 
       - name: Upload ready Hog Cannon core bundle
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: hog-cannon-princess-core-win64-py3.12
@@ -138,6 +148,12 @@ jobs:
             outputs/rudy_core_postfix
             outputs/rudy_runtime_secondary
             outputs/rudy_runtime_crossdemo
+            outputs/p0_core
             outputs/HOG_CANNON_CORE_README.txt
           if-no-files-found: error
           retention-days: 14
+
+      - name: Enforce P0 gate result
+        if: always() && steps.p0_gates.outcome != 'success'
+        shell: pwsh
+        run: throw "P0 core M-gates failed; inspect outputs/p0_core/summary.json"

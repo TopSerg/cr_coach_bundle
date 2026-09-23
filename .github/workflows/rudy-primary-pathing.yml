@@ -6,6 +6,8 @@ on:
       - ".github/workflows/rudy-primary-pathing.yml"
       - "tools/rudy_windows/**"
       - "tools/cr_hog_fidelity_test/**"
+      - "tools/p0_core_gates.py"
+      - "starter/cr_coach/validation/**"
       - "physical_tests/references/**"
   workflow_dispatch:
 
@@ -46,6 +48,8 @@ jobs:
           python tools/rudy_windows/patch_rudy_building_hp_decay.py
           python tools/rudy_windows/patch_rudy_troop_speed.py
           python tools/rudy_windows/patch_rudy_attack_timing.py
+          python tools/rudy_windows/patch_rudy_p1_observability.py
+          python tools/rudy_windows/patch_rudy_p0_core_observability.py
 
       - name: Build and install patched Rudy
         working-directory: third_party/clash-royale-suite/cr-rudy-sim/simulator/engine
@@ -74,6 +78,12 @@ jobs:
             --config tools/cr_hog_fidelity_test/scenarios.json \
             --data-dir outputs/rudy_tournament11_data \
             --out-dir outputs/rudy_existing
+
+      - name: Run strict P0 core M-gates
+        run: |
+          python tools/p0_core_gates.py \
+            --data-dir outputs/rudy_tournament11_data \
+            --out-dir outputs/p0_core
 
       - name: Compare solo probe to real demo
         continue-on-error: true
@@ -157,6 +167,7 @@ jobs:
             outputs/rudy_existing
             outputs/rudy_pathing_legacy
             outputs/rudy_postfix
+            outputs/p0_core
             outputs/rudy_tournament11_data/_tournament11_manifest.json
           if-no-files-found: warn
           retention-days: 14

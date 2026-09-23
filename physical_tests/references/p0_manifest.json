@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "phase": "P0",
+  "tick_rate_hz": 20,
+  "timing_tolerance_s": 0.10,
+  "trajectory_p95_tolerance_tiles": 0.25,
+  "gates": {
+    "M01": {"mechanic": "placement_geometry", "evidence": "synthetic"},
+    "M02": {"mechanic": "ground_pathfinding", "evidence": "synthetic_pending_current_patch_trajectory"},
+    "M04": {"mechanic": "building_only_targeting", "evidence": "synthetic"},
+    "M06": {"mechanic": "ground_target_eligibility", "evidence": "synthetic"},
+    "M07": {"mechanic": "ranged_target_eligibility", "evidence": "synthetic"},
+    "M08": {"mechanic": "sticky_target", "evidence": "synthetic"},
+    "M09": {"mechanic": "retarget_on_death", "evidence": "synthetic"},
+    "M10": {
+      "mechanic": "hog_cannon_pull_matrix",
+      "evidence": "candidate",
+      "references": [
+        "d03_hog_cannon_02_primary.json",
+        "d03_hog_cannon_01_secondary.json",
+        "d02_hog_cannon_01_crossdemo.json"
+      ]
+    },
+    "M38": {"mechanic": "tower_targeting", "evidence": "synthetic"},
+    "M39": {
+      "mechanic": "deploy_time_aggro",
+      "evidence": "candidate",
+      "references": ["d03_hog_cannon_02_primary.json"]
+    }
+  },
+  "policy": "A synthetic PASS does not promote physical evidence to VERIFIED."
+}
