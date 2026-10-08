@@ -216,3 +216,66 @@ if "old_t.river_jump_phase != new_t.river_jump_phase" not in data:
 else:
     print("Already patched: jump events")
 print("P1 Rudy river-jump state patch completed.")
+
+# Generic status-driven combat reset. This is deliberately not keyed to card names:
+# every stunned/frozen combatant invalidates its target and any active ramp,
+# and the existing shared cooldown/charge reset remains authoritative.
+replace_once(
+    combat,
+    """        let entity = &state.entities[i];
+        if !entity.is_targetable() {
+            continue;
+        }
+
+        // Fix #12+13: Extract targeting params""",
+    """        let entity = &state.entities[i];
+        if !entity.is_targetable() || entity.is_immobilized() {
+            continue;
+        }
+
+        // Fix #12+13: Extract targeting params""",
+    "no new target lock during stun/freeze",
+)
+replace_once(
+    combat,
+    """            // Stun/Freeze breaks inferno beam — reset ramp
+            let entity = &mut state.entities[ei];
+            match &mut entity.kind {""",
+    """            // Stun/freeze invalidates the sticky lock. Retargeting resumes
+            // through the same shared pipeline after the control effect ends.
+            let entity = &mut state.entities[ei];
+            entity.target = None;
+            match &mut entity.kind {""",
+    "generic target invalidation on stun/freeze",
+)
+replace_once(
+    combat,
+    "if t.ramp_damage3 > 0 { t.ramp_ticks = 0; }",
+    "if t.ramp_damage3 > 0 { t.ramp_ticks = 0; t.ramp_target = None; }",
+    "generic Inferno troop ramp reset on stun",
+)
+replace_once(
+    combat,
+    "EntityKind::Building(ref mut b) if b.ramp_damage3 > 0 => { b.ramp_ticks = 0; }",
+    "EntityKind::Building(ref mut b) if b.ramp_damage3 > 0 => { b.ramp_ticks = 0; b.ramp_target = None; }",
+    "generic Inferno building ramp reset on stun",
+)
+replace_once(
+    lib,
+    """            row.set_item("charge_state", charge_state)?;
+""",
+    """            row.set_item("charge_state", charge_state)?;
+            row.set_item("ramp_ticks", match &e.kind {
+                EntityKind::Troop(t) => t.ramp_ticks,
+                EntityKind::Building(b) => b.ramp_ticks,
+                _ => 0,
+            })?;
+            row.set_item("ramp_target_uid", match &e.kind {
+                EntityKind::Troop(t) => t.ramp_target.map(|v| v.0),
+                EntityKind::Building(b) => b.ramp_target.map(|v| v.0),
+                _ => None,
+            })?;
+""",
+    "expose authoritative Inferno ramp state for M23",
+)
+print("P1 Rudy stun-retarget and ramp reset patch completed.")
