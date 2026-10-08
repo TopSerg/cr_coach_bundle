@@ -28,8 +28,8 @@ This is a conservative synthetic baseline, NOT verified live behavior. Airborne 
 | M14 | SYNTHETIC | Melee windup, impact, damage |
 | M15 | SYNTHETIC | First hit/cadence order |
 | M16 | SYNTHETIC | Ranged projectile spawn, hit, damage |
-| M17 | PENDING | Moving-target projectile model requires controlled experiment |
-| M18 | PENDING | Shooter death after projectile release requires controlled experiment |
+| M17 | SYNTHETIC | Direct-hit UID tracking and fixed-point splash despite displacement |
+| M18 | SYNTHETIC | Released projectile survives shooter death and impacts normally |
 | M21 | SYNTHETIC | Stun applied and expired |
 | M22 | SYNTHETIC | Stun drops and reacquires target |
 | M23 | SYNTHETIC | Inferno ramp reset after Zap; further card coverage pending |
