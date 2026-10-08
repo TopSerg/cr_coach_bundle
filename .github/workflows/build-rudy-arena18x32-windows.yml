@@ -8,6 +8,7 @@ on:
       - "tools/rudy_windows/**"
       - "tools/p1_observability_smoke.py"
       - "tools/p1_mechanics_smoke.py"
+      - "tools/m17_m18_projectile_smoke.py"
       - "starter/cr_coach/validation/**"
       - "starter/tests/test_unified_validation.py"
       - "starter/cr_coach/runtime/rudy_runner.py"
@@ -58,6 +59,7 @@ jobs:
           python tools/rudy_windows/patch_rudy_attack_timing.py
           python tools/rudy_windows/patch_rudy_p1_observability.py
           python tools/rudy_windows/patch_rudy_p1_river_jump.py
+          python tools/rudy_windows/patch_rudy_m17_m18_projectile_contract.py
 
       - name: Install maturin
         run: python -m pip install --upgrade pip maturin
@@ -88,6 +90,11 @@ jobs:
         shell: pwsh
         run: |
           python tools/p1_mechanics_smoke.py
+
+      - name: M17 M18 projectile guidance and shooter death synthetic gates
+        shell: pwsh
+        run: |
+          python tools/m17_m18_projectile_smoke.py
 
       - name: Run P-1 Python validator tests
         shell: pwsh

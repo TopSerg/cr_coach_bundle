@@ -28,8 +28,8 @@ This is a conservative synthetic baseline, NOT verified live behavior. Airborne 
 | M14 | SYNTHETIC | Melee windup, impact, damage |
 | M15 | SYNTHETIC | First hit/cadence order |
 | M16 | SYNTHETIC | Ranged projectile spawn, hit, damage |
-| M17 | PENDING | Moving-target projectile model requires controlled experiment |
-| M18 | PENDING | Shooter death after projectile release requires controlled experiment |
+| M17 | SYNTHETIC | Direct-hit UID tracking and fixed-point splash despite displacement |
+| M18 | SYNTHETIC | Released projectile survives shooter death and impacts normally |
 | M21 | SYNTHETIC | Stun applied and expired |
 | M22 | SYNTHETIC | Stun drops and reacquires target |
 | M23 | SYNTHETIC | Inferno ramp reset after Zap; further card coverage pending |
@@ -45,3 +45,16 @@ CI: .github/workflows/build-rudy-arena18x32-windows.yml.
 Each M03/M05/M11/M12/M14–M18/M21–M23 still needs a current-patch, tick-annotated Friendly Battle reference with card/tick/x/y and relevant observations. Compare with validate_mechanics.py using --reference, --snapshots, --events. The existing Hog/Cannon/Princess reference suite protects old behavior but does not prove P1 fidelity.
 
 Mark VERIFIED only after synthetic + real video agree with exact event order, damage/target identity and specified tolerance (timing ≤100 ms, trajectory p95 ≤0.25 tile where applicable). Never mark a physical gate VERIFIED solely on a synthetic pass.
+
+
+## M17/M18 clarified gameplay contract (2026-10-08)
+
+User reference (synthetic target behavior, awaiting numerical current-patch video):
+- **Direct-hit projectile** (Musketeer, Sparky, Minions): after release its target UID remains locked and the destination updates every tick to that entity's authoritative current position. This is independent of the source troop's subsequent target choices.
+- **Splash projectile** (Wizard, Bowler, Princess): impact center is the exact launch-time destination; moving the aimed target away must not drag the impact point. Splash damage is resolved for all entities intersecting the radius *at impact* (not at release).
+- **Shooter death (M18):** after release the projectile remains an independently owned entity; removing its shooter cannot delete the projectile. Existing source UID, target UID, guidance mode and launch destination remain observable. The projectile persists until its normal impact/resolution.
+- These are independent of gravity: arc/travel-time and guidance are separate parameters. Rolling, scatter and boomerang mechanics continue using their specialized paths.
+
+Implemented in tools/rudy_windows/patch_rudy_m17_m18_projectile_contract.py and asserted in tools/m17_m18_projectile_smoke.py. The synthetic probes explicitly relocate the moving target and eliminate the shooter **between simulation ticks** after projectile spawn, rather than deriving results from approximate Python positions. They make no claim about unexplored cases like the target itself dying or leaving the arena before impact.
+
+M17 and M18 status becomes **SYNTHETIC** after the Windows CI gate succeeds; **PHYSICAL VERIFIED remains false** until current-patch video fidelity acceptance.
