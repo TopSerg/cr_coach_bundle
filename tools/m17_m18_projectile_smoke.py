@@ -113,7 +113,11 @@ def assert_fixed_splash(shooter_card="wizard"):
     )
     seen_shot = False
     impact = None
-    for _ in range(75):
+    for _ in range(120):
+        # Pin participants between ticks. This deliberately isolates projectile
+        # destination from troop movement and works for slow Bowler shots too.
+        assert m.debug_relocate_entity(other, start[0] + 250, start[1])
+        assert m.debug_relocate_entity(target, 4500, 100)
         f = tick(m)
         p = entity(f, uid)
         if p:
@@ -170,9 +174,10 @@ def assert_persists_after_shooter_death():
 
 def main():
     result = {}
-    for probe in (assert_homing_direct_hit, assert_fixed_splash,
-                  assert_persists_after_shooter_death):
-        result.update(probe())
+    result.update(assert_homing_direct_hit())
+    for card in ("wizard", "princess", "bowler"):
+        result.update(assert_fixed_splash(card))
+    result.update(assert_persists_after_shooter_death())
     print(json.dumps({"gates": result, "physical_verified": False}, indent=2))
     return 0
 
