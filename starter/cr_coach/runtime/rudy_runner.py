@@ -188,10 +188,14 @@ def _snapshot(match: Any, *, relative_tick: int, mode: str, raw_entities: Iterab
             "jump_land_y_mtile": None if raw.get("jump_land_y") is None else 16_000 - int(raw["jump_land_y"]),
             "ramp_ticks": raw.get("ramp_ticks"),
             "ramp_target_uid": raw.get("ramp_target_uid"),
+            "projectile_guidance": raw.get("projectile_guidance"),
+            "projectile_splash_radius": raw.get("projectile_splash_radius"),
+            "projectile_destination_x_mtile": None if raw.get("projectile_destination_x") is None else int(raw["projectile_destination_x"]) + 9_000,
+            "projectile_destination_y_mtile": None if raw.get("projectile_destination_y") is None else 16_000 - int(raw["projectile_destination_y"]),
         }
         if item["kind"] == "projectile":
-            item["source_uid"] = raw.get("projectile_source_id")
-            item["target_uid"] = raw.get("projectile_target_id")
+            item["source_uid"] = raw.get("projectile_source_uid", raw.get("projectile_source_id"))
+            item["target_uid"] = raw.get("projectile_target_uid", raw.get("projectile_target_id"))
             projectiles.append(item)
         else:
             entities.append(item)
