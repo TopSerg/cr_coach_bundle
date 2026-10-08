@@ -105,8 +105,11 @@ def assert_melee_and_projectiles():
     hits = [e for e in hog_events if e["type"] == "MELEE_HIT"]
     assert started and hits, "Hog must wind up and make at least one melee hit"
     assert started[0]["tick"] <= hits[0]["tick"], "Melee damage precedes windup"
-    cannon_damage = [e for e in events(frames, cannon) if e["type"] == "DAMAGE"]
-    assert cannon_damage, "Cannon must receive melee damage"
+    # Building lifetime decay also emits DAMAGE; only attacker-attributed melee
+    # damage is relevant to M14. Comparing the first HP drop is incorrect.
+    cannon_damage = [e for e in events(frames, cannon)
+                     if e["type"] == "DAMAGE" and e.get("source_uid") == hog]
+    assert cannon_damage, "Cannon must receive Hog-attributed melee damage"
     assert cannon_damage[0]["tick"] >= started[0]["tick"]
     for e in hits:
         assert e.get("target_uid") is not None, "Melee needs target UID"
