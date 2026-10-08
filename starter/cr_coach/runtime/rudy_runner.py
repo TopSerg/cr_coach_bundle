@@ -179,6 +179,15 @@ def _snapshot(match: Any, *, relative_tick: int, mode: str, raw_entities: Iterab
             "path_target": raw.get("path_target"),
             "current_waypoint": raw.get("current_waypoint"),
             "active_projectiles": raw.get("active_projectiles"),
+            "jump_state": raw.get("jump_state"),
+            "jump_start_tick": raw.get("jump_start_tick"),
+            "jump_land_tick": raw.get("jump_land_tick"),
+            "jump_start_x_mtile": None if raw.get("jump_start_x") is None else int(raw["jump_start_x"]) + 9_000,
+            "jump_start_y_mtile": None if raw.get("jump_start_y") is None else 16_000 - int(raw["jump_start_y"]),
+            "jump_land_x_mtile": None if raw.get("jump_land_x") is None else int(raw["jump_land_x"]) + 9_000,
+            "jump_land_y_mtile": None if raw.get("jump_land_y") is None else 16_000 - int(raw["jump_land_y"]),
+            "ramp_ticks": raw.get("ramp_ticks"),
+            "ramp_target_uid": raw.get("ramp_target_uid"),
         }
         if item["kind"] == "projectile":
             item["source_uid"] = raw.get("projectile_source_id")
