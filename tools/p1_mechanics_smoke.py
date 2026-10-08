@@ -141,7 +141,12 @@ def assert_stun():
     match = cr_engine.new_match(data, deck, deck)
     match.set_elixir(1, 10)
     victim = match.spawn_troop(2, "knight", 0, 0, 11, False)
-    match.play_card(1, 0, 0, 0, 11)
+    # Spawning entities are intentionally untargetable in this Rudy ruleset.
+    # Wait for deploy to finish before using Zap as a stun reference.
+    deployed = all_frames(match, 24)
+    target = row(deployed[-1], victim)
+    assert target is not None, "Knight must survive deploy"
+    match.play_card(1, 0, target["x"], target["y"], 11)
     frames = all_frames(match, 55)
     types = [e["type"] for e in events(frames, victim)]
     assert "STUN_APPLIED" in types, "Zap must stun Knight"
@@ -165,6 +170,9 @@ def assert_stun_retarget():
         "Musketeer must acquire Giant before stun"
     )
     knight = match.spawn_troop(2, "knight", 0, -3000, 11, False)
+    # Need active Knight when stun expires; do not conflate deploy timing
+    # with the generic retarget policy.
+    all_frames(match, 21)
     before = step(match)
     assert row(before, musket)["target_uid"] == giant, "Pre-stun sticky lock must hold"
     match.play_card(2, 0, 0, -4500, 11)
