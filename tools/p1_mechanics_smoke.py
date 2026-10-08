@@ -76,7 +76,7 @@ def assert_jump_and_planes():
     assert len(starts) == len(lands) == 1, f"Jump must start and land once: {types}"
     assert starts[0]["tick"] < lands[0]["tick"], "Jump ordering"
     assert -1000 < starts[0]["y"] < 1000, "Jump must start over open river"
-    assert abs(starts[0]["x"]) > 1500 or abs(starts[0]["x"]) < 4000, "Invalid jump X"
+    assert abs(starts[0]["x"]) < 4000, "This test must cross over open water"
     assert any(p.get("jump_state") == "airborne" for _, p in states), "Missing persistent airborne phase"
     assert any(p.get("jump_state") == "landing" for _, p in states), "Missing landing phase"
     assert any(p.get("jump_start_tick") == starts[0]["tick"] for _, p in states)
@@ -116,8 +116,9 @@ def assert_melee_and_projectiles():
     victim = match.spawn_troop(2, "giant", 0, -1000, 11, False)
     frames = all_frames(match, 115)
     shooter_ev = events(frames, shooter)
-    fired = [e for e in events(frames) if e["type"] == "PROJECTILE_SPAWN"
-             and row(next((f for f in frames if f["tick"] == e["tick"]), {}), shooter) is not None]
+    fired = [e for f in frames for e in f["events"] if e["type"] == "PROJECTILE_SPAWN"
+             and row(f, shooter) is not None
+             and e.get("uid") in row(f, shooter)["active_projectiles"]]
     hits = [e for e in events(frames) if e["type"] == "PROJECTILE_HIT"
             and e.get("source_uid") == shooter]
     damages = [e for e in events(frames, victim) if e["type"] == "DAMAGE"
@@ -146,12 +147,67 @@ def assert_stun():
     return {"M21": "synthetic_pass"}
 
 
+
+def assert_stun_retarget():
+    """M22: stun breaks sticky lock; shared targeting reacquires after expiry."""
+    deck = ["zap", "hog-rider", "cannon", "knight",
+            "archers", "giant", "valkyrie", "musketeer"]
+    data = cr_engine.load_data(str(DATA))
+    match = cr_engine.new_match(data, deck, deck)
+    match.set_elixir(2, 10)
+    musket = match.spawn_troop(1, "musketeer", 0, -4500, 11, False)
+    giant = match.spawn_troop(2, "giant", 0, -1600, 11, False)
+    warmup = all_frames(match, 27)
+    assert any(row(f, musket) and row(f, musket)["target_uid"] == giant for f in warmup), (
+        "Musketeer must acquire Giant before stun"
+    )
+    knight = match.spawn_troop(2, "knight", 0, -3000, 11, False)
+    before = step(match)
+    assert row(before, musket)["target_uid"] == giant, "Pre-stun sticky lock must hold"
+    match.play_card(2, 0, 0, -4500, 11)
+    after = all_frames(match, 35)
+    observed = events(after, musket)
+    stuns = [e for e in observed if e["type"] == "STUN_APPLIED"]
+    drops = [e for e in observed if e["type"] == "TARGET_DROPPED"]
+    expiry = [e for e in observed if e["type"] == "STUN_EXPIRED"]
+    acquired = [e for e in observed if e["type"] == "TARGET_ACQUIRED"]
+    assert stuns and drops and expiry and acquired, f"Missing stun/retarget lifecycle: {observed}"
+    assert drops[0]["tick"] >= stuns[0]["tick"], "Dropped before stunned"
+    assert acquired[-1]["tick"] >= expiry[-1]["tick"], "Reacquired while still stunned"
+    assert acquired[-1].get("target_uid") in {knight, giant}, "Invalid post-stun target"
+    return {"M22": "synthetic_pass"}
+
+
+def assert_special_reset():
+    """M23: data-driven Inferno ramp resets on stun, without card-name branches."""
+    deck = ["zap", "hog-rider", "cannon", "knight",
+            "archers", "giant", "valkyrie", "musketeer"]
+    data = cr_engine.load_data(str(DATA))
+    match = cr_engine.new_match(data, deck, deck)
+    match.set_elixir(2, 10)
+    inferno = match.spawn_building(1, "inferno-tower", 0, -1500, 11)
+    match.spawn_troop(2, "giant", 0, 1000, 11, False)
+    before = all_frames(match, 65)
+    ramp = [row(f, inferno)["ramp_ticks"] for f in before if row(f, inferno)]
+    assert any(x > 0 for x in ramp), "Inferno must establish ramp before Zap"
+    match.play_card(2, 0, 0, -1500, 11)
+    after = all_frames(match, 12)
+    stun = [e for e in events(after, inferno) if e["type"] == "STUN_APPLIED"]
+    assert stun, "Inferno must receive Zap stun"
+    resets = [row(f, inferno) for f in after if row(f, inferno)
+              and f["tick"] >= stun[0]["tick"]]
+    assert resets and resets[0]["ramp_ticks"] == 0, "Stun must clear ramp ticks"
+    assert resets[0]["ramp_target_uid"] is None, "Stun must clear Inferno ramp lock"
+    return {"M23": "synthetic_pass"}
+
+
 def main():
     results = {}
     for run in (assert_air_and_building_only, assert_jump_and_planes,
-                assert_melee_and_projectiles, assert_stun):
+                assert_melee_and_projectiles, assert_stun,
+                assert_stun_retarget, assert_special_reset):
         results.update(run())
-    for gate in ("M17", "M18", "M22", "M23"):
+    for gate in ("M17", "M18"):
         results[gate] = "pending_controlled_synthetic_and_physical_reference"
     print(json.dumps({"p1": results, "physical_verified": False}, indent=2))
     return 0
