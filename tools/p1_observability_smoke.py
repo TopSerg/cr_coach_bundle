@@ -27,8 +27,10 @@ def main() -> int:
     if not hasattr(match, "step_trace"):
         raise SystemExit("P-1 FAIL: patched cr_engine has no step_trace()")
 
-    hog = match.spawn_troop(1, "hog-rider", 5500, -1500, 11, False)
-    match.spawn_building(2, "cannon", 1500, 5000, 11)
+    # P1: a jumper crossing via a bridge must NOT emit JUMP_STARTED.
+    # Use an open-water river crossing for authoritative jump lifecycle smoke.
+    hog = match.spawn_troop(1, "hog-rider", 0, -1500, 11, False)
+    match.spawn_building(2, "cannon", 0, 5000, 11)
 
     all_events = []
     last = None
