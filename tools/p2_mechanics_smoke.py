@@ -135,19 +135,19 @@ def assert_m19_projectile_splash():
 def assert_m20_melee_splash():
     """Valkyrie attack must damage two enemies in one impact, not a distant one."""
     match = new_match()
-    valk = match.spawn_troop(1, "valkyrie", 0, -2000, 11, False)
-    left = match.spawn_troop(2, "giant", -750, -2000, 11, False)
-    right = match.spawn_troop(2, "giant", 750, -2000, 11, False)
-    far = match.spawn_troop(2, "giant", 4200, -2000, 11, False)
+    valk = match.spawn_troop(1, "valkyrie", 0, 2000, 11, False)
+    left = match.spawn_troop(2, "giant", -750, 2000, 11, False)
+    right = match.spawn_troop(2, "giant", 750, 2000, 11, False)
+    far = match.spawn_troop(2, "giant", 4200, 2000, 11, False)
     for _ in range(26):
         step(match)
-    # The probe is placed outside Princess Tower ranges. Otherwise a far
-    # control can lose HP to a tower and look like an AoE false positive.
+    # The probe is placed well outside Princess Tower attack range (including hitboxes); a far
+    # control must not lose HP to incidental tower shots.
     positions = {
-        valk: (0, -2000),
-        left: (-750, -2000),
-        right: (750, -2000),
-        far: (4200, -2000),
+        valk: (0, 2000),
+        left: (-750, 2000),
+        right: (750, 2000),
+        far: (4200, 2000),
     }
     relocate(match, positions)
     before = step(match)
