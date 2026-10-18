@@ -1262,3 +1262,404 @@ Tier-0 core is considered sufficiently faithful for full-match work when:
 - full regression suite is run after every mechanics change.
 
 Only after this gate should Policy/Value/counterfactual rollout work treat simulator states as reliable training/evaluation data.
+
+---
+
+<!-- CR_DEMO_COVERAGE_20261018_START -->
+# 12. Реальные видеоэталоны: Google Drive / CR demo (18.10.2026)
+
+> **Статус: каталог кандидатов, НЕ результаты валидации.** Это дополнение к §4–§7 и не меняет acceptance criteria §5. Видеопериоды получены первичным просмотром кадров с шагом и выборочными контрольными кадрами, **не покадровой** синхронизацией. Для каждой механики ниже перечислены **все сцены, отмеченные в имеющемся индексе**, включая слабые/косвенные кандидаты. Отсутствие сцены в этом индексе не доказывает её отсутствие внутри ролика. Ни одна новая M01–M39 не получает статус VERIFIED до аннотации и запуска Rudy + strict validator.
+
+Источники: [папка CR demo](https://drive.google.com/drive/folders/1ou-dqIJKyasCPD5w_ubjeOHsSjvBj3Xr) (аккаунт mcsergspb), 10 видео `XRecorder_20261018_01–10.mp4`, 37 мин 14 с суммарно, исходные ролики 720×1600, около 50–54 FPS. **Все интервалы ниже — время проигрывателя MP4, не игровые секунды/tick.** Для прогона: синхронизировать игровой HUD-таймер, восстановить реальные card/tick/x/y и уровни, пометить обычная/Evo/hero/ability, исключить влияние неучтённых эффектов. Большинство башен на видео уровня 16, некоторые войска уровня 15; численный урон нельзя напрямую сравнивать с level-11 fixture.
+
+### 12.1. Каталог просмотренных эпизодов (все 25 кандидатов)
+
+Код `DxxA/B/C` означает отдельный временной диапазон **в файле xx**. Ссылка ведёт к оригинальному видео в Google Drive; в указанное время следует перейти внутри проигрывателя.
+
+| Сцена / время MP4 | Визуальный контекст (пока без точной разметки карт) | Возможные M-тесты |
+|---|---|---|
+| [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view) | Одиночные юниты у мостов, дальние атаки | M02, M14, M15, M16, M38 |
+| [D01B 02:55–03:54](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view) | Группы справа, бой у моста и башни, визуальные эффекты | M09, M13, M14, M15, M19, M34, M38 |
+| [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view) | Правый фланг: одиночные юниты, дальний бой, башня | M02, M14, M15, M16, M38 |
+| [D02B 02:25–03:11](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view) | Группы в зоне моста, урон башне | M09, M13, M14, M15, M19, M38 |
+| [D03A 00:45–01:15](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view) | Правый мост: движение и атаки | M02, M14, M15, M38 |
+| [D03B 01:44–02:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view) | Здание и группы справа, меняющиеся взаимодействия | M01, M09, M13, M14, M38 |
+| [D03C 02:43–03:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view) | Плотные схватки у башни и моста | M09, M13, M14, M15, M34, M38 |
+| [D04A 00:50–01:31](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view) | Правый мост, оборонительное здание и ответная атака | M01, M02, M14, M15, M38 |
+| [D04B 02:27–03:11](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view) | Групповой бой у правой башни и атака на верхнюю | M09, M13, M14, M15, M34, M38 |
+| [D05A 00:35–01:07](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view) | Группа слева и видимый эффект по площади на мосту | M02, M13, M19, M34 |
+| [D05B 02:17–02:41](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view) | Оборонительное здание и бой внизу слева | M01, M09, M13, M14, M38 |
+| [D05C 03:17–04:03](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view) | Массовый бой и эффекты по площади у мостов | M09, M13, M14, M19, M34, M38 |
+| [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view) | Правый мост: группа, бой, предполагаемый эффект контроля (тип не установлен) | M02, M09, M13, M14, M21, M38 |
+| [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view) | Оборонительное здание, мост, атаки по башне | M01, M02, M14, M15, M38 |
+| [D06C 03:04–04:18](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view) | Два фланга, массовый бой и взрывное воздействие | M09, M13, M14, M19, M28, M34, M38 |
+| [D07A 00:39–01:18](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view) | Группы у мостов и атака верхней башни | M02, M13, M14, M15, M34, M38 |
+| [D07B 01:47–02:31](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view) | Защитные взаимодействия и реакции на появление юнитов | M09, M13, M14, M38 |
+| [D07C 02:55–03:22](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view) | Плотная группа у нижней башни, башенная защита | M09, M13, M14, M34, M38 |
+| [D08A 00:30–01:08](https://drive.google.com/file/d/1Cy-uUzDOXpePRALHJzRgNeqBWkIgEjlT/view) | Правый мост, нижняя башня, атакующее продвижение | M02, M09, M14, M15, M38 |
+| [D08B 01:29–02:19](https://drive.google.com/file/d/1Cy-uUzDOXpePRALHJzRgNeqBWkIgEjlT/view) | Атака Princess Tower и затем King Tower с заметным падением HP | M02, M14, M15, M38 |
+| [D09A 00:33–01:18](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view) | Два фланга и дальние атаки по верхней правой башне | M02, M14, M15, M16, M38 |
+| [D09B 02:09–02:59](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view) | Группы внизу, воздушный/подвесной объект и возможный эффект гибели (карта неизвестна) | M09, M13, M19, M33, M34, M38 |
+| [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view) | Правый мост: группы, дальний и ближний бой | M02, M13, M14, M15, M16, M34, M38 |
+| [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view) | Оборона справа, плотные столкновения и эффекты площади | M01, M09, M13, M14, M19, M28, M34, M38 |
+| [D10C 04:08–04:48](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view) | Овертайм: групповой бой справа и эффект по площади | M09, M13, M14, M19, M34, M38 |
+
+### 12.2. Протокол фальсификации для каждого M01–M39
+
+**Как читать:** «кандидаты» — это ВСЕ диапазоны из каталога 12.1, связанные с конкретной механикой при первичном просмотре; не доказательство, что в них есть вся нужная причинная последовательность. «Смежные» — места для повторной покадровой проверки, **не засчитанные даже как прямые кандидаты**. Только `annotated → validated → VERIFIED` по §5 закрывает механику. Для любого теста сохранять `FIRST_DIVERGENCE`, реальные состояния, видео-кадры и конфигурацию движка/патча.
+
+#### M01
+
+- **Кандидаты из разметки:** [D03B 01:44–02:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04A 00:50–01:31](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D05B 02:17–02:41](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** В начале появления юнита/здания сопоставить отметку постановки, клетку, центр, footprint и радиус; отделить момент высадки от момента начала действий.
+- **Что опровергнет реализацию в Rudy:** Неверный центр или фаза сетки, размещение внутри недопустимой клетки либо искажённая стартовая траектория.
+- **Чего сейчас не хватает:** Нужны кадры появления и синхронизация с deployment-clock; выбранный центр нельзя выводить только из позднего положения.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M02
+
+- **Кандидаты из разметки:** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D03A 00:45–01:15](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04A 00:50–01:31](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D05A 00:35–01:07](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D07A 00:39–01:18](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D08A 00:30–01:08](https://drive.google.com/file/d/1Cy-uUzDOXpePRALHJzRgNeqBWkIgEjlT/view); [D08B 01:29–02:19](https://drive.google.com/file/d/1Cy-uUzDOXpePRALHJzRgNeqBWkIgEjlT/view); [D09A 00:33–01:18](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Для каждого наземного юнита снять последовательность x/y, выбор моста, точки входа/выхода и обход препятствий.
+- **Что опровергнет реализацию в Rudy:** Реальный юнит выбрал иной мост, прошёл другой маршрут или систематически опередил/отстал от Rudy за пределами допуска.
+- **Чего сейчас не хватает:** Выделить обычных наземных юнитов и отфильтровать замедление, отталкивание, Evo/hero-побочные эффекты.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M03
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D09B 02:09–02:59](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view).
+- **Что должно быть видно для подтверждения:** Наблюдать подтверждённый летающий юнит от появления до цели; движение над рекой независимо от моста.
+- **Что опровергнет реализацию в Rudy:** Rudy ведёт летуна через мост либо неправильно обходит наземное препятствие.
+- **Чего сейчас не хватает:** В первичном каталоге нет установленного воздушного юнита с полной траекторией.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M04
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D03B 01:44–02:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04A 00:50–01:31](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D05B 02:17–02:41](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Установить, что Giant/Hog игнорирует находящегося на пути бойца и выбирает разрешённое вражеское здание.
+- **Что опровергнет реализацию в Rudy:** Rudy атакует бойца или игнорирует здание, хотя в записи оно доступно и допустимо.
+- **Чего сейчас не хватает:** На кадрах с оборонительными зданиями тип и приоритет наступающего юнита ещё не подтверждены.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M05
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D09B 02:09–02:59](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view).
+- **Что должно быть видно для подтверждения:** Подтвердить воздушный buildings-only (например Balloon) и его переключение на здание; измерить маршрут и выбор цели.
+- **Что опровергнет реализацию в Rudy:** Rudy не притягивается зданием либо ошибочно переключается на наземную цель.
+- **Чего сейчас не хватает:** Визуально предполагаемый воздушный объект D09B не идентифицирован и не даёт чистого теста.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M06
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D09B 02:09–02:59](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view).
+- **Что должно быть видно для подтверждения:** Выделить наземного атакующего и одновременно доступные наземную и воздушную цели.
+- **Что опровергнет реализацию в Rudy:** Ground-only атакует воздушного противника или ошибочно переключается на него.
+- **Чего сейчас не хватает:** Ни одна сцена пока не подтверждает одновременные разнокатегорийные цели.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M07
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D09A 00:33–01:18](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Наблюдать дальнобойного бойца при последовательном появлении доступных наземной и воздушной целей.
+- **Что опровергнет реализацию в Rudy:** Реальный стрелок атакует воздух, а Rudy его игнорирует (или наоборот); расходится выбранная цель.
+- **Чего сейчас не хватает:** Дальний бой в кадре есть, но возможность атаковать обе категории не доказана.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M08
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D01B 02:55–03:54](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D03C 02:43–03:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D07C 02:55–03:22](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view).
+- **Что должно быть видно для подтверждения:** Найти кадры, где стрелок уже захватил цель, а затем ближе появляется иной допустимый враг; проверить lock до/после.
+- **Что опровергнет реализацию в Rudy:** Rudy переключил цель без реального основания или удержал цель, которую игра сбросила.
+- **Чего сейчас не хватает:** Общие групповые схватки не показывают однозначно предыдущий target_uid и причинность.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M09
+
+- **Кандидаты из разметки:** [D01B 02:55–03:54](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02B 02:25–03:11](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D03B 01:44–02:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D03C 02:43–03:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04B 02:27–03:11](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D05B 02:17–02:41](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D05C 03:17–04:03](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D06C 03:04–04:18](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D07B 01:47–02:31](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D07C 02:55–03:22](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D08A 00:30–01:08](https://drive.google.com/file/d/1Cy-uUzDOXpePRALHJzRgNeqBWkIgEjlT/view); [D09B 02:09–02:59](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view); [D10C 04:08–04:48](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Проверить кадры смерти текущей цели и следующую атаку того же юнита/башни; снять tick смены цели.
+- **Что опровергнет реализацию в Rudy:** Rudy дольше держит мёртвую цель или выбирает не того следующего противника.
+- **Чего сейчас не хватает:** Во всех указанных окнах сначала подтвердить смерть именно текущей цели, а не соседнего юнита.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M10
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D03B 01:44–02:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04A 00:50–01:31](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D05B 02:17–02:41](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Взять атакующего здания юнита и оборонительное здание, измерить переход target на building при конкретных x/y.
+- **Что опровергнет реализацию в Rudy:** В игре здание меняет маршрут/цель, а Rudy не меняет (или наоборот).
+- **Чего сейчас не хватает:** Ни одно окно не даёт подтверждённую контролируемую матрицу Hog+Cannon по клеткам; строгую границу PULL/NO_PULL этими матчами не закрыть.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M11
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D03A 00:45–01:15](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view).
+- **Что должно быть видно для подтверждения:** Установить, есть ли Hog/Prince и именно прыжок над открытой рекой; отметить начало, посадку, x/y.
+- **Что опровергнет реализацию в Rudy:** Rudy идёт по мосту вместо прыжка либо расходятся старт/посадка.
+- **Чего сейчас не хватает:** В первичной разметке нет однозначно распознанного прыжка.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M12
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view).
+- **Что должно быть видно для подтверждения:** Нужен прыгающий юнит и атакующий ground-only/air-capable во время AIRBORNE; отдельно Log.
+- **Что опровергнет реализацию в Rudy:** Rudy наносит ground-only урон в воздухе или неверно сохраняет воздушно-допустимую атаку.
+- **Чего сейчас не хватает:** Нужного сочетания на текущих кадрах не подтверждено.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M13
+
+- **Кандидаты из разметки:** [D01B 02:55–03:54](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02B 02:25–03:11](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D03B 01:44–02:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D03C 02:43–03:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04B 02:27–03:11](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D05A 00:35–01:07](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D05B 02:17–02:41](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D05C 03:17–04:03](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D06C 03:04–04:18](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D07A 00:39–01:18](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D07B 01:47–02:31](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D07C 02:55–03:22](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D09B 02:09–02:59](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view); [D10C 04:08–04:48](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Снимать центры/радиусы плотных групп и движение пары быстрый/медленный у моста/здания.
+- **Что опровергнет реализацию в Rudy:** Rudy пропускает юнитов друг через друга, даёт устойчивые наложения либо другой порядок обхода.
+- **Чего сейчас не хватает:** Массовый бой даёт сложный, но не изолированный референс; нужны траектории между кадрами.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M14
+
+- **Кандидаты из разметки:** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D01B 02:55–03:54](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D02B 02:25–03:11](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D03A 00:45–01:15](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D03B 01:44–02:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D03C 02:43–03:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04A 00:50–01:31](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D04B 02:27–03:11](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D05B 02:17–02:41](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D05C 03:17–04:03](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D06C 03:04–04:18](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D07A 00:39–01:18](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D07B 01:47–02:31](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D07C 02:55–03:22](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D08A 00:30–01:08](https://drive.google.com/file/d/1Cy-uUzDOXpePRALHJzRgNeqBWkIgEjlT/view); [D08B 01:29–02:19](https://drive.google.com/file/d/1Cy-uUzDOXpePRALHJzRgNeqBWkIgEjlT/view); [D09A 00:33–01:18](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view); [D10C 04:08–04:48](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Выделить отдельный melee-удар: вход в радиус, windup, кадр контакта и списание HP.
+- **Что опровергнет реализацию в Rudy:** HP меняется раньше контакта или Rudy пропускает/дублирует удар.
+- **Чего сейчас не хватает:** Выделить именно melee, не смешивать с выстрелами, башней и AoE.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M15
+
+- **Кандидаты из разметки:** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D01B 02:55–03:54](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D02B 02:25–03:11](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D03A 00:45–01:15](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D03C 02:43–03:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04A 00:50–01:31](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D04B 02:27–03:11](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D07A 00:39–01:18](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D08A 00:30–01:08](https://drive.google.com/file/d/1Cy-uUzDOXpePRALHJzRgNeqBWkIgEjlT/view); [D08B 01:29–02:19](https://drive.google.com/file/d/1Cy-uUzDOXpePRALHJzRgNeqBWkIgEjlT/view); [D09A 00:33–01:18](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Измерить время от входа в радиус до первого удара/выстрела и интервалы следующих атак.
+- **Что опровергнет реализацию в Rudy:** Rudy начинает первый удар слишком рано/поздно или неверно сохраняет load после движения.
+- **Чего сейчас не хватает:** Нужны точные кадры постановки и единственная видимая цель; сложные бои дают только кандидатов.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M16
+
+- **Кандидаты из разметки:** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D09A 00:33–01:18](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Отдельно фиксировать появление снаряда, его полёт и момент снятия HP у цели.
+- **Что опровергнет реализацию в Rudy:** Урон в Rudy происходит в момент выстрела, неверен flight time или impact/target.
+- **Чего сейчас не хватает:** На видео идентифицировать конкретного стрелка и projectile; контактный урон исключить.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M17
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D09A 00:33–01:18](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Нужен снаряд уже в полёте и заметно сместившаяся затем цель; проверить homing/fixed-point.
+- **Что опровергнет реализацию в Rudy:** Rudy попал по первоначальной точке вместо движущейся цели или наоборот.
+- **Чего сейчас не хватает:** Обычная стрельба без пост-релизного смещения цели не подтверждает M17.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M18
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D09A 00:33–01:18](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Нужен выпущенный снаряд, смерть стрелка до попадания и затем damage по цели.
+- **Что опровергнет реализацию в Rudy:** Снаряд исчезает из Rudy после смерти стрелка вопреки игре.
+- **Чего сейчас не хватает:** В выбранных видео такой порядок событий ещё не найден.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M19
+
+- **Кандидаты из разметки:** [D01B 02:55–03:54](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02B 02:25–03:11](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D05A 00:35–01:07](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D05C 03:17–04:03](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06C 03:04–04:18](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D09B 02:09–02:59](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view); [D10C 04:08–04:48](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Отметить точку и кадр взрыва, измерить расстояния нескольких противников до центра и набор пострадавших.
+- **Что опровергнет реализацию в Rudy:** В Rudy урон получают юниты за радиусом либо отсутствуют жертвы внутри действительного радиуса.
+- **Чего сейчас не хватает:** Тип заклинания, Evo-модификации, уровень и момент импакта пока требуют покадровой проверки.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M20
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D05C 03:17–04:03](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06C 03:04–04:18](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Нужна подтверждённая Valkyrie и два и более противника в радиусе круговой melee-атаки.
+- **Что опровергнет реализацию в Rudy:** Rudy поражает иной victim set либо наносит урон не на том кадре.
+- **Чего сейчас не хватает:** Наличие группового боя само по себе не доказывает именно melee-splash Valkyrie.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M21
+
+- **Кандидаты из разметки:** [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view).
+- **Что должно быть видно для подтверждения:** Подтвердить тип эффекта контроля и сравнить остановку движения/атаки, длительность и возобновление.
+- **Что опровергнет реализацию в Rudy:** Rudy продолжает атаку во время реального stun, прерывает не то состояние или неверно выдерживает паузу.
+- **Чего сейчас не хватает:** D06A содержит визуальный эффект, но stun не установлен: это слабый кандидат, не эталон.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M22
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D07B 01:47–02:31](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view).
+- **Что должно быть видно для подтверждения:** После подтверждённого stun найти смену цели при ещё живой предыдущей цели.
+- **Что опровергнет реализацию в Rudy:** После stun Rudy неправильно удерживает или пересчитывает target.
+- **Чего сейчас не хватает:** Нет наблюдаемой последовательности «lock → stun → новая цель».
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M23
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view).
+- **Что должно быть видно для подтверждения:** Искать stun, применённый к зарядке Sparky или ramp Inferno; сравнить reset.
+- **Что опровергнет реализацию в Rudy:** Rudy сохраняет заряд/ступень, которые игра сбросила, или наоборот.
+- **Чего сейчас не хватает:** В текущем каталоге нет нужной карты вместе с моментом stun/reset.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M24
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D03B 01:44–02:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view).
+- **Что должно быть видно для подтверждения:** Нужен непрерывный луч Inferno Tower по прочному юниту и события урона по ступеням.
+- **Что опровергнет реализацию в Rudy:** Rudy повышает damage в иные моменты или неправильно сбрасывает ramp.
+- **Чего сейчас не хватает:** Оборонительное здание в кадре ещё не доказано как Inferno; фаза ramp не выделена.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M25
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view).
+- **Что должно быть видно для подтверждения:** Нужен луч Inferno, уже захвативший Hog перед его AIRBORNE; измерить сохранение lock/ramp.
+- **Что опровергнет реализацию в Rudy:** Rudy разрывает/сохраняет захват не так, как игра в момент прыжка.
+- **Чего сейчас не хватает:** Требуемого сочетания нет среди установленных сцен.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M26
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D07A 00:39–01:18](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Нужен Electro Wizard и 1/2/3 доступных противника; отметить оба bolt-target в одной атаке.
+- **Что опровергнет реализацию в Rudy:** Rudy неверно разделяет удары, выбирает больше двух или не того второго адресата.
+- **Чего сейчас не хватает:** Обычные групповые сцены без распознанного E-Wiz не являются M26.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M27
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D05C 03:17–04:03](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Нужен Electro Dragon и цепочка из трёх расположенных на измеримых расстояниях целей.
+- **Что опровергнет реализацию в Rudy:** Rudy перепрыгивает на недопустимую цель или нарушает последовательность цепи.
+- **Чего сейчас не хватает:** По отобранным кадрам не установлена полная цепочка молний.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M28
+
+- **Кандидаты из разметки:** [D06C 03:04–04:18](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Зафиксировать эффект удара/взрыва и координаты отброшенного юнита до/во время/после displacement.
+- **Что опровергнет реализацию в Rudy:** Rudy не отбрасывает юнита либо иначе перепрокладывает путь.
+- **Чего сейчас не хватает:** D06C и D10B — лишь визуальные кандидаты: подтверждение knockback и идентичности карты обязательно.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M29
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Нужен Prince/Battle Ram с достаточно длинным разбегом, явным CHARGE_STARTED и попаданием.
+- **Что опровергнет реализацию в Rudy:** Rudy включает заряд слишком рано/поздно либо выдаёт неверную скорость/урон.
+- **Чего сейчас не хватает:** Быстрое движение в толпе без распознанной charge-анимации не подходит.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M30
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view).
+- **Что должно быть видно для подтверждения:** Нужен заряженный Prince/Battle Ram, которого оглушают до удара, и повторный набор charge.
+- **Что опровергнет реализацию в Rudy:** Rudy не сбрасывает charge или сбрасывает его в другом тике.
+- **Чего сейчас не хватает:** Не обнаружена такая последовательность.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M31
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D07B 01:47–02:31](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view).
+- **Что должно быть видно для подтверждения:** Нужна Bandit: windup → dash → impact с начальной и конечной позицией.
+- **Что опровергнет реализацию в Rudy:** Rudy отличается фазой, длительностью или окном уязвимости рывка.
+- **Чего сейчас не хватает:** Нет установленного dash-эпизода.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M32
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D03B 01:44–02:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04A 00:50–01:31](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D05B 02:17–02:41](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view).
+- **Что должно быть видно для подтверждения:** Нужно здание, прожившее без вражеских атак до естественного исчезновения, с видимым HP.
+- **Что опровергнет реализацию в Rudy:** Rudy рассчитывает иное HP(t) или tick естественной смерти.
+- **Чего сейчас не хватает:** Имеющиеся здания участвуют в защите; чистая lifetime/decay запись не выделена.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M33
+
+- **Кандидаты из разметки:** [D09B 02:09–02:59](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view).
+- **Что должно быть видно для подтверждения:** Выделить убийство Balloon/Golem/Tombstone и последовательность взрыв/спавн/появление потомков.
+- **Что опровергнет реализацию в Rudy:** Rudy пропускает эффект, вызывает его преждевременно или создаёт неверное число потомков.
+- **Чего сейчас не хватает:** D09B — очень слабый кандидат: не подтверждены карта, тип эффекта и причина исчезновения.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M34
+
+- **Кандидаты из разметки:** [D01B 02:55–03:54](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D03C 02:43–03:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04B 02:27–03:11](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D05A 00:35–01:07](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D05C 03:17–04:03](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06C 03:04–04:18](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D07A 00:39–01:18](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D07C 02:55–03:22](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D09B 02:09–02:59](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view); [D10C 04:08–04:48](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** По кадрам непосредственно после постановки зафиксировать число и стартовые центры группы.
+- **Что опровергнет реализацию в Rudy:** Rudy создаёт неверное число существ, в другой формации или зеркалировании.
+- **Чего сейчас не хватает:** Увиденная группа могла уже двигаться; обязательно найти кадр первого появления.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M35
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D09A 00:33–01:18](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view).
+- **Что должно быть видно для подтверждения:** Нужна подтверждённая Magic Archer: прямой луч, юнит на линии и башня позади.
+- **Что опровергнет реализацию в Rudy:** Rudy пропускает второго пострадавшего либо поражает объект вне линии.
+- **Чего сейчас не хватает:** Ни один эпизод пока не показывает распознанную стрелу с линейным пробитием.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M36
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Нужен подтверждённый Hunter на известном расстоянии, видимый выстрел дробью и HP цели.
+- **Что опровергнет реализацию в Rudy:** Rudy неверно рассчитывает число попавших дробинок и суммарный урон.
+- **Чего сейчас не хватает:** Дальний бой не доказывает Scatter без распознавания Hunter.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M37
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D09A 00:33–01:18](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view).
+- **Что должно быть видно для подтверждения:** Нужна Firecracker/Sparky с x/y непосредственно до и после выстрела, исключая вражеский knockback.
+- **Что опровергнет реализацию в Rudy:** Rudy не смещает самого стрелка или неверно изменяет последующие range/target.
+- **Чего сейчас не хватает:** По визуальным срезам самоотдача стрелка не подтверждена.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+#### M38
+
+- **Кандидаты из разметки:** [D01A 00:52–01:34](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D01B 02:55–03:54](https://drive.google.com/file/d/1TkU2iq2NXiYZFb58ZlveMtFPb6aIYleu/view); [D02A 00:44–01:35](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D02B 02:25–03:11](https://drive.google.com/file/d/1sXGnsMlYdYdz4VqRyUeVC55Ztq1IV82p/view); [D03A 00:45–01:15](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D03B 01:44–02:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D03C 02:43–03:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04A 00:50–01:31](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D04B 02:27–03:11](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D05B 02:17–02:41](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D05C 03:17–04:03](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06A 00:40–01:19](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D06C 03:04–04:18](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D07A 00:39–01:18](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D07B 01:47–02:31](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D07C 02:55–03:22](https://drive.google.com/file/d/1s4CJ4xY8NKCfToJtTOAEki0vamlU49BB/view); [D08A 00:30–01:08](https://drive.google.com/file/d/1Cy-uUzDOXpePRALHJzRgNeqBWkIgEjlT/view); [D08B 01:29–02:19](https://drive.google.com/file/d/1Cy-uUzDOXpePRALHJzRgNeqBWkIgEjlT/view); [D09A 00:33–01:18](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D09B 02:09–02:59](https://drive.google.com/file/d/1KjPey598lFMpFAePFULRRY73Ou5h6gbY/view); [D10A 00:38–01:23](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view); [D10C 04:08–04:48](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Для башни восстановить очередность целей, момент first lock, выстрелы и перескок после смерти.
+- **Что опровергнет реализацию в Rudy:** Rudy стреляет в иного юнита, нарушает lock или преждевременно активирует King Tower.
+- **Чего сейчас не хватает:** В сценах с несколькими врагами разбирать по кадрам; изменение HP само по себе недостаточно.
+- **Статус:** `CANDIDATE`; `VERIFIED` **не присвоен**.
+
+#### M39
+
+- **Прямых подтверждённых эпизодов в первичном каталоге нет.**
+- **Смежные сцены для дополнительного поиска (не доказательство):** [D03B 01:44–02:25](https://drive.google.com/file/d/1QP7v1xzbeIDAV2XD2Y7tHw4O8kRdLkwL/view); [D04A 00:50–01:31](https://drive.google.com/file/d/1Wkot-lWMORihFnGmPVll-C0Kc_CTTGqG/view); [D05B 02:17–02:41](https://drive.google.com/file/d/1mMcM9Wj9avIZtjHztwvPKA0wIveVYP-h/view); [D06B 01:47–02:36](https://drive.google.com/file/d/1rRkzCrq_Gqe5JZ928pVC07fQNq9_dueq/view); [D10B 02:26–03:26](https://drive.google.com/file/d/1jfPQD8IT6D447q-NK2V-7WfMue7yPfzc/view).
+- **Что должно быть видно для подтверждения:** Нужна Cannon/Hog постановка в соседних тиках около границы aggro и факт PULL/NO_PULL.
+- **Что опровергнет реализацию в Rudy:** Rudy считает здание доступным для захвата раньше/позже реального момента активации.
+- **Чего сейчас не хватает:** Случайные постановки из матчей не являются контролируемым временным sweep ±50 мс.
+- **Статус:** `NO_DIRECT_REFERENCE`; `VERIFIED` **не присвоен**.
+
+### 12.3. Очерёдность превращения кандидатов в physical gates
+
+1. **В первую очередь:** D08B → M14/M15/M38 (атака Princess/King Tower); D06B и D04A → M01/M02/M38 (оборона зданием и движение); D02A и D09A → M16 (выстрел/попадание). На этих клипах легче проверить синхронизацию и первую ошибку Rudy.
+2. **Во вторую:** D05A, D05C, D06C, D10B, D10C → M13/M19/M28/M34 (группы/AoE/возможное отбрасывание) только после распознавания карт и фильтра специальных эффектов.
+3. **Затем:** D01B, D03C, D07B, D07C → M09/M38 (смерть цели, удержание и переключение); требуется непрерывная покадровая история `target_uid`.
+4. **Отдельные управляемые тесты остаются обязательны:** M03–M08, M10–M12, M17–M18, M20–M27, M29–M32, M35–M37, M39, если при полном пересмотре не найдутся необходимые уникальные условия. Не заменять серию timing/cell sweeps единичным удачным кадром.
+5. Для каждой принятой сцены подготовить `physical_tests/references/<id>.json`, источник кадров, `placements[]`, `observations[]`, уровень/вариант карты, `CLEAN|AFFECTED|UNKNOWN`, и сравнить trace Rudy с реально аннотированными наблюдениями. Не высчитывать authoritative Rust trace задним числом в Python.
+
+### 12.4. Что *не* означает покрытие
+
+- Увиденная стрельба не является тестом M17 (изменённая цель после release) или M18 (смерть стрелка до impact).
+- Группа на экране не доказывает M20 (Valkyrie splash), M26 (два луча E-Wiz), M27 (цепная молния), M34 (начальная формация) или M36 (дробь Hunter).
+- Здание на экране не доказывает M10/M39: нужны подтверждённые Hog/Cannon и sweep положения или timing с фиксацией PULL/NO_PULL; не доказывает M32 без полного естественного lifetime.
+- Визуальный эффект может быть Evo/hero, stun, splash или knockback; пока тип не распознан, не присваивать `clean` и не выводить урон или тайминги.
+- `NO_DIRECT_REFERENCE` означает нехватку **подтверждённых** кадров в данном индексе, а не отсутствие реализации в Rust и не отсутствие события во всех 10 MP4.
+
+<!-- CR_DEMO_COVERAGE_20261018_END -->
