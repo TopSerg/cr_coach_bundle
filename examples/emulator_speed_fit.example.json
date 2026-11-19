@@ -1,0 +1,35 @@
+[
+  {
+    "experiment_id": "isolated-knight-001",
+    "isolated_motion_verified": true,
+    "source": "human_reviewed_trajectory",
+    "positions": [
+      {"tick": 0, "x_mtile": 1000, "y_mtile": 20000},
+      {"tick": 2, "x_mtile": 1188, "y_mtile": 20000},
+      {"tick": 4, "x_mtile": 1376, "y_mtile": 20000},
+      {"tick": 6, "x_mtile": 1564, "y_mtile": 20000}
+    ]
+  },
+  {
+    "experiment_id": "isolated-knight-002",
+    "isolated_motion_verified": true,
+    "source": "human_reviewed_trajectory",
+    "positions": [
+      {"tick": 0, "x_mtile": 1000, "y_mtile": 20000},
+      {"tick": 2, "x_mtile": 1188, "y_mtile": 20000},
+      {"tick": 4, "x_mtile": 1376, "y_mtile": 20000},
+      {"tick": 6, "x_mtile": 1564, "y_mtile": 20000}
+    ]
+  },
+  {
+    "experiment_id": "isolated-knight-003",
+    "isolated_motion_verified": true,
+    "source": "human_reviewed_trajectory",
+    "positions": [
+      {"tick": 0, "x_mtile": 1000, "y_mtile": 20000},
+      {"tick": 2, "x_mtile": 1188, "y_mtile": 20000},
+      {"tick": 4, "x_mtile": 1376, "y_mtile": 20000},
+      {"tick": 6, "x_mtile": 1564, "y_mtile": 20000}
+    ]
+  }
+]

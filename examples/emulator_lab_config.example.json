@@ -1,0 +1,25 @@
+{
+  "calibration_confirmed": false,
+  "devices": {
+    "team": {
+      "serial": "emulator-5554",
+      "arena_rect_px": [0, 0, 0, 0],
+      "hand_slots_px": [[0, 0], [0, 0], [0, 0], [0, 0]],
+      "tower_hp_rois": [
+        {"owner": 1, "role": "left", "rect": [0, 0, 0, 0]},
+        {"owner": 1, "role": "right", "rect": [0, 0, 0, 0]}
+      ],
+      "unit_templates": []
+    },
+    "opponent": {
+      "serial": "emulator-5556",
+      "arena_rect_px": [0, 0, 0, 0],
+      "hand_slots_px": [[0, 0], [0, 0], [0, 0], [0, 0]],
+      "tower_hp_rois": [
+        {"owner": 0, "role": "left", "rect": [0, 0, 0, 0]},
+        {"owner": 0, "role": "right", "rect": [0, 0, 0, 0]}
+      ],
+      "unit_templates": []
+    }
+  }
+}
