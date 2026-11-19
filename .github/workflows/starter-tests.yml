@@ -95,3 +95,14 @@ jobs:
           name: hog-cannon-demo-primary-trace
           path: outputs/physical_tests/hog_vs_cannon_demo_primary.json
           if-no-files-found: warn
+
+
+  emulator-lab:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Test two-emulator lab (offline, without ADB or Rudy wheel)
+        run: python -m unittest discover -s tests -p test_emulator_lab.py -v

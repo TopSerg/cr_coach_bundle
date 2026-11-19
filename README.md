@@ -58,3 +58,15 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\scripts\fetch_upstream
 ## Локальные данные
 
 Модели, датасеты, бинарные файлы, виртуальные окружения, кэши и секреты исключены через `.gitignore`. Инструкции по тяжёлым зависимостям находятся в [docs/HEAVY_ASSETS.md](docs/HEAVY_ASSETS.md).
+
+## Physical fidelity lab: два Android-эмулятора
+
+Добавлен инструмент **`emulator_lab`** для контролируемых CR микротестов через два ADB-устройства.
+Он записывает постановки и кадры, извлекает OCR HP башен и сравнивает их с authoritative Rudy snapshot trace, не подменяя визуальные наблюдения вымышленными внутренними состояниями клиента.
+
+```powershell
+py -m emulator_lab devices
+py -m unittest discover -s tests -p test_emulator_lab.py -v
+```
+
+[Полная инструкция, настройка геометрии, ограничения и калибровка](docs/EMULATOR_FIDELITY_LAB_RU.md).
